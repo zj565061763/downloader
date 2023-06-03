@@ -32,6 +32,7 @@ android {
 }
 
 dependencies {
+    implementation(libs.http.request)
     implementation(libs.kotlin.coroutines)
 }
 

@@ -2,6 +2,7 @@ package com.sd.lib.downloader.executor.impl;
 
 import android.text.TextUtils;
 
+import com.github.kevinsawicki.http.HttpRequest;
 import com.sd.lib.downloader.DownloadRequest;
 import com.sd.lib.downloader.exception.DownloadHttpExceptionResponseCode;
 import com.sd.lib.downloader.executor.IDownloadExecutor;
