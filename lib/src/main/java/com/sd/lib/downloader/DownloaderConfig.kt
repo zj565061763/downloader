@@ -1,8 +1,8 @@
 package com.sd.lib.downloader
 
 import android.content.Context
+import com.sd.lib.downloader.executor.DefaultDownloadExecutor
 import com.sd.lib.downloader.executor.IDownloadExecutor
-import com.sd.lib.downloader.executor.impl.DefaultDownloadExecutor
 import java.io.File
 
 /**

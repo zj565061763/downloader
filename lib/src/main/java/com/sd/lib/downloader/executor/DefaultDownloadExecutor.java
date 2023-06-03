@@ -1,4 +1,4 @@
-package com.sd.lib.downloader.executor.impl;
+package com.sd.lib.downloader.executor;
 
 import android.text.TextUtils;
 
