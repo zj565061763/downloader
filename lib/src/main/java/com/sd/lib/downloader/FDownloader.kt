@@ -8,7 +8,7 @@ import com.sd.lib.downloader.exception.DownloadExceptionCancellation
 import com.sd.lib.downloader.exception.DownloadExceptionCompleteFile
 import com.sd.lib.downloader.exception.DownloadExceptionPrepareFile
 import com.sd.lib.downloader.exception.DownloadExceptionSubmitTask
-import com.sd.lib.downloader.executor.IDownloadUpdater
+import com.sd.lib.downloader.executor.IDownloadExecutor
 import com.sd.lib.downloader.utils.IDir
 import com.sd.lib.downloader.utils.fDir
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -233,7 +233,7 @@ private class DefaultDownloadUpdater(
     downloadInfo: DownloadInfo,
     tempFile: File,
     downloadDirectory: IDir,
-) : IDownloadUpdater {
+) : IDownloadExecutor.Updater {
 
     private val _url = downloadInfo.url
     private val _downloadInfo = downloadInfo
