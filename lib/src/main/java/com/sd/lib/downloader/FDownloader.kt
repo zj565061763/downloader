@@ -136,18 +136,19 @@ object FDownloader : IDownloader {
                 }
                 holder.add(cont)
                 logMsg { "awaitTask url:${url} size:${holder.size} urlSize:${_continuationHolder.size}" }
+
+                cont.invokeOnCancellation {
+                    synchronized(this@FDownloader) {
+                        _continuationHolder[url]?.let { holder ->
+                            holder.remove(cont)
+                            if (holder.isEmpty()) _continuationHolder.remove(url)
+                            logMsg { "awaitTask cancel url:${url} size:${holder.size} urlSize:${_continuationHolder.size}" }
+                        }
+                        removeAwaitCallback()
+                    }
+                }
                 addCallback(_awaitCallback)
                 addTask(request)
-            }
-            cont.invokeOnCancellation {
-                synchronized(this@FDownloader) {
-                    _continuationHolder[url]?.let { holder ->
-                        holder.remove(cont)
-                        if (holder.isEmpty()) _continuationHolder.remove(url)
-                        logMsg { "awaitTask cancel url:${url} size:${holder.size} urlSize:${_continuationHolder.size}" }
-                    }
-                    removeAwaitCallback()
-                }
             }
         }
     }
