@@ -70,7 +70,7 @@ class DownloaderConfig private constructor(builder: Builder) {
          */
         @JvmStatic
         fun init(config: DownloaderConfig) {
-            synchronized(this) {
+            synchronized(this@Companion) {
                 if (sConfig == null) {
                     sConfig = config
                 }
@@ -84,7 +84,7 @@ class DownloaderConfig private constructor(builder: Builder) {
         fun get(): DownloaderConfig {
             val config = sConfig
             if (config != null) return config
-            synchronized(this) {
+            synchronized(this@Companion) {
                 return sConfig ?: error("DownloaderConfig has not been initialized")
             }
         }
