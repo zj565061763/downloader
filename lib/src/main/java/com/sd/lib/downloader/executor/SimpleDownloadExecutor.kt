@@ -9,6 +9,8 @@ import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.InputStream
@@ -53,6 +55,8 @@ class SimpleDownloadExecutor @JvmOverloads constructor(
                     this.header("Range", "bytes=$length-")
                     this.code()
                 }
+
+                ensureActive()
                 if (code == HttpURLConnection.HTTP_PARTIAL) {
                     downloadBreakpoint(
                         httpRequest = httpRequest,
@@ -65,6 +69,8 @@ class SimpleDownloadExecutor @JvmOverloads constructor(
 
             val httpRequest = newHttpRequest(request)
             val code = httpRequest.code()
+
+            ensureActive()
             if (code == HttpURLConnection.HTTP_OK) {
                 downloadNormal(
                     httpRequest = httpRequest,
@@ -95,7 +101,7 @@ class SimpleDownloadExecutor @JvmOverloads constructor(
         return true
     }
 
-    private fun downloadNormal(
+    private suspend fun downloadNormal(
         httpRequest: HttpRequest,
         file: File,
         updater: IDownloadExecutor.Updater,
@@ -116,7 +122,7 @@ class SimpleDownloadExecutor @JvmOverloads constructor(
         }
     }
 
-    private fun downloadBreakpoint(
+    private suspend fun downloadBreakpoint(
         httpRequest: HttpRequest,
         file: File,
         updater: IDownloadExecutor.Updater,
@@ -143,20 +149,27 @@ class SimpleDownloadExecutor @JvmOverloads constructor(
     }
 }
 
-private fun InputStream.copyToOutput(
+private suspend fun InputStream.copyToOutput(
     output: (buffer: ByteArray, offset: Int, length: Int) -> Unit,
     callback: ((count: Long) -> Boolean)? = null,
 ): Long {
     var bytesCopied: Long = 0
     val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
+
+    currentCoroutineContext().ensureActive()
     var bytes = read(buffer)
+    currentCoroutineContext().ensureActive()
+
     while (bytes >= 0) {
         output(buffer, 0, bytes)
+        currentCoroutineContext().ensureActive()
 
         bytesCopied += bytes
         if (callback?.invoke(bytesCopied) == true) break
 
+        currentCoroutineContext().ensureActive()
         bytes = read(buffer)
+        currentCoroutineContext().ensureActive()
     }
     return bytesCopied
 }
