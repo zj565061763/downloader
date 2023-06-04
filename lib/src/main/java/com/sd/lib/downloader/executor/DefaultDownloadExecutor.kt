@@ -17,9 +17,8 @@ import java.io.InputStream
 import java.io.RandomAccessFile
 import java.net.HttpURLConnection
 import java.util.Collections
-import kotlin.coroutines.cancellation.CancellationException
 
-class SimpleDownloadExecutor @JvmOverloads constructor(
+class DefaultDownloadExecutor @JvmOverloads constructor(
     limitedParallelism: Int = 3,
     preferBreakpoint: Boolean = false,
 ) : IDownloadExecutor {
@@ -84,10 +83,10 @@ class SimpleDownloadExecutor @JvmOverloads constructor(
             _taskHolder[url] = job
             job.invokeOnCompletion { t ->
                 _taskHolder.remove(url)
-                when (t) {
-                    null -> updater.notifySuccess()
-                    is CancellationException -> updater.notifyCancel()
-                    else -> updater.notifyError(t)
+                if (t != null) {
+                    updater.notifyError(t)
+                } else {
+                    updater.notifySuccess()
                 }
             }
             job.start()

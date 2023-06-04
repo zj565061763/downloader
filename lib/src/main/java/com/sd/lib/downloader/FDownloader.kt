@@ -11,6 +11,7 @@ import com.sd.lib.downloader.exception.DownloadExceptionSubmitTask
 import com.sd.lib.downloader.executor.IDownloadExecutor
 import com.sd.lib.downloader.utils.IDir
 import com.sd.lib.downloader.utils.fDir
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.suspendCancellableCoroutine
 import java.io.File
 import java.util.concurrent.ConcurrentHashMap
@@ -282,14 +283,12 @@ private class DefaultDownloadUpdater(
         if (_isFinish) return
         _isFinish = true
         logMsg { "updater download error:${t} $_url" }
-        FDownloader.notifyError(_downloadInfo, DownloadException.wrap(t))
-    }
 
-    override fun notifyCancel() {
-        if (_isFinish) return
-        _isFinish = true
-        logMsg { "updater download cancel $_url" }
-        FDownloader.notifyError(_downloadInfo, DownloadExceptionCancellation())
+        if (t is CancellationException) {
+            FDownloader.notifyError(_downloadInfo, DownloadExceptionCancellation())
+        } else {
+            FDownloader.notifyError(_downloadInfo, DownloadException.wrap(t))
+        }
     }
 }
 
