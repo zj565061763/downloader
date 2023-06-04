@@ -223,7 +223,6 @@ object FDownloader : IDownloader {
         removeAwaitCallback()
     }
 
-    @Synchronized
     private fun removeAwaitCallback() {
         if (_continuationHolder.isEmpty()) {
             removeCallback(_awaitCallback)
