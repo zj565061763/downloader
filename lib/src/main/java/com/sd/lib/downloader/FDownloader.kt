@@ -153,7 +153,7 @@ object FDownloader : IDownloader {
                 removeCallback(awaitCallback)
             }
 
-            logMsg { "awaitTask url:${url} " }
+            logMsg { "awaitTask url:${url}" }
             addCallback(awaitCallback)
             addTask(request)
         }
@@ -308,6 +308,7 @@ private class AwaitCallbackAdapter(
     override fun onSuccess(info: IDownloadInfo.Success) {
         if (info.url == url) {
             FDownloader.removeCallback(this)
+            logMsg { "awaitTask resume success url:${url}" }
             continuation.resume(Result.success(info.file))
         }
     }
@@ -315,6 +316,7 @@ private class AwaitCallbackAdapter(
     override fun onError(info: IDownloadInfo.Error) {
         if (info.url == url) {
             FDownloader.removeCallback(this)
+            logMsg { "awaitTask resume error url:${url} exception:${info.exception}" }
             continuation.resume(Result.failure(info.exception))
         }
     }
