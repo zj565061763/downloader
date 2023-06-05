@@ -35,23 +35,24 @@ class MainActivity : ComponentActivity() {
             AppTheme {
                 Content(
                     onClickDownload = {
+                        logMsg { "click download" }
                         download()
                     },
                     onClickAwaitDownload = {
+                        logMsg { "click await download" }
                         awaitDownload()
                     },
                     onClickDelete = {
+                        logMsg { "click delete" }
                         FDownloader.deleteDownloadFile(null)
                     },
                     onClickCancel = {
+                        logMsg { "click cancel" }
                         cancelDownload()
                     },
                 )
             }
         }
-
-        // 添加下载回调
-        FDownloader.addCallback(_downloadCallback)
     }
 
     private fun getDownloadRequest(): DownloadRequest {
@@ -63,15 +64,29 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun download() {
-        val addTask = FDownloader.addTask(getDownloadRequest())
-        logMsg { "download addTask:${addTask}" }
+        // 添加下载回调
+        FDownloader.addCallback(_downloadCallback)
+
+        // 添加下载任务
+        FDownloader.addTask(getDownloadRequest())
     }
 
     private fun awaitDownload() {
+        // 移除下载回调
+        FDownloader.removeCallback(_downloadCallback)
+
         _awaitJob?.cancel()
         _scope.launch {
-            val result = FDownloader.awaitTask(getDownloadRequest())
-            logMsg { "awaitDownload $result" }
+            val result = FDownloader.awaitTask(
+                request = getDownloadRequest(),
+                onInitialized = {
+                    logMsg { "await onInitialized" }
+                },
+                onProgress = {
+                    logMsg { "await onProgress ${it.progress.progress}" }
+                },
+            )
+            logMsg { "await result $result" }
         }.also { _awaitJob = it }
     }
 
@@ -107,8 +122,10 @@ class MainActivity : ComponentActivity() {
 
         // 移除下载回调
         FDownloader.removeCallback(_downloadCallback)
+
         // 删除所有临时文件（下载中的临时文件不会被删除）
         FDownloader.deleteTempFile()
+
         // 删除下载文件（临时文件不会被删除）
         FDownloader.deleteDownloadFile(null)
     }
