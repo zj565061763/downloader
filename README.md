@@ -8,7 +8,7 @@
 DownloaderConfig.init(
     DownloaderConfig.Builder()
 
-        // 设置下载目录，如果为null或者不设置则默认路径为：(sd卡或者内部存储)/Android/data/包名/cache/f_dir_lib_download
+        // 设置下载目录，如果为null或者不设置则默认路径为：(sd卡或者内部存储)/Android/data/包名/cache/f_dir_lib_downloader
         .setDownloadDirectory(null)
 
         /**
