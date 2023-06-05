@@ -88,47 +88,90 @@ interface IDownloader {
     /**
      * 下载任务
      */
-    suspend fun awaitTask(url: String): Result<File>
+    suspend fun awaitTask(
+        url: String,
+        onInitialized: ((IDownloadInfo.Initialized) -> Unit)? = null,
+        onProgress: ((IDownloadInfo.Progress) -> Unit)? = null,
+    ): Result<File>
 
     /**
      * 下载任务
      */
-    suspend fun awaitTask(request: DownloadRequest): Result<File>
+    suspend fun awaitTask(
+        request: DownloadRequest,
+        onInitialized: ((IDownloadInfo.Initialized) -> Unit)? = null,
+        onProgress: ((IDownloadInfo.Progress) -> Unit)? = null,
+    ): Result<File>
 
     /**
      * 下载回调
      */
     interface Callback {
         /**
+         * 下载任务已提交
+         */
+        fun onInitialized(info: IDownloadInfo.Initialized)
+
+        /**
          * 下载中
          */
-        fun onProgress(url: String, progress: DownloadProgress)
+        fun onProgress(info: IDownloadInfo.Progress)
 
         /**
          * 下载成功
          */
-        fun onSuccess(url: String, file: File)
+        fun onSuccess(info: IDownloadInfo.Success)
 
         /**
          * 下载失败
          */
-        fun onError(url: String, exception: DownloadException)
+        fun onError(info: IDownloadInfo.Error)
     }
 }
 ```
 
 ```kotlin
-data class DownloadProgress(
-    /** 总数量 */
-    val total: Long,
+sealed interface IDownloadInfo {
+    val url: String
 
-    /** 已传输数量 */
-    val current: Long,
+    /**
+     * 下载任务已提交
+     */
+    data class Initialized(override val url: String) : IDownloadInfo
 
-    /** 传输进度[0-100] */
-    val progress: Int,
+    /**
+     * 下载中
+     */
+    data class Progress(
+        override val url: String,
 
-    /** 传输速率（B/S） */
-    val speedBps: Int,
-)
+        /** 总数量 */
+        val total: Long,
+
+        /** 已传输数量 */
+        val current: Long,
+
+        /** 传输进度[0-100] */
+        val progress: Int,
+
+        /** 传输速率（B/S） */
+        val speedBps: Int,
+    ) : IDownloadInfo
+
+    /**
+     * 下载成功
+     */
+    data class Success(
+        override val url: String,
+        val file: File,
+    ) : IDownloadInfo
+
+    /**
+     * 下载失败
+     */
+    data class Error(
+        override val url: String,
+        val exception: DownloadException,
+    ) : IDownloadInfo
+}
 ```

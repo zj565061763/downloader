@@ -6,8 +6,14 @@ import java.io.File
 sealed interface IDownloadInfo {
     val url: String
 
+    /**
+     * 下载任务已提交
+     */
     data class Initialized(override val url: String) : IDownloadInfo
 
+    /**
+     * 下载中
+     */
     data class Progress(
         override val url: String,
 
@@ -24,11 +30,17 @@ sealed interface IDownloadInfo {
         val speedBps: Int,
     ) : IDownloadInfo
 
+    /**
+     * 下载成功
+     */
     data class Success(
         override val url: String,
         val file: File,
     ) : IDownloadInfo
 
+    /**
+     * 下载失败
+     */
     data class Error(
         override val url: String,
         val exception: DownloadException,
