@@ -1,5 +1,29 @@
 package com.sd.lib.downloader
 
+import com.sd.lib.downloader.exception.DownloadException
+import java.io.File
+
+sealed interface IDownloadInfo {
+    val url: String
+
+    data class Initialized(override val url: String) : IDownloadInfo
+
+    data class Downloading(
+        override val url: String,
+        val progress: DownloadProgress,
+    ) : IDownloadInfo
+
+    data class Success(
+        override val url: String,
+        val file: File,
+    ) : IDownloadInfo
+
+    data class Error(
+        override val url: String,
+        val exception: DownloadException,
+    ) : IDownloadInfo
+}
+
 data class DownloadProgress(
     /** 总数量 */
     val total: Long,
@@ -14,7 +38,7 @@ data class DownloadProgress(
     val speedBps: Int,
 )
 
-internal class DownloadInfo(val url: String) {
+internal class DownloadTask(val url: String) {
     private var _state = DownloadState.Initialized
     private val _transmitParam = TransmitParam()
 
@@ -54,24 +78,24 @@ internal class DownloadInfo(val url: String) {
         _state = DownloadState.Error
         return true
     }
-}
 
-private enum class DownloadState {
-    /** 初始状态 */
-    Initialized,
+    private enum class DownloadState {
+        /** 初始状态 */
+        Initialized,
 
-    /** 下载中 */
-    Downloading,
+        /** 下载中 */
+        Downloading,
 
-    /** 下载成功 */
-    Success,
+        /** 下载成功 */
+        Success,
 
-    /** 下载失败 */
-    Error;
+        /** 下载失败 */
+        Error;
 
-    /** 是否处于完成状态，[Success]或者[Error] */
-    val isFinished: Boolean
-        get() = this == Success || this == Error
+        /** 是否处于完成状态，[Success]或者[Error] */
+        val isFinished: Boolean
+            get() = this == Success || this == Error
+    }
 }
 
 private class TransmitParam {
