@@ -6,7 +6,7 @@ plugins {
 
 val libGroupId = "com.sd.lib.android"
 val libArtifactId = "downloader"
-val libVersionName = "1.0.0-alpha01"
+val libVersionName = "1.0.0-alpha02"
 
 android {
     namespace = "com.sd.lib.downloader"
