@@ -21,12 +21,10 @@ internal class DownloadTask(val url: String) {
         return if (_transmitParam.transmit(total, current)) {
             IDownloadInfo.Progress(
                 url = url,
-                progress = DownloadProgress(
-                    total = _transmitParam.total,
-                    current = _transmitParam.current,
-                    progress = _transmitParam.progress,
-                    speedBps = _transmitParam.speedBps,
-                )
+                total = _transmitParam.total,
+                current = _transmitParam.current,
+                progress = _transmitParam.progress,
+                speedBps = _transmitParam.speedBps,
             )
         } else {
             null

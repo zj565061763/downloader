@@ -85,7 +85,7 @@ class MainActivity : ComponentActivity() {
                     logMsg { "await onInitialized" }
                 },
                 onProgress = {
-                    logMsg { "await onProgress ${it.progress.progress}" }
+                    logMsg { "await onProgress ${it.progress}" }
                 },
             )
             logMsg { "await result $result" }
@@ -106,7 +106,7 @@ class MainActivity : ComponentActivity() {
         }
 
         override fun onProgress(info: IDownloadInfo.Progress) {
-            logMsg { "onProgress ${info.progress.progress}" }
+            logMsg { "onProgress ${info.progress}" }
         }
 
         override fun onSuccess(info: IDownloadInfo.Success) {
