@@ -23,7 +23,6 @@ object FDownloader : IDownloader {
     private val _mapTempFile: MutableMap<File, String> = hashMapOf()
 
     private val _callbackHolder: MutableMap<IDownloader.Callback, String> = ConcurrentHashMap()
-    private val _continuationHolder: MutableMap<String, MutableSet<Continuation<Result<File>>>> = hashMapOf()
 
     private val config get() = DownloaderConfig.get()
     private val _downloadDirectory by lazy { config.downloadDirectory.fDir() }
@@ -125,33 +124,38 @@ object FDownloader : IDownloader {
         return result
     }
 
-    override suspend fun awaitTask(url: String): Result<File> {
-        return awaitTask(DownloadRequest.Builder().build(url))
+    override suspend fun awaitTask(
+        url: String,
+        onInitialized: ((IDownloadInfo.Initialized) -> Unit)?,
+        onProgress: ((IDownloadInfo.Progress) -> Unit)?,
+    ): Result<File> {
+        return awaitTask(
+            request = DownloadRequest.Builder().build(url),
+            onInitialized = onInitialized,
+            onProgress = onProgress,
+        )
     }
 
-    override suspend fun awaitTask(request: DownloadRequest): Result<File> {
+    override suspend fun awaitTask(
+        request: DownloadRequest,
+        onInitialized: ((IDownloadInfo.Initialized) -> Unit)?,
+        onProgress: ((IDownloadInfo.Progress) -> Unit)?,
+    ): Result<File> {
         val url = request.url
-        return suspendCancellableCoroutine { cont ->
-            synchronized(this@FDownloader) {
-                val holder = _continuationHolder[url] ?: hashSetOf<Continuation<Result<File>>>().also {
-                    _continuationHolder[url] = it
-                }
-                holder.add(cont)
-                logMsg { "awaitTask url:${url} size:${holder.size} urlSize:${_continuationHolder.size}" }
-
-                cont.invokeOnCancellation {
-                    synchronized(this@FDownloader) {
-                        _continuationHolder[url]?.let { holder ->
-                            holder.remove(cont)
-                            if (holder.isEmpty()) _continuationHolder.remove(url)
-                            logMsg { "awaitTask cancel url:${url} size:${holder.size} urlSize:${_continuationHolder.size}" }
-                        }
-                        removeAwaitCallback()
-                    }
-                }
-                addCallback(_awaitCallback)
-                addTask(request)
+        return suspendCancellableCoroutine { continuation ->
+            val awaitCallback = AwaitCallbackAdapter(
+                url = request.url,
+                continuation = continuation,
+                onInitialized = onInitialized,
+                onProgress = onProgress,
+            )
+            continuation.invokeOnCancellation {
+                removeCallback(awaitCallback)
             }
+
+            logMsg { "awaitTask url:${url} " }
+            addCallback(awaitCallback)
+            addTask(request)
         }
     }
 
@@ -211,39 +215,6 @@ object FDownloader : IDownloader {
                     item.onError(info)
                 }
             }
-        }
-    }
-
-    private val _awaitCallback = object : IDownloader.Callback {
-        override fun onInitialized(info: IDownloadInfo.Initialized) {
-        }
-
-        override fun onProgress(info: IDownloadInfo.Progress) {
-        }
-
-        override fun onSuccess(info: IDownloadInfo.Success) {
-            resumeTask(info.url, Result.success(info.file))
-        }
-
-        override fun onError(info: IDownloadInfo.Error) {
-            resumeTask(info.url, Result.failure(info.exception))
-        }
-    }
-
-    @Synchronized
-    private fun resumeTask(url: String, result: Result<File>) {
-        _continuationHolder.remove(url)?.let { holder ->
-            logMsg { "resumeTask ${if (result.isSuccess) "success" else "failure"} url:${url} size:${holder.size} urlSize:${_continuationHolder.size}" }
-            holder.forEach {
-                it.resume(result)
-            }
-        }
-        removeAwaitCallback()
-    }
-
-    private fun removeAwaitCallback() {
-        if (_continuationHolder.isEmpty()) {
-            removeCallback(_awaitCallback)
         }
     }
 }
@@ -315,8 +286,42 @@ private class DownloadTaskWrapper(
     val tempFile: File,
 )
 
+private class AwaitCallbackAdapter(
+    private val url: String,
+    private val continuation: Continuation<Result<File>>,
+    private val onInitialized: ((IDownloadInfo.Initialized) -> Unit)?,
+    private val onProgress: ((IDownloadInfo.Progress) -> Unit)?,
+) : IDownloader.Callback {
+
+    override fun onInitialized(info: IDownloadInfo.Initialized) {
+        if (info.url == url) {
+            onInitialized?.invoke(info)
+        }
+    }
+
+    override fun onProgress(info: IDownloadInfo.Progress) {
+        if (info.url == url) {
+            onProgress?.invoke(info)
+        }
+    }
+
+    override fun onSuccess(info: IDownloadInfo.Success) {
+        if (info.url == url) {
+            FDownloader.removeCallback(this)
+            continuation.resume(Result.success(info.file))
+        }
+    }
+
+    override fun onError(info: IDownloadInfo.Error) {
+        if (info.url == url) {
+            FDownloader.removeCallback(this)
+            continuation.resume(Result.failure(info.exception))
+        }
+    }
+}
+
 internal inline fun logMsg(block: () -> String) {
     if (DownloaderConfig.get().isDebug) {
-        Log.i("FDownload", block())
+        Log.i("FDownloader", block())
     }
 }

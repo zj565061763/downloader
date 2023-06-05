@@ -60,12 +60,20 @@ interface IDownloader {
     /**
      * 下载任务
      */
-    suspend fun awaitTask(url: String): Result<File>
+    suspend fun awaitTask(
+        url: String,
+        onInitialized: ((IDownloadInfo.Initialized) -> Unit)? = null,
+        onProgress: ((IDownloadInfo.Progress) -> Unit)? = null,
+    ): Result<File>
 
     /**
      * 下载任务
      */
-    suspend fun awaitTask(request: DownloadRequest): Result<File>
+    suspend fun awaitTask(
+        request: DownloadRequest,
+        onInitialized: ((IDownloadInfo.Initialized) -> Unit)? = null,
+        onProgress: ((IDownloadInfo.Progress) -> Unit)? = null,
+    ): Result<File>
 
     /**
      * 下载回调
