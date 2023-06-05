@@ -8,7 +8,7 @@ sealed interface IDownloadInfo {
 
     data class Initialized(override val url: String) : IDownloadInfo
 
-    data class Downloading(
+    data class Progress(
         override val url: String,
         val progress: DownloadProgress,
     ) : IDownloadInfo

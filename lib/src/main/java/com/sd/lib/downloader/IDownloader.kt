@@ -1,6 +1,5 @@
 package com.sd.lib.downloader
 
-import com.sd.lib.downloader.exception.DownloadException
 import java.io.File
 
 interface IDownloader {
@@ -73,18 +72,23 @@ interface IDownloader {
      */
     interface Callback {
         /**
+         * 下载任务已提交
+         */
+        fun onInitialized(info: IDownloadInfo.Initialized)
+
+        /**
          * 下载中
          */
-        fun onProgress(url: String, progress: DownloadProgress)
+        fun onProgress(info: IDownloadInfo.Progress)
 
         /**
          * 下载成功
          */
-        fun onSuccess(url: String, file: File)
+        fun onSuccess(info: IDownloadInfo.Success)
 
         /**
          * 下载失败
          */
-        fun onError(url: String, exception: DownloadException)
+        fun onError(info: IDownloadInfo.Error)
     }
 }

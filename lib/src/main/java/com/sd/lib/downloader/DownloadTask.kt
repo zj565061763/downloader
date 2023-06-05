@@ -1,24 +1,36 @@
 package com.sd.lib.downloader
 
 internal class DownloadTask(val url: String) {
-    private var _state = DownloadState.Initialized
+    private var _state = DownloadState.None
     private val _transmitParam = TransmitParam()
+
+    @Synchronized
+    fun notifyInitialized(): Boolean {
+        if (_state != DownloadState.None) return false
+        _state = DownloadState.Initialized
+        return true
+    }
 
     /**
      * 下载进度
      */
     @Synchronized
-    fun notifyProgress(total: Long, current: Long): DownloadProgress? {
+    fun notifyProgress(total: Long, current: Long): IDownloadInfo.Progress? {
         if (_state.isFinished) return null
-        _state = DownloadState.Downloading
+        _state = DownloadState.Progress
         return if (_transmitParam.transmit(total, current)) {
-            DownloadProgress(
-                total = _transmitParam.total,
-                current = _transmitParam.current,
-                progress = _transmitParam.progress,
-                speedBps = _transmitParam.speedBps,
+            IDownloadInfo.Progress(
+                url = url,
+                progress = DownloadProgress(
+                    total = _transmitParam.total,
+                    current = _transmitParam.current,
+                    progress = _transmitParam.progress,
+                    speedBps = _transmitParam.speedBps,
+                )
             )
-        } else null
+        } else {
+            null
+        }
     }
 
     /**
@@ -42,11 +54,13 @@ internal class DownloadTask(val url: String) {
     }
 
     private enum class DownloadState {
-        /** 初始状态 */
+        None,
+
+        /** 已提交 */
         Initialized,
 
         /** 下载中 */
-        Downloading,
+        Progress,
 
         /** 下载成功 */
         Success,

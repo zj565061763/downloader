@@ -109,6 +109,8 @@ object FDownloader : IDownloader {
         _mapTask[url] = DownloadTaskWrapper(task, tempFile)
         _mapTempFile[tempFile] = url
         logMsg { "addTask url:${url} temp:${tempFile.absolutePath} size:${_mapTask.size} tempSize:${_mapTempFile.size}" }
+        notifyInitialized(task)
+
         return true
     }
 
@@ -165,50 +167,66 @@ object FDownloader : IDownloader {
         }
     }
 
-    internal fun notifyProgress(info: DownloadTask, total: Long, current: Long) {
-        info.notifyProgress(total, current)?.let { progress ->
+    private fun notifyInitialized(task: DownloadTask) {
+        if (task.notifyInitialized()) {
+            val info = IDownloadInfo.Initialized(task.url)
             _handler.post {
                 for (item in _callbackHolder.keys) {
-                    item.onProgress(info.url, progress)
+                    item.onInitialized(info)
                 }
             }
         }
     }
 
-    internal fun notifySuccess(info: DownloadTask, file: File) {
-        if (info.notifySuccess()) {
-            removeTask(info.url)
+    internal fun notifyProgress(task: DownloadTask, total: Long, current: Long) {
+        task.notifyProgress(total, current)?.let { info ->
             _handler.post {
-                logMsg { "notify callback onSuccess url:${info.url} file:${file.absolutePath}" }
                 for (item in _callbackHolder.keys) {
-                    item.onSuccess(info.url, file)
+                    item.onProgress(info)
                 }
             }
         }
     }
 
-    internal fun notifyError(info: DownloadTask, exception: DownloadException) {
-        if (info.notifyError()) {
-            removeTask(info.url)
+    internal fun notifySuccess(task: DownloadTask, file: File) {
+        if (task.notifySuccess()) {
+            removeTask(task.url)
+            val info = IDownloadInfo.Success(task.url, file)
             _handler.post {
-                logMsg { "notify callback onError url:${info.url} exception:${exception}" }
+                logMsg { "notify callback onSuccess url:${task.url} file:${file.absolutePath}" }
                 for (item in _callbackHolder.keys) {
-                    item.onError(info.url, exception)
+                    item.onSuccess(info)
+                }
+            }
+        }
+    }
+
+    internal fun notifyError(task: DownloadTask, exception: DownloadException) {
+        if (task.notifyError()) {
+            removeTask(task.url)
+            val info = IDownloadInfo.Error(task.url, exception)
+            _handler.post {
+                logMsg { "notify callback onError url:${task.url} exception:${exception}" }
+                for (item in _callbackHolder.keys) {
+                    item.onError(info)
                 }
             }
         }
     }
 
     private val _awaitCallback = object : IDownloader.Callback {
-        override fun onProgress(url: String, progress: DownloadProgress) {
+        override fun onInitialized(info: IDownloadInfo.Initialized) {
         }
 
-        override fun onSuccess(url: String, file: File) {
-            resumeTask(url, Result.success(file))
+        override fun onProgress(info: IDownloadInfo.Progress) {
         }
 
-        override fun onError(url: String, exception: DownloadException) {
-            resumeTask(url, Result.failure(exception))
+        override fun onSuccess(info: IDownloadInfo.Success) {
+            resumeTask(info.url, Result.success(info.file))
+        }
+
+        override fun onError(info: IDownloadInfo.Error) {
+            resumeTask(info.url, Result.failure(info.exception))
         }
     }
 

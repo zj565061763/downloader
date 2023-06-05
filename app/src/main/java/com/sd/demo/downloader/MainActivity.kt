@@ -14,16 +14,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.sd.demo.downloader.ui.theme.AppTheme
-import com.sd.lib.downloader.DownloadProgress
 import com.sd.lib.downloader.DownloadRequest
 import com.sd.lib.downloader.FDownloader
+import com.sd.lib.downloader.IDownloadInfo
 import com.sd.lib.downloader.IDownloader
-import com.sd.lib.downloader.exception.DownloadException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
-import java.io.File
 
 private const val URL = "https://dldir1.qq.com/weixin/Windows/WeChatSetup.exe"
 
@@ -86,16 +84,20 @@ class MainActivity : ComponentActivity() {
      * 下载回调
      */
     private val _downloadCallback: IDownloader.Callback = object : IDownloader.Callback {
-        override fun onProgress(url: String, progress: DownloadProgress) {
-            logMsg { "onProgress ${progress.progress}" }
+        override fun onInitialized(info: IDownloadInfo.Initialized) {
+            logMsg { "onInitialized" }
         }
 
-        override fun onSuccess(url: String, file: File) {
-            logMsg { "onSuccess file:${file.absolutePath}" }
+        override fun onProgress(info: IDownloadInfo.Progress) {
+            logMsg { "onProgress ${info.progress.progress}" }
         }
 
-        override fun onError(url: String, exception: DownloadException) {
-            logMsg { "onError ${exception.javaClass.name}" }
+        override fun onSuccess(info: IDownloadInfo.Success) {
+            logMsg { "onSuccess file:${info.file.absolutePath}" }
+        }
+
+        override fun onError(info: IDownloadInfo.Error) {
+            logMsg { "onError ${info.exception.javaClass.name}" }
         }
     }
 
