@@ -307,16 +307,16 @@ private class AwaitCallbackAdapter(
 
     override fun onSuccess(info: IDownloadInfo.Success) {
         if (info.url == url) {
-            FDownloader.removeCallback(this)
             logMsg { "awaitTask resume success url:${url}" }
+            FDownloader.removeCallback(this)
             continuation.resume(Result.success(info.file))
         }
     }
 
     override fun onError(info: IDownloadInfo.Error) {
         if (info.url == url) {
-            FDownloader.removeCallback(this)
             logMsg { "awaitTask resume error url:${url} exception:${info.exception}" }
+            FDownloader.removeCallback(this)
             continuation.resume(Result.failure(info.exception))
         }
     }

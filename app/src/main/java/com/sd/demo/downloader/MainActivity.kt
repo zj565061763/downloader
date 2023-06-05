@@ -64,6 +64,8 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun download() {
+        _awaitJob?.cancel()
+
         // 添加下载回调
         FDownloader.addCallback(_downloadCallback)
 
