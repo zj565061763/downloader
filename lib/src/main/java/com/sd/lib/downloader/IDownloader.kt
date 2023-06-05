@@ -58,7 +58,7 @@ interface IDownloader {
     fun cancelTask(url: String?): Boolean
 
     /**
-     * 下载任务
+     * 添加下载任务
      */
     suspend fun awaitTask(
         url: String,
@@ -67,7 +67,7 @@ interface IDownloader {
     ): Result<File>
 
     /**
-     * 下载任务
+     * 添加下载任务
      */
     suspend fun awaitTask(
         request: DownloadRequest,
