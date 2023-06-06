@@ -7,19 +7,10 @@ androidTargetSdk = "33"
 androidGradlePlugin = "8.0.1"
 kotlin = "1.8.21"
 
-composeBom = "2023.05.01"
-composeCompiler = "1.4.7"
-
 [libraries]
 
-androidx-compose-bom = { module = "androidx.compose:compose-bom", version.ref = "composeBom" }
-androidx-compose-material3 = { module = "androidx.compose.material3:material3" }
-androidx-compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview" }
-androidx-compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
-androidx-compose-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest" }
-androidx-compose-ui-test-junit4 = { module = "androidx.compose.ui:ui-test-junit4" }
+androidx-appcompat = "androidx.appcompat:appcompat:1.6.1"
 
-androidx-activity-compose = "androidx.activity:activity-compose:1.7.1"
 kotlin-coroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4"
 http-request = "com.github.kevinsawicki:http-request:6.0"
 

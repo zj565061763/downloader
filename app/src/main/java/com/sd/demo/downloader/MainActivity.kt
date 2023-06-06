@@ -2,18 +2,8 @@ package com.sd.demo.downloader
 
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Button
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
-import com.sd.demo.downloader.ui.theme.AppTheme
 import com.sd.lib.downloader.DownloadRequest
 import com.sd.lib.downloader.FDownloader
 import com.sd.lib.downloader.IDownloadInfo
@@ -31,27 +21,21 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent {
-            AppTheme {
-                Content(
-                    onClickDownload = {
-                        logMsg { "click download" }
-                        download()
-                    },
-                    onClickAwaitDownload = {
-                        logMsg { "click await download" }
-                        awaitDownload()
-                    },
-                    onClickDelete = {
-                        logMsg { "click delete" }
-                        FDownloader.deleteDownloadFile(null)
-                    },
-                    onClickCancel = {
-                        logMsg { "click cancel" }
-                        cancelDownload()
-                    },
-                )
-            }
+        setContentView(R.layout.activity_main)
+
+        findViewById<View>(R.id.btn_download).setOnClickListener {
+            logMsg { "click download" }
+            download()
+        }
+
+        findViewById<View>(R.id.btn_await_download).setOnClickListener {
+            logMsg { "click await download" }
+            awaitDownload()
+        }
+
+        findViewById<View>(R.id.btn_cancel).setOnClickListener {
+            logMsg { "click cancel" }
+            cancelDownload()
         }
     }
 
@@ -130,44 +114,6 @@ class MainActivity : ComponentActivity() {
 
         // 删除下载文件（临时文件不会被删除）
         FDownloader.deleteDownloadFile(null)
-    }
-}
-
-@Composable
-private fun Content(
-    onClickDownload: () -> Unit,
-    onClickAwaitDownload: () -> Unit,
-    onClickDelete: () -> Unit,
-    onClickCancel: () -> Unit,
-) {
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(5.dp)
-    ) {
-        Button(
-            onClick = onClickDownload
-        ) {
-            Text(text = "download")
-        }
-
-        Button(
-            onClick = onClickAwaitDownload
-        ) {
-            Text(text = "await download")
-        }
-
-        Button(
-            onClick = onClickDelete
-        ) {
-            Text(text = "delete")
-        }
-
-        Button(
-            onClick = onClickCancel
-        ) {
-            Text(text = "cancel")
-        }
     }
 }
 
