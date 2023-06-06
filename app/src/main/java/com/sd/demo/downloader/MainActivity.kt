@@ -111,6 +111,7 @@ class MainActivity : ComponentActivity() {
     override fun onDestroy() {
         super.onDestroy()
         _scope.cancel()
+        cancelDownload()
 
         // 移除下载回调
         FDownloader.removeCallback(_downloadCallback)
