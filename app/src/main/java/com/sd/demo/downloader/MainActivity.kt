@@ -63,7 +63,7 @@ class MainActivity : ComponentActivity() {
 
         _awaitJob?.cancel()
         _scope.launch {
-            val result = FDownloader.awaitTask(
+            FDownloader.awaitTask(
                 request = getDownloadRequest(),
                 onInitialized = {
                     logMsg { "await onInitialized" }
@@ -71,8 +71,14 @@ class MainActivity : ComponentActivity() {
                 onProgress = {
                     logMsg { "await onProgress ${it.progress}" }
                 },
-            )
-            logMsg { "await result $result" }
+            ).let { result ->
+                result.onSuccess {
+                    logMsg { "await success $it" }
+                }
+                result.onFailure {
+                    logMsg { "await failure $it ${it.javaClass.name}" }
+                }
+            }
         }.also { _awaitJob = it }
     }
 
