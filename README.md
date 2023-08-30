@@ -20,7 +20,7 @@ DownloaderConfig.init(
             DefaultDownloadExecutor(limitedParallelism = 3, preferBreakpoint = false)
         )
 
-        // 设置是否输出日志（tag：FDownload），默认：false
+        // 设置是否输出日志（tag：FDownloader），默认：false
         .setDebug(true)
 
         .build(this)
