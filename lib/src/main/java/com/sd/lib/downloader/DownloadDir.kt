@@ -30,31 +30,19 @@ internal interface IDownloadDir {
      * @return 返回删除的文件数量
      */
     fun deleteTempFile(block: ((File) -> Boolean)? = null): Int
-
-    /**
-     * 操作当前目录的子级
-     */
-    fun <T> listFiles(block: (files: Array<File>) -> T): T
-
-    /**
-     * 操作当前目录
-     */
-    fun <T> modify(block: (dir: File?) -> T): T
 }
 
 internal class DownloadDir(dir: File) : IDownloadDir {
     private val _dir = dir
 
     override fun getKeyFile(key: String?): File? {
-        if (key.isNullOrEmpty()) return null
         return createKeyFile(
             key = key,
-            ext = key.substringAfterLast(".", ""),
+            ext = key?.substringAfterLast(".", ""),
         )
     }
 
     override fun getKeyTempFile(key: String?): File? {
-        if (key.isNullOrEmpty()) return null
         return createKeyFile(
             key = key,
             ext = TEMP_EXT,
@@ -87,7 +75,7 @@ internal class DownloadDir(dir: File) : IDownloadDir {
         }
     }
 
-    override fun <T> listFiles(block: (files: Array<File>) -> T): T {
+    private fun <T> listFiles(block: (files: Array<File>) -> T): T {
         return modify {
             val files = it?.listFiles() ?: emptyArray()
             block(files)
@@ -95,17 +83,17 @@ internal class DownloadDir(dir: File) : IDownloadDir {
     }
 
     @Synchronized
-    override fun <T> modify(block: (dir: File?) -> T): T {
+    private fun <T> modify(block: (dir: File?) -> T): T {
         val directory = if (_dir.fMakeDirs()) _dir else null
         return block(directory)
     }
 
     private fun createKeyFile(
-        key: String,
-        ext: String,
+        key: String?,
+        ext: String?,
     ): File? {
-        require(key.isNotEmpty()) { "key is empty" }
-        val dotExt = if (ext.isEmpty()) ext else ".$ext"
+        if (key.isNullOrEmpty()) return null
+        val dotExt = if (ext.isNullOrEmpty()) "" else ".$ext"
         return modify { dir ->
             dir?.resolve(md5(key) + dotExt)
         }
