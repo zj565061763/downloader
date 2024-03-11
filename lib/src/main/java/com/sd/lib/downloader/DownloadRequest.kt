@@ -8,8 +8,8 @@ class DownloadRequest private constructor(builder: Builder) {
     val preferBreakpoint: Boolean?
 
     init {
-        url = builder.url
-        preferBreakpoint = builder.preferBreakpoint
+        this.url = builder.url
+        this.preferBreakpoint = builder.preferBreakpoint
     }
 
     class Builder {
