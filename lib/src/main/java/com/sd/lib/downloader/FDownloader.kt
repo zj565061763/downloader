@@ -16,6 +16,7 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.suspendCancellableCoroutine
 import java.io.File
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.coroutines.resume
 
 object FDownloader : IDownloader {
@@ -224,53 +225,48 @@ private class DefaultDownloadUpdater(
     private val _tempFile = tempFile
     private val _downloadDirectory = downloadDirectory
 
-    @Volatile
-    private var _isFinish = false
-        set(value) {
-            require(value) { "Require true value." }
-            field = value
-        }
+    private val _isFinish = AtomicBoolean(false)
 
     override fun notifyProgress(total: Long, current: Long) {
-        if (_isFinish) return
+        if (_isFinish.get()) return
         FDownloader.notifyProgress(_task, total, current)
     }
 
     override fun notifySuccess() {
-        if (_isFinish) return
-        _isFinish = true
-        logMsg { "updater download success $_url" }
+        if (_isFinish.compareAndSet(false, true)) {
+            logMsg { "updater download success $_url" }
 
-        if (!_tempFile.exists()) {
-            logMsg { "updater download success error temp file not exists $_url" }
-            FDownloader.notifyError(_task, DownloadExceptionCompleteFile())
-            return
-        }
+            if (!_tempFile.exists()) {
+                logMsg { "updater download success error temp file not exists $_url" }
+                FDownloader.notifyError(_task, DownloadExceptionCompleteFile())
+                return
+            }
 
-        val downloadFile = _downloadDirectory.getKeyFile(_url)
-        if (downloadFile == null) {
-            logMsg { "updater download success error create download file $_url" }
-            FDownloader.notifyError(_task, DownloadExceptionCompleteFile())
-            return
-        }
+            val downloadFile = _downloadDirectory.getKeyFile(_url)
+            if (downloadFile == null) {
+                logMsg { "updater download success error create download file $_url" }
+                FDownloader.notifyError(_task, DownloadExceptionCompleteFile())
+                return
+            }
 
-        if (_tempFile.renameTo(downloadFile)) {
-            FDownloader.notifySuccess(_task, downloadFile)
-        } else {
-            logMsg { "updater download success error rename temp file to download file $_url" }
-            FDownloader.notifyError(_task, DownloadExceptionCompleteFile())
+            if (_tempFile.renameTo(downloadFile)) {
+                FDownloader.notifySuccess(_task, downloadFile)
+            } else {
+                logMsg { "updater download success error rename temp file to download file $_url" }
+                FDownloader.notifyError(_task, DownloadExceptionCompleteFile())
+            }
         }
     }
 
     override fun notifyError(e: Throwable) {
-        if (_isFinish) return
-        _isFinish = true
-        logMsg { "updater download error:${e} $_url" }
+        if (_isFinish.compareAndSet(false, true)) {
+            logMsg { "updater download error:${e} $_url" }
 
-        if (e is CancellationException) {
-            FDownloader.notifyError(_task, DownloadExceptionCancellation())
-        } else {
-            FDownloader.notifyError(_task, DownloadException.wrap(e))
+            if (e is CancellationException) {
+                FDownloader.notifyError(_task, DownloadExceptionCancellation())
+            } else {
+                FDownloader.notifyError(_task, DownloadException.wrap(e))
+            }
         }
     }
 }
