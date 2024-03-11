@@ -100,18 +100,19 @@ object FDownloader : IDownloader {
             tempFile = tempFile,
             downloadDirectory = _downloadDirectory,
         )
-        try {
+
+        return try {
             config.downloadExecutor.submit(
                 request = request,
                 file = tempFile,
                 updater = downloadUpdater,
             )
+            true
         } catch (e: Exception) {
             check(e !is DownloadException)
             notifyError(task, DownloadExceptionSubmitTask(e))
-            return false
+            false
         }
-        return true
     }
 
     @Synchronized
