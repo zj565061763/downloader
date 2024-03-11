@@ -14,12 +14,6 @@ interface IDownloader {
     fun removeCallback(callback: Callback)
 
     /**
-     * 获取[url]对应的下载文件
-     * @return null-不存在；不为null-存在
-     */
-    fun getDownloadFile(url: String?): File?
-
-    /**
      * 删除下载文件(临时文件不会被删除)
      * @param ext 文件扩展名(例如mp3)，null-删除所有下载文件
      */

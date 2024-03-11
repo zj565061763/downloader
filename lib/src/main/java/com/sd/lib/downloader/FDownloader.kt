@@ -9,11 +9,10 @@ import com.sd.lib.downloader.exception.DownloadExceptionCompleteFile
 import com.sd.lib.downloader.exception.DownloadExceptionPrepareFile
 import com.sd.lib.downloader.exception.DownloadExceptionSubmitTask
 import com.sd.lib.downloader.executor.IDownloadExecutor
-import com.sd.lib.downloader.utils.IDir
-import com.sd.lib.downloader.utils.fDir
 import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.suspendCancellableCoroutine
 import java.io.File
+import java.util.Collections
 import java.util.concurrent.CancellationException
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicBoolean
@@ -21,11 +20,11 @@ import kotlin.coroutines.resume
 
 object FDownloader : IDownloader {
     private val _mapTask: MutableMap<String, DownloadTaskInfo> = hashMapOf()
-    private val _mapTempFile: MutableMap<File, String> = hashMapOf()
+    private val _mapTempFile: MutableMap<File, String> = Collections.synchronizedMap(hashMapOf())
 
     private val _callbacks: MutableMap<IDownloader.Callback, String> = ConcurrentHashMap()
 
-    private val _downloadDirectory by lazy { config.downloadDirectory.fDir() }
+    private val _downloadDir: IDownloadDir by lazy { DownloadDir(config.downloadDirectory) }
     private val config get() = DownloaderConfig.get()
 
     override fun addCallback(callback: IDownloader.Callback) {
@@ -40,12 +39,10 @@ object FDownloader : IDownloader {
         }
     }
 
-    override fun getDownloadFile(url: String?): File? {
-        return _downloadDirectory.getKeyFile(url).takeIf { it?.isFile == true }
-    }
-
     override fun deleteDownloadFile(ext: String?) {
-        _downloadDirectory.deleteFile(ext).let { count ->
+        _downloadDir.deleteFile {
+            ext == null || ext == it.extension
+        }.let { count ->
             if (count > 0) {
                 logMsg { "deleteDownloadFile ext:${ext} count:${count} " }
             }
@@ -53,8 +50,8 @@ object FDownloader : IDownloader {
     }
 
     override fun deleteTempFile() {
-        _downloadDirectory.deleteTempFile {
-            _mapTempFile.containsKey(it)
+        _downloadDir.deleteTempFile {
+            !_mapTempFile.containsKey(it)
         }.let { count ->
             if (count > 0) {
                 logMsg { "deleteTempFile count:${count}" }
@@ -78,7 +75,7 @@ object FDownloader : IDownloader {
 
         val task = DownloadTask(url)
 
-        val tempFile = _downloadDirectory.getKeyTempFile(url)
+        val tempFile = _downloadDir.getKeyTempFile(url)
         if (tempFile == null) {
             logMsg { "addTask error create temp file failed:${url}" }
             notifyError(task, DownloadExceptionPrepareFile())
@@ -98,7 +95,7 @@ object FDownloader : IDownloader {
         val downloadUpdater = DefaultDownloadUpdater(
             task = task,
             tempFile = tempFile,
-            downloadDirectory = _downloadDirectory,
+            downloadDir = _downloadDir,
         )
 
         return try {
@@ -220,13 +217,13 @@ object FDownloader : IDownloader {
 private class DefaultDownloadUpdater(
     task: DownloadTask,
     tempFile: File,
-    downloadDirectory: IDir,
+    downloadDir: IDownloadDir,
 ) : IDownloadExecutor.Updater {
 
     private val _url = task.url
     private val _task = task
     private val _tempFile = tempFile
-    private val _downloadDirectory = downloadDirectory
+    private val _downloadDir = downloadDir
 
     private val _isFinish = AtomicBoolean(false)
 
@@ -245,7 +242,7 @@ private class DefaultDownloadUpdater(
                 return
             }
 
-            val downloadFile = _downloadDirectory.getKeyFile(_url)
+            val downloadFile = _downloadDir.getKeyFile(_url)
             if (downloadFile == null) {
                 logMsg { "updater download success error create download file $_url" }
                 FDownloader.notifyError(_task, DownloadExceptionCompleteFile())
