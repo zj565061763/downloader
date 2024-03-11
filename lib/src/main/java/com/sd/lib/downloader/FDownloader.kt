@@ -23,21 +23,21 @@ object FDownloader : IDownloader {
     private val _mapTask: MutableMap<String, DownloadTaskInfo> = hashMapOf()
     private val _mapTempFile: MutableMap<File, String> = hashMapOf()
 
-    private val _callbackHolder: MutableMap<IDownloader.Callback, String> = ConcurrentHashMap()
+    private val _callbacks: MutableMap<IDownloader.Callback, String> = ConcurrentHashMap()
 
     private val _downloadDirectory by lazy { config.downloadDirectory.fDir() }
     private val config get() = DownloaderConfig.get()
 
     override fun addCallback(callback: IDownloader.Callback) {
-        val put = _callbackHolder.put(callback, "")
+        val put = _callbacks.put(callback, "")
         if (put == null) {
-            logMsg { "addCallback:${callback} size:${_callbackHolder.size}" }
+            logMsg { "addCallback:${callback} size:${_callbacks.size}" }
         }
     }
 
     override fun removeCallback(callback: IDownloader.Callback) {
-        if (_callbackHolder.remove(callback) != null) {
-            logMsg { "removeCallback:${callback} size:${_callbackHolder.size}" }
+        if (_callbacks.remove(callback) != null) {
+            logMsg { "removeCallback:${callback} size:${_callbacks.size}" }
         }
     }
 
@@ -207,7 +207,7 @@ object FDownloader : IDownloader {
     ) {
         _handler.post {
             block?.invoke()
-            for (item in _callbackHolder.keys) {
+            for (item in _callbacks.keys) {
                 item.onDownloadInfo(info)
             }
         }
