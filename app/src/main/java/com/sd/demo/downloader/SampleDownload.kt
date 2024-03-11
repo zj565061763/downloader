@@ -15,8 +15,8 @@ class SampleDownload : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(_binding.root)
-        _binding.btnDownload.setOnClickListener { startDownload() }
-        _binding.btnCancel.setOnClickListener { cancelDownload() }
+        _binding.btnStartDownload.setOnClickListener { startDownload() }
+        _binding.btnCancelDownload.setOnClickListener { cancelDownload() }
     }
 
     /**

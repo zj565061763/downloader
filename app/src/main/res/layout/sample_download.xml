@@ -6,17 +6,17 @@
     android:orientation="vertical">
 
     <Button
-        android:id="@+id/btn_download"
+        android:id="@+id/btn_start_download"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="download"
+        android:text="start download"
         android:textAllCaps="false" />
 
     <Button
-        android:id="@+id/btn_cancel"
+        android:id="@+id/btn_cancel_download"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="cancel"
+        android:text="cancel download"
         android:textAllCaps="false" />
 
 </LinearLayout>
