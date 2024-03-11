@@ -21,7 +21,6 @@ class DownloadRequest private constructor(builder: Builder) {
 
         /**
          * 设置是否需要断点下载
-         *
          * @param preferBreakpoint true-是；false-否；null-跟随默认配置
          */
         fun setPreferBreakpoint(preferBreakpoint: Boolean?) = apply {
