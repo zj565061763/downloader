@@ -36,8 +36,8 @@ interface IDownloadExecutor {
         fun notifySuccess()
 
         /**
-         * 通知下载错误，如果[t]是[CancellationException]，表示下载被取消
+         * 通知下载错误，如果[e]是[CancellationException]，表示下载被取消
          */
-        fun notifyError(t: Throwable)
+        fun notifyError(e: Throwable)
     }
 }
