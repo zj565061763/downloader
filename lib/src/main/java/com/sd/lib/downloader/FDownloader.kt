@@ -9,14 +9,11 @@ import com.sd.lib.downloader.exception.DownloadExceptionCompleteFile
 import com.sd.lib.downloader.exception.DownloadExceptionPrepareFile
 import com.sd.lib.downloader.exception.DownloadExceptionSubmitTask
 import com.sd.lib.downloader.executor.IDownloadExecutor
-import kotlinx.coroutines.CancellableContinuation
-import kotlinx.coroutines.suspendCancellableCoroutine
 import java.io.File
 import java.util.Collections
 import java.util.concurrent.CancellationException
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicBoolean
-import kotlin.coroutines.resume
 
 object FDownloader : IDownloader {
     private val _mapTask: MutableMap<String, DownloadTaskInfo> = hashMapOf()
@@ -121,40 +118,6 @@ object FDownloader : IDownloader {
         val result = config.downloadExecutor.cancel(url)
         logMsg { "cancelTask finish result:${result} url:${url}" }
         return result
-    }
-
-    override suspend fun awaitTask(
-        url: String,
-        callback: IDownloader.Callback?,
-    ): Result<File> {
-        return awaitTask(
-            request = DownloadRequest.Builder().build(url),
-            callback = callback,
-        )
-    }
-
-    override suspend fun awaitTask(
-        request: DownloadRequest,
-        callback: IDownloader.Callback?,
-    ): Result<File> {
-        val url = request.url
-        return suspendCancellableCoroutine { continuation ->
-            val awaitCallback = AwaitCallback(
-                url = request.url,
-                continuation = continuation,
-                callback = callback,
-            )
-
-            continuation.invokeOnCancellation {
-                removeCallback(awaitCallback)
-            }
-
-            if (continuation.isActive) {
-                logMsg { "awaitTask url:${url}" }
-                addCallback(awaitCallback)
-                addTask(request)
-            }
-        }
     }
 
     /**
@@ -266,32 +229,6 @@ private class DefaultDownloadUpdater(
                 FDownloader.notifyError(_task, DownloadExceptionCancellation())
             } else {
                 FDownloader.notifyError(_task, DownloadException.wrap(e))
-            }
-        }
-    }
-}
-
-private class AwaitCallback(
-    private val url: String,
-    private val continuation: CancellableContinuation<Result<File>>,
-    private val callback: IDownloader.Callback?,
-) : IDownloader.Callback {
-
-    override fun onDownloadInfo(info: IDownloadInfo) {
-        if (info.url == url && continuation.isActive) {
-            callback?.onDownloadInfo(info)
-            when (info) {
-                is IDownloadInfo.Success -> {
-                    logMsg { "awaitTask resume success url:${url}" }
-                    FDownloader.removeCallback(this)
-                    continuation.resume(Result.success(info.file))
-                }
-                is IDownloadInfo.Error -> {
-                    logMsg { "awaitTask resume error url:${url} exception:${info.exception}" }
-                    FDownloader.removeCallback(this)
-                    continuation.resume(Result.failure(info.exception))
-                }
-                else -> {}
             }
         }
     }

@@ -1,7 +1,5 @@
 package com.sd.lib.downloader
 
-import java.io.File
-
 interface IDownloader {
     /**
      * 添加回调对象，可以监听所有的下载任务
@@ -46,22 +44,6 @@ interface IDownloader {
      * @return true-任务被取消
      */
     fun cancelTask(url: String?): Boolean
-
-    /**
-     * 添加下载任务
-     */
-    suspend fun awaitTask(
-        url: String,
-        callback: Callback? = null,
-    ): Result<File>
-
-    /**
-     * 添加下载任务
-     */
-    suspend fun awaitTask(
-        request: DownloadRequest,
-        callback: Callback? = null,
-    ): Result<File>
 
     /**
      * 下载回调
