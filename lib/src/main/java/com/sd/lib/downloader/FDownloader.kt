@@ -20,7 +20,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.coroutines.resume
 
 object FDownloader : IDownloader {
-    private val _mapTask: MutableMap<String, DownloadTaskWrapper> = hashMapOf()
+    private val _mapTask: MutableMap<String, DownloadTaskInfo> = hashMapOf()
     private val _mapTempFile: MutableMap<File, String> = hashMapOf()
 
     private val _callbackHolder: MutableMap<IDownloader.Callback, String> = ConcurrentHashMap()
@@ -86,7 +86,7 @@ object FDownloader : IDownloader {
             return false
         }
 
-        _mapTask[url] = DownloadTaskWrapper(task, tempFile)
+        _mapTask[url] = DownloadTaskInfo(tempFile)
         _mapTempFile[tempFile] = url
         logMsg { "addTask url:${url} temp:${tempFile.absolutePath} size:${_mapTask.size} tempSize:${_mapTempFile.size}" }
         if (task.notifyInitialized()) {
@@ -213,8 +213,7 @@ object FDownloader : IDownloader {
         }
     }
 
-    private class DownloadTaskWrapper(
-        val task: DownloadTask,
+    private class DownloadTaskInfo(
         val tempFile: File,
     )
 }
