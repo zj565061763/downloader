@@ -1,8 +1,8 @@
 package com.sd.lib.downloader.executor
 
 import com.sd.lib.downloader.DownloadRequest
-import kotlinx.coroutines.CancellationException
 import java.io.File
+import java.util.concurrent.CancellationException
 
 interface IDownloadExecutor {
     /**
@@ -37,7 +37,7 @@ interface IDownloadExecutor {
         fun notifySuccess()
 
         /**
-         * 通知下载错误，如果[e]是[CancellationException]，表示下载被取消
+         * 通知下载错误，如果[e]是[CancellationException]，表示取消下载
          */
         fun notifyError(e: Throwable)
     }
