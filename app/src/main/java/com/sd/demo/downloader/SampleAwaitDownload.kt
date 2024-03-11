@@ -7,6 +7,7 @@ import com.sd.lib.downloader.DownloadRequest
 import com.sd.lib.downloader.FDownloader
 import com.sd.lib.downloader.IDownloadInfo
 import com.sd.lib.downloader.IDownloader
+import com.sd.lib.downloader.awaitTask
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
