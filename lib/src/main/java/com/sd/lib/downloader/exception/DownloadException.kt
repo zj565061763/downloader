@@ -8,8 +8,8 @@ open class DownloadException @JvmOverloads constructor(
     /** 异常描述 */
     val desc: String
         get() = buildString {
-            val message = formatMessage
-            val cause = formatCause
+            val message = formatMessage ?: ""
+            val cause = formatCause ?: ""
 
             append(message)
             if (message.isNotEmpty() && cause.isNotEmpty()) {
@@ -19,12 +19,12 @@ open class DownloadException @JvmOverloads constructor(
         }
 
     /** 异常信息 */
-    protected open val formatMessage: String
-        get() = localizedMessage ?: ""
+    protected open val formatMessage: String?
+        get() = localizedMessage
 
     /** 异常原因 */
-    protected open val formatCause: String
-        get() = cause?.toString() ?: ""
+    protected open val formatCause: String?
+        get() = cause?.toString()
 
     override fun toString(): String {
         return desc
@@ -32,8 +32,8 @@ open class DownloadException @JvmOverloads constructor(
 
     companion object {
         @JvmStatic
-        fun wrap(exception: Throwable?): DownloadException {
-            return if (exception is DownloadException) exception else DownloadException(cause = exception)
+        fun wrap(e: Throwable): DownloadException {
+            return if (e is DownloadException) e else DownloadException(cause = e)
         }
     }
 }
