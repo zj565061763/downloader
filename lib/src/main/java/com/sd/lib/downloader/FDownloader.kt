@@ -82,6 +82,7 @@ object FDownloader : IDownloader {
         _mapTask[url] = DownloadTaskInfo(tempFile)
         _mapTempFile[tempFile] = url
         logMsg { "addTask url:${url} temp:${tempFile.absolutePath} size:${_mapTask.size} tempSize:${_mapTempFile.size}" }
+
         if (task.notifyInitialized()) {
             val info = IDownloadInfo.Initialized(task.url)
             notifyDownloadInfo(info) {
