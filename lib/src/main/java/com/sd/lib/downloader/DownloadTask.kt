@@ -101,6 +101,7 @@ private class TransmitParam {
      */
     fun transmit(total: Long, current: Long): Boolean {
         val oldProgress = progress
+
         if (total <= 0 || current <= 0) {
             reset()
             return oldProgress != progress
@@ -108,6 +109,7 @@ private class TransmitParam {
 
         this.total = total
         this.current = current
+
         val newProgress = (current * 100 / total).toInt().coerceAtMost(100)
         this.progress = newProgress
 
