@@ -43,9 +43,6 @@ class SampleDownload : ComponentActivity() {
     private fun cancelDownload() {
         // 取消下载任务
         FDownloader.cancelTask(url)
-
-        // 移除下载回调
-        FDownloader.removeCallback(_downloadCallback)
     }
 
     /**
@@ -65,6 +62,9 @@ class SampleDownload : ComponentActivity() {
     override fun onDestroy() {
         super.onDestroy()
         cancelDownload()
+
+        // 移除下载回调
+        FDownloader.removeCallback(_downloadCallback)
 
         // 删除所有临时文件（下载中的临时文件不会被删除）
         FDownloader.deleteTempFile()
