@@ -12,9 +12,9 @@ import com.sd.lib.downloader.executor.IDownloadExecutor
 import com.sd.lib.downloader.utils.IDir
 import com.sd.lib.downloader.utils.fDir
 import kotlinx.coroutines.CancellableContinuation
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.suspendCancellableCoroutine
 import java.io.File
+import java.util.concurrent.CancellationException
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.coroutines.resume
