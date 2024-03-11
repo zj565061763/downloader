@@ -24,10 +24,8 @@ object FDownloader : IDownloader {
 
     private val _callbackHolder: MutableMap<IDownloader.Callback, String> = ConcurrentHashMap()
 
-    private val config get() = DownloaderConfig.get()
     private val _downloadDirectory by lazy { config.downloadDirectory.fDir() }
-
-    private val _handler by lazy { Handler(Looper.getMainLooper()) }
+    private val config get() = DownloaderConfig.get()
 
     override fun addCallback(callback: IDownloader.Callback) {
         val put = _callbackHolder.put(callback, "")
@@ -170,6 +168,8 @@ object FDownloader : IDownloader {
             logMsg { "removeTask url:${url} size:${_mapTask.size} tempSize:${_mapTempFile.size}" }
         }
     }
+
+    private val _handler by lazy { Handler(Looper.getMainLooper()) }
 
     private fun notifyInitialized(task: DownloadTask) {
         if (task.notifyInitialized()) {
