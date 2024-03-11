@@ -6,9 +6,12 @@ internal class DownloadTask(val url: String) {
 
     @Synchronized
     fun notifyInitialized(): Boolean {
-        if (_state != DownloadState.None) return false
-        _state = DownloadState.Initialized
-        return true
+        return if (_state == DownloadState.None) {
+            _state = DownloadState.Initialized
+            true
+        } else {
+            false
+        }
     }
 
     /**
