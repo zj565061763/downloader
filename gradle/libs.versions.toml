@@ -4,14 +4,14 @@ androidCompileSdk = "33"
 androidMinSdk = "21"
 androidTargetSdk = "33"
 
-androidGradlePlugin = "8.1.1"
+androidGradlePlugin = "8.3.0"
 kotlin = "1.8.22"
 
 [libraries]
 
 androidx-appcompat = "androidx.appcompat:appcompat:1.6.1"
 
-kotlin-coroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4"
+kotlin-coroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.0"
 http-request = "com.github.kevinsawicki:http-request:6.0"
 
 [plugins]
