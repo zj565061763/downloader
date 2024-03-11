@@ -7,7 +7,7 @@ sealed interface IDownloadInfo {
     val url: String
 
     /**
-     * 下载任务已提交
+     * 初始化
      */
     data class Initialized(override val url: String) : IDownloadInfo
 

@@ -85,12 +85,21 @@ object FDownloader : IDownloader {
             return false
         }
 
+        _mapTask[url] = DownloadTaskWrapper(task, tempFile)
+        _mapTempFile[tempFile] = url
+        logMsg { "addTask url:${url} temp:${tempFile.absolutePath} size:${_mapTask.size} tempSize:${_mapTempFile.size}" }
+        if (task.notifyInitialized()) {
+            val info = IDownloadInfo.Initialized(task.url)
+            notifyDownloadInfo(info) {
+                logMsg { "notify callback Initialized" }
+            }
+        }
+
         val downloadUpdater = DefaultDownloadUpdater(
             task = task,
             tempFile = tempFile,
             downloadDirectory = _downloadDirectory,
         )
-
         try {
             config.downloadExecutor.submit(
                 request = request,
@@ -102,12 +111,6 @@ object FDownloader : IDownloader {
             notifyError(task, DownloadExceptionSubmitTask(e))
             return false
         }
-
-        _mapTask[url] = DownloadTaskWrapper(task, tempFile)
-        _mapTempFile[tempFile] = url
-        logMsg { "addTask url:${url} temp:${tempFile.absolutePath} size:${_mapTask.size} tempSize:${_mapTempFile.size}" }
-        notifyInitialized(task)
-
         return true
     }
 
@@ -169,15 +172,6 @@ object FDownloader : IDownloader {
     }
 
     private val _handler by lazy { Handler(Looper.getMainLooper()) }
-
-    private fun notifyInitialized(task: DownloadTask) {
-        if (task.notifyInitialized()) {
-            val info = IDownloadInfo.Initialized(task.url)
-            notifyDownloadInfo(info) {
-                logMsg { "notify callback Initialized" }
-            }
-        }
-    }
 
     internal fun notifyProgress(task: DownloadTask, total: Long, current: Long) {
         task.notifyProgress(total, current)?.let { info ->

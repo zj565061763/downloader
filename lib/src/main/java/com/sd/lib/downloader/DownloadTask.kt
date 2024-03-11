@@ -68,7 +68,7 @@ internal class DownloadTask(val url: String) {
     private enum class DownloadState {
         None,
 
-        /** 已提交 */
+        /** 初始化 */
         Initialized,
 
         /** 下载中 */
