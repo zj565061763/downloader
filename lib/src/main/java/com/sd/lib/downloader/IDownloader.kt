@@ -58,8 +58,7 @@ interface IDownloader {
      */
     suspend fun awaitTask(
         url: String,
-        onInitialized: ((IDownloadInfo.Initialized) -> Unit)? = null,
-        onProgress: ((IDownloadInfo.Progress) -> Unit)? = null,
+        callback: Callback? = null,
     ): Result<File>
 
     /**
@@ -67,32 +66,13 @@ interface IDownloader {
      */
     suspend fun awaitTask(
         request: DownloadRequest,
-        onInitialized: ((IDownloadInfo.Initialized) -> Unit)? = null,
-        onProgress: ((IDownloadInfo.Progress) -> Unit)? = null,
+        callback: Callback? = null,
     ): Result<File>
 
     /**
      * 下载回调
      */
     interface Callback {
-        /**
-         * 下载任务已提交
-         */
-        fun onInitialized(info: IDownloadInfo.Initialized)
-
-        /**
-         * 下载中
-         */
-        fun onProgress(info: IDownloadInfo.Progress)
-
-        /**
-         * 下载成功
-         */
-        fun onSuccess(info: IDownloadInfo.Success)
-
-        /**
-         * 下载失败
-         */
-        fun onError(info: IDownloadInfo.Error)
+        fun onDownloadInfo(info: IDownloadInfo)
     }
 }

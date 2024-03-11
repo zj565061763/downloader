@@ -65,12 +65,11 @@ class MainActivity : ComponentActivity() {
         _scope.launch {
             FDownloader.awaitTask(
                 request = getDownloadRequest(),
-                onInitialized = {
-                    logMsg { "await onInitialized" }
-                },
-                onProgress = {
-                    logMsg { "await onProgress ${it.progress}" }
-                },
+                callback = object : IDownloader.Callback {
+                    override fun onDownloadInfo(info: IDownloadInfo) {
+                        logMsg { "await onDownloadInfo:$info" }
+                    }
+                }
             ).let { result ->
                 result.onSuccess {
                     logMsg { "await success $it" }
@@ -91,20 +90,13 @@ class MainActivity : ComponentActivity() {
      * 下载回调
      */
     private val _downloadCallback: IDownloader.Callback = object : IDownloader.Callback {
-        override fun onInitialized(info: IDownloadInfo.Initialized) {
-            logMsg { "onInitialized" }
-        }
-
-        override fun onProgress(info: IDownloadInfo.Progress) {
-            logMsg { "onProgress ${info.progress}" }
-        }
-
-        override fun onSuccess(info: IDownloadInfo.Success) {
-            logMsg { "onSuccess file:${info.file.absolutePath}" }
-        }
-
-        override fun onError(info: IDownloadInfo.Error) {
-            logMsg { "onError ${info.exception.javaClass.name}" }
+        override fun onDownloadInfo(info: IDownloadInfo) {
+            when (info) {
+                is IDownloadInfo.Initialized -> logMsg { "onInitialized" }
+                is IDownloadInfo.Progress -> logMsg { "onProgress ${info.progress}" }
+                is IDownloadInfo.Success -> logMsg { "onSuccess file:${info.file.absolutePath}" }
+                is IDownloadInfo.Error -> logMsg { "onError ${info.exception.javaClass.name}" }
+            }
         }
     }
 
