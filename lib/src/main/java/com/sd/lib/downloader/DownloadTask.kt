@@ -39,9 +39,15 @@ internal class DownloadTask(val url: String) {
      */
     @Synchronized
     fun notifySuccess(): Boolean {
-        if (_state.isFinished) return false
-        this._state = DownloadState.Success
-        return true
+        return when (_state) {
+            DownloadState.None -> error("Task not initialized")
+            DownloadState.Initialized,
+            DownloadState.Progress -> {
+                _state = DownloadState.Success
+                true
+            }
+            else -> false
+        }
     }
 
     /**
@@ -49,9 +55,14 @@ internal class DownloadTask(val url: String) {
      */
     @Synchronized
     fun notifyError(): Boolean {
-        if (_state.isFinished) return false
-        _state = DownloadState.Error
-        return true
+        return when (_state) {
+            DownloadState.Success,
+            DownloadState.Error -> false
+            else -> {
+                _state = DownloadState.Error
+                true
+            }
+        }
     }
 
     private enum class DownloadState {
@@ -68,10 +79,6 @@ internal class DownloadTask(val url: String) {
 
         /** 下载失败 */
         Error;
-
-        /** 是否处于完成状态，[Success]或者[Error] */
-        val isFinished: Boolean
-            get() = this == Success || this == Error
     }
 }
 
