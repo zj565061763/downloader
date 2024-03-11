@@ -17,15 +17,15 @@ class SampleDownload : ComponentActivity() {
         setContentView(_binding.root)
         _binding.btnStartDownload.setOnClickListener { startDownload() }
         _binding.btnCancelDownload.setOnClickListener { cancelDownload() }
+
+        // 添加下载回调
+        FDownloader.addCallback(_downloadCallback)
     }
 
     /**
      * 开始下载
      */
     private fun startDownload() {
-        // 添加下载回调
-        FDownloader.addCallback(_downloadCallback)
-
         // 构建下载请求
         val request = DownloadRequest.Builder()
             // true-优先断点下载；false-不使用断点下载；null-跟随初始化配置
