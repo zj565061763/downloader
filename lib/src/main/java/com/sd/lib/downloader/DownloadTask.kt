@@ -114,7 +114,6 @@ private class TransmitParam {
 
     /**
      * 传输
-     *
      * @param total 总量
      * @param current 当前传输量
      * @return true-进度发生了变化
