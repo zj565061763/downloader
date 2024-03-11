@@ -195,7 +195,7 @@ object FDownloader : IDownloader {
             removeTask(task.url)
             val info = IDownloadInfo.Error(task.url, exception)
             notifyDownloadInfo(info) {
-                logMsg { "notify callback Error url:${task.url} exception:${exception}" }
+                logMsg { "notify callback Error url:${task.url} exception:${exception.javaClass.simpleName}" }
             }
         }
     }
