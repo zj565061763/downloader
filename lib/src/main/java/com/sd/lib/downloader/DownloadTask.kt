@@ -6,11 +6,12 @@ internal class DownloadTask(val url: String) {
 
     @Synchronized
     fun notifyInitialized(): Boolean {
-        return if (_state == DownloadState.None) {
-            _state = DownloadState.Initialized
-            true
-        } else {
-            false
+        return when (_state) {
+            DownloadState.None -> {
+                _state = DownloadState.Initialized
+                true
+            }
+            else -> false
         }
     }
 
@@ -19,18 +20,17 @@ internal class DownloadTask(val url: String) {
      */
     @Synchronized
     fun notifyProgress(total: Long, current: Long): IDownloadInfo.Progress? {
-        if (_state.isFinished) return null
-        _state = DownloadState.Progress
-        return if (_transmitParam.transmit(total, current)) {
-            IDownloadInfo.Progress(
-                url = url,
-                total = _transmitParam.total,
-                current = _transmitParam.current,
-                progress = _transmitParam.progress,
-                speedBps = _transmitParam.speedBps,
-            )
-        } else {
-            null
+        return when (_state) {
+            DownloadState.None -> error("Task not initialized")
+            DownloadState.Initialized,
+            DownloadState.Progress -> {
+                if (_transmitParam.transmit(total, current)) {
+                    _transmitParam.toProgress(url)
+                } else {
+                    null
+                }
+            }
+            else -> null
         }
     }
 
@@ -73,6 +73,16 @@ internal class DownloadTask(val url: String) {
         val isFinished: Boolean
             get() = this == Success || this == Error
     }
+}
+
+private fun TransmitParam.toProgress(url: String): IDownloadInfo.Progress {
+    return IDownloadInfo.Progress(
+        url = url,
+        total = this.total,
+        current = this.current,
+        progress = this.progress,
+        speedBps = this.speedBps,
+    )
 }
 
 private class TransmitParam {
