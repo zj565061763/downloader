@@ -39,7 +39,16 @@ class SampleAwaitDownload : ComponentActivity() {
         _awaitJob = _scope.launch {
             FDownloader.awaitTask(
                 request = request,
-                callback = _downloadCallback,
+                callback = object : IDownloader.Callback {
+                    override fun onDownloadInfo(info: IDownloadInfo) {
+                        when (info) {
+                            is IDownloadInfo.Initialized -> logMsg { "callback Initialized" }
+                            is IDownloadInfo.Progress -> logMsg { "callback Progress ${info.progress}" }
+                            is IDownloadInfo.Success -> logMsg { "callback Success file:${info.file.absolutePath}" }
+                            is IDownloadInfo.Error -> logMsg { "callback Error ${info.exception.javaClass.name}" }
+                        }
+                    }
+                },
             ).let { result ->
                 result.onSuccess {
                     logMsg { "await onSuccess $it" }
@@ -64,20 +73,6 @@ class SampleAwaitDownload : ComponentActivity() {
     private fun cancelJob() {
         _awaitJob?.cancel()
         _awaitJob = null
-    }
-
-    /**
-     * 下载回调
-     */
-    private val _downloadCallback = object : IDownloader.Callback {
-        override fun onDownloadInfo(info: IDownloadInfo) {
-            when (info) {
-                is IDownloadInfo.Initialized -> logMsg { "callback Initialized" }
-                is IDownloadInfo.Progress -> logMsg { "callback Progress ${info.progress}" }
-                is IDownloadInfo.Success -> logMsg { "callback Success file:${info.file.absolutePath}" }
-                is IDownloadInfo.Error -> logMsg { "callback Error ${info.exception.javaClass.name}" }
-            }
-        }
     }
 
     override fun onDestroy() {
