@@ -29,8 +29,7 @@ object FDownloader : IDownloader {
     private val config get() = DownloaderConfig.get()
 
     override fun addCallback(callback: IDownloader.Callback) {
-        val put = _callbacks.put(callback, "")
-        if (put == null) {
+        if (_callbacks.put(callback, "") == null) {
             logMsg { "addCallback:${callback} size:${_callbacks.size}" }
         }
     }
