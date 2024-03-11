@@ -212,6 +212,11 @@ object FDownloader : IDownloader {
             }
         }
     }
+
+    private class DownloadTaskWrapper(
+        val task: DownloadTask,
+        val tempFile: File,
+    )
 }
 
 private class DefaultDownloadUpdater(
@@ -270,11 +275,6 @@ private class DefaultDownloadUpdater(
         }
     }
 }
-
-private class DownloadTaskWrapper(
-    val task: DownloadTask,
-    val tempFile: File,
-)
 
 private class AwaitCallback(
     private val url: String,
