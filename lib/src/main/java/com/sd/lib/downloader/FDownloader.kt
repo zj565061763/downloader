@@ -142,7 +142,7 @@ object FDownloader : IDownloader {
     ): Result<File> {
         val url = request.url
         return suspendCancellableCoroutine { continuation ->
-            val awaitCallback = AwaitCallbackAdapter(
+            val awaitCallback = AwaitCallback(
                 url = request.url,
                 continuation = continuation,
                 callback = callback,
@@ -280,7 +280,7 @@ private class DownloadTaskWrapper(
     val tempFile: File,
 )
 
-private class AwaitCallbackAdapter(
+private class AwaitCallback(
     private val url: String,
     private val continuation: CancellableContinuation<Result<File>>,
     private val callback: IDownloader.Callback?,
