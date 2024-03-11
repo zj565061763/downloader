@@ -1,6 +1,5 @@
 package com.sd.lib.downloader.executor
 
-import com.github.kevinsawicki.http.HttpRequest
 import com.sd.lib.downloader.DownloadRequest
 import com.sd.lib.downloader.exception.DownloadHttpExceptionResponseCode
 import kotlinx.coroutines.CoroutineExceptionHandler
