@@ -10,12 +10,12 @@ internal interface IDownloadDir {
     /**
      * 获取[key]对应的文件，如果key有扩展名，则返回的文件名包括[key]的扩展名
      */
-    fun getKeyFile(key: String?): File?
+    fun getKeyFile(key: String): File?
 
     /**
      * 获取[key]对应的临时文件，扩展名[TEMP_EXT]
      */
-    fun getKeyTempFile(key: String?): File?
+    fun getKeyTempFile(key: String): File?
 
     /**
      * 删除当前目录下的文件，临时文件(扩展名为[TEMP_EXT])不会被删除
@@ -35,15 +35,15 @@ internal interface IDownloadDir {
 internal class DownloadDir(dir: File) : IDownloadDir {
     private val _dir = dir
 
-    override fun getKeyFile(key: String?): File? {
-        return createKeyFile(
+    override fun getKeyFile(key: String): File? {
+        return newKeyFile(
             key = key,
-            ext = key?.substringAfterLast(".", ""),
+            ext = key.substringAfterLast(".", ""),
         )
     }
 
-    override fun getKeyTempFile(key: String?): File? {
-        return createKeyFile(
+    override fun getKeyTempFile(key: String): File? {
+        return newKeyFile(
             key = key,
             ext = TEMP_EXT,
         )
@@ -88,12 +88,8 @@ internal class DownloadDir(dir: File) : IDownloadDir {
         return block(directory)
     }
 
-    private fun createKeyFile(
-        key: String?,
-        ext: String?,
-    ): File? {
-        if (key.isNullOrEmpty()) return null
-        val dotExt = if (ext.isNullOrEmpty()) "" else ".$ext"
+    private fun newKeyFile(key: String, ext: String): File? {
+        val dotExt = if (ext.isEmpty()) "" else ".$ext"
         return modify { dir ->
             dir?.resolve(md5(key) + dotExt)
         }
