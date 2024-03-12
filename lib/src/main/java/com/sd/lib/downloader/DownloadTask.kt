@@ -154,6 +154,6 @@ private class TransmitParam {
     }
 
     override fun toString(): String {
-        return "${current}/${total} $progress ${super.toString()}"
+        return "${current}/${total} $progress $speedBps"
     }
 }
