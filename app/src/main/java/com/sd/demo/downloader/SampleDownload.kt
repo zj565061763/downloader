@@ -10,7 +10,7 @@ import com.sd.lib.downloader.IDownloader
 
 class SampleDownload : ComponentActivity() {
     private val _binding by lazy { SampleDownloadBinding.inflate(layoutInflater) }
-    private val url = ""
+    private val url = "https://dldir1.qq.com/weixin/Windows/WeChatSetup.exe"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,7 +54,7 @@ class SampleDownload : ComponentActivity() {
                 is IDownloadInfo.Initialized -> logMsg { "callback Initialized" }
                 is IDownloadInfo.Progress -> logMsg { "callback Progress ${info.progress}" }
                 is IDownloadInfo.Success -> logMsg { "callback Success file:${info.file.absolutePath}" }
-                is IDownloadInfo.Error -> logMsg { "callback Error ${info.exception.javaClass.name}" }
+                is IDownloadInfo.Error -> logMsg { "callback Error ${info.exception.javaClass.name} ${info.exception}" }
             }
         }
     }

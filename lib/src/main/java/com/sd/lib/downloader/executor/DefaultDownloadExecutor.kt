@@ -47,7 +47,11 @@ class DefaultDownloadExecutor @JvmOverloads constructor(
             job.invokeOnCompletion { e ->
                 _taskHolder.remove(url)
                 if (e != null) {
-                    updater.notifyError(e)
+                    if (e is HttpRequest.HttpRequestException) {
+                        updater.notifyError(e.cause ?: e)
+                    } else {
+                        updater.notifyError(e)
+                    }
                 } else {
                     updater.notifySuccess()
                 }
