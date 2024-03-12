@@ -32,14 +32,6 @@ class DefaultDownloadExecutor @JvmOverloads constructor(
         CoroutineScope(job + dispatcher)
     }
 
-    private fun newHttpRequest(downloadRequest: DownloadRequest): HttpRequest {
-        return HttpRequest.get(downloadRequest.url)
-            .connectTimeout(15 * 1000)
-            .readTimeout(15 * 1000)
-            .trustAllHosts()
-            .trustAllCerts()
-    }
-
     override fun submit(
         request: DownloadRequest,
         file: File,
@@ -115,6 +107,14 @@ class DefaultDownloadExecutor @JvmOverloads constructor(
         } else {
             throw DownloadHttpExceptionResponseCode(code)
         }
+    }
+
+    private fun newHttpRequest(downloadRequest: DownloadRequest): HttpRequest {
+        return HttpRequest.get(downloadRequest.url)
+            .connectTimeout(15 * 1000)
+            .readTimeout(15 * 1000)
+            .trustAllHosts()
+            .trustAllCerts()
     }
 
     private suspend fun downloadNormal(
