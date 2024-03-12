@@ -8,6 +8,7 @@ import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
@@ -27,7 +28,9 @@ class DefaultDownloadExecutor @JvmOverloads constructor(
 
     @OptIn(ExperimentalCoroutinesApi::class)
     private val _scope by lazy {
-        CoroutineScope(Dispatchers.IO.limitedParallelism(limitedParallelism))
+        val job = SupervisorJob()
+        val dispatcher = Dispatchers.IO.limitedParallelism(limitedParallelism)
+        CoroutineScope(job + dispatcher)
     }
 
     private fun newHttpRequest(downloadRequest: DownloadRequest): HttpRequest {
