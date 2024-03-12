@@ -7,7 +7,7 @@ import com.sd.lib.downloader.DownloadCallback
 import com.sd.lib.downloader.DownloadRequest
 import com.sd.lib.downloader.FDownloader
 import com.sd.lib.downloader.IDownloadInfo
-import com.sd.lib.downloader.awaitTask
+import com.sd.lib.downloader.addTaskAwait
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
@@ -38,7 +38,7 @@ class SampleAwaitDownload : ComponentActivity() {
 
         _awaitJob?.cancel()
         _awaitJob = _scope.launch {
-            FDownloader.awaitTask(
+            FDownloader.addTaskAwait(
                 request = request,
                 callback = object : DownloadCallback() {
                     override fun onInitialized(info: IDownloadInfo.Initialized) {

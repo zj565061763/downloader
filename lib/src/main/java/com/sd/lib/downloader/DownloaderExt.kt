@@ -8,11 +8,11 @@ import kotlin.coroutines.resume
 /**
  * 添加下载任务
  */
-suspend fun IDownloader.awaitTask(
+suspend fun IDownloader.addTaskAwait(
     url: String,
     callback: IDownloader.Callback? = null,
 ): Result<File> {
-    return awaitTask(
+    return addTaskAwait(
         request = DownloadRequest.Builder().build(url),
         callback = callback,
     )
@@ -21,7 +21,7 @@ suspend fun IDownloader.awaitTask(
 /**
  * 添加下载任务
  */
-suspend fun IDownloader.awaitTask(
+suspend fun IDownloader.addTaskAwait(
     request: DownloadRequest,
     callback: IDownloader.Callback? = null,
 ): Result<File> {
