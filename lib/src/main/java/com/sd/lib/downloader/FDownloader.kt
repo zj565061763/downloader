@@ -17,13 +17,22 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicBoolean
 
 object FDownloader : IDownloader {
+    /** 所有任务 */
     private val _mapTask: MutableMap<String, DownloadTaskInfo> = hashMapOf()
+    /** 下载中的临时文件 */
     private val _mapTempFile: MutableMap<File, String> = Collections.synchronizedMap(hashMapOf())
 
+    /** 正在取消中的任务 */
+    private val _cancelingTasks: MutableSet<String> = hashSetOf()
+    /** 等待中的请求 */
+    private val _pendingRequests: MutableMap<String, DownloadRequest> = hashMapOf()
+
+    /** 下载目录 */
+    private val _downloadDir: IDownloadDir = DownloadDir(config.downloadDirectory)
     private val _callbacks: MutableMap<IDownloader.Callback, String> = ConcurrentHashMap()
 
-    private val _downloadDir: IDownloadDir by lazy { DownloadDir(config.downloadDirectory) }
     private val config get() = DownloaderConfig.get()
+    private val _handler by lazy { Handler(Looper.getMainLooper()) }
 
     override fun registerCallback(callback: IDownloader.Callback) {
         if (_callbacks.put(callback, "") == null) {
@@ -69,7 +78,15 @@ object FDownloader : IDownloader {
     @Synchronized
     override fun addTask(request: DownloadRequest): Boolean {
         val url = request.url
-        if (_mapTask.containsKey(url)) return true
+
+        if (hasTask(url)) {
+            if (_cancelingTasks.contains(url)) {
+                // url对应的任务正在取消中，把请求添加到等待列表
+                _pendingRequests[url] = request
+                logMsg { "addTask addPendingRequest url:${url} request:${request} pendingSize:${_pendingRequests.size}" }
+            }
+            return true
+        }
 
         val task = DownloadTask(url)
 
@@ -122,6 +139,12 @@ object FDownloader : IDownloader {
         if (hasTask(url)) {
             logMsg { "cancelTask start url:${url}" }
             config.downloadExecutor.cancel(url)
+
+            removePendingRequest(url)
+            if (hasTask(url)) {
+                _cancelingTasks.add(url)
+            }
+
             logMsg { "cancelTask finish url:${url}" }
         }
     }
@@ -134,11 +157,20 @@ object FDownloader : IDownloader {
         val info = _mapTask.remove(url)
         if (info != null) {
             _mapTempFile.remove(info.tempFile)
-            logMsg { "removeTask url:${url} size:${_mapTask.size} tempSize:${_mapTempFile.size}" }
+            _cancelingTasks.remove(url)
+            logMsg { "removeTask url:${url} size:${_mapTask.size} tempSize:${_mapTempFile.size} cancelingSize:${_cancelingTasks.size}" }
         }
     }
 
-    private val _handler by lazy { Handler(Looper.getMainLooper()) }
+    /**
+     * 移除等待中的请求
+     */
+    @Synchronized
+    private fun removePendingRequest(url: String): DownloadRequest? {
+        return _pendingRequests.remove(url)?.also { request ->
+            logMsg { "removePendingRequest url:${url} request:${request} pendingSize:${_pendingRequests.size}" }
+        }
+    }
 
     internal fun notifyProgress(task: DownloadTask, total: Long, current: Long) {
         task.notifyProgress(total, current)?.let { info ->
@@ -147,21 +179,29 @@ object FDownloader : IDownloader {
     }
 
     internal fun notifySuccess(task: DownloadTask, file: File) {
+        val url = task.url
         if (task.notifySuccess()) {
-            removeTask(task.url)
-            val info = IDownloadInfo.Success(task.url, file)
+            removeTask(url)
+
+            val info = IDownloadInfo.Success(url, file)
             notifyDownloadInfo(info) {
-                logMsg { "notify callback Success url:${task.url} file:${file.absolutePath}" }
+                logMsg { "notify callback Success url:${url} file:${file.absolutePath}" }
             }
         }
     }
 
     internal fun notifyError(task: DownloadTask, exception: DownloadException) {
+        val url = task.url
         if (task.notifyError()) {
-            removeTask(task.url)
-            val info = IDownloadInfo.Error(task.url, exception)
+            removeTask(url)
+
+            val info = IDownloadInfo.Error(url, exception)
             notifyDownloadInfo(info) {
-                logMsg { "notify callback Error url:${task.url} exception:${exception.javaClass.simpleName} $exception" }
+                logMsg { "notify callback Error url:${url} exception:${exception.javaClass.simpleName} $exception" }
+            }
+
+            removePendingRequest(url)?.let { request ->
+                addTask(request)
             }
         }
     }
