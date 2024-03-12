@@ -41,9 +41,8 @@ interface IDownloader {
 
     /**
      * 取消下载任务
-     * @return true-任务被取消
      */
-    fun cancelTask(url: String?): Boolean
+    fun cancelTask(url: String?)
 
     /**
      * 下载回调

@@ -56,11 +56,9 @@ class DefaultDownloadExecutor @JvmOverloads constructor(
         }
     }
 
-    override fun cancel(url: String?): Boolean {
-        if (url.isNullOrEmpty()) return false
-        val job = _taskHolder[url] ?: return false
-        job.cancel()
-        return true
+    override fun cancel(url: String?) {
+        if (url.isNullOrEmpty()) return
+        _taskHolder[url]?.cancel()
     }
 
     private suspend fun handleRequest(

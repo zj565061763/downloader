@@ -58,16 +58,19 @@ object FDownloader : IDownloader {
 
     @Synchronized
     override fun hasTask(url: String?): Boolean {
+        if (url.isNullOrEmpty()) return false
         return _mapTask[url] != null
     }
 
     override fun addTask(url: String?): Boolean {
+        if (url.isNullOrEmpty()) return false
         return addTask(DownloadRequest.Builder().build(url))
     }
 
     @Synchronized
     override fun addTask(request: DownloadRequest): Boolean {
         val url = request.url
+        require(url.isNotEmpty()) { "url is empty." }
         if (_mapTask.containsKey(url)) return true
 
         val task = DownloadTask(url)
@@ -111,14 +114,12 @@ object FDownloader : IDownloader {
     }
 
     @Synchronized
-    override fun cancelTask(url: String?): Boolean {
-        if (url.isNullOrEmpty()) return false
-        if (!hasTask(url)) return false
-
-        logMsg { "cancelTask start url:${url}" }
-        val result = config.downloadExecutor.cancel(url)
-        logMsg { "cancelTask finish result:${result} url:${url}" }
-        return result
+    override fun cancelTask(url: String?) {
+        if (hasTask(url)) {
+            logMsg { "cancelTask start url:${url}" }
+            config.downloadExecutor.cancel(url)
+            logMsg { "cancelTask finish url:${url}" }
+        }
     }
 
     /**

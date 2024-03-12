@@ -19,9 +19,8 @@ interface IDownloadExecutor {
 
     /**
      * 取消[url]下载任务
-     * @return true-任务取消
      */
-    fun cancel(url: String?): Boolean
+    fun cancel(url: String?)
 
     interface Updater {
         /**
