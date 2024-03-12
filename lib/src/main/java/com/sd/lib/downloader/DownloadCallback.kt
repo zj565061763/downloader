@@ -30,6 +30,11 @@ private class UrlCallback(
     val url: String,
     val callback: IDownloader.Callback,
 ) : IDownloader.Callback {
+
+    init {
+        require(callback !is UrlCallback)
+    }
+
     override fun onDownloadInfo(info: IDownloadInfo) {
         if (info.url == url) {
             callback.onDownloadInfo(info)
