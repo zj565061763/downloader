@@ -107,13 +107,7 @@ object FDownloader : IDownloader {
         _mapTask[url] = DownloadTaskInfo(tempFile)
         _mapTempFile[tempFile] = url
         logMsg { "addTask url:${url} temp:${tempFile.absolutePath} size:${_mapTask.size} tempSize:${_mapTempFile.size}" }
-
-        if (task.notifyInitialized()) {
-            val info = IDownloadInfo.Initialized(task.url)
-            notifyDownloadInfo(info) {
-                logMsg { "notify callback Initialized" }
-            }
-        }
+        notifyInitialized(task)
 
         val downloadUpdater = DefaultDownloadUpdater(
             task = task,
@@ -170,6 +164,15 @@ object FDownloader : IDownloader {
     private fun removePendingRequest(url: String): DownloadRequest? {
         return _pendingRequests.remove(url)?.also { request ->
             logMsg { "removePendingRequest url:${url} request:${request} pendingSize:${_pendingRequests.size}" }
+        }
+    }
+
+    private fun notifyInitialized(task: DownloadTask) {
+        if (task.notifyInitialized()) {
+            val info = IDownloadInfo.Initialized(task.url)
+            notifyDownloadInfo(info) {
+                logMsg { "notify callback Initialized" }
+            }
         }
     }
 
