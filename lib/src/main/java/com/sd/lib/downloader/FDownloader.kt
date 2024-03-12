@@ -6,8 +6,9 @@ import android.util.Log
 import com.sd.lib.downloader.exception.DownloadException
 import com.sd.lib.downloader.exception.DownloadExceptionCancellation
 import com.sd.lib.downloader.exception.DownloadExceptionCompleteFile
-import com.sd.lib.downloader.exception.DownloadExceptionIllegalRequest
+import com.sd.lib.downloader.exception.DownloadExceptionCreateDownloadFile
 import com.sd.lib.downloader.exception.DownloadExceptionCreateTempFile
+import com.sd.lib.downloader.exception.DownloadExceptionIllegalRequest
 import com.sd.lib.downloader.exception.DownloadExceptionSubmitTask
 import com.sd.lib.downloader.exception.DownloadExceptionTempFileNotFound
 import com.sd.lib.downloader.executor.IDownloadExecutor
@@ -259,7 +260,7 @@ private class DefaultDownloadUpdater(
             val downloadFile = _downloadDir.getKeyFile(_url)
             if (downloadFile == null) {
                 logMsg { "updater download success error create download file $_url" }
-                FDownloader.notifyError(_task, DownloadExceptionCompleteFile())
+                FDownloader.notifyError(_task, DownloadExceptionCreateDownloadFile())
                 return
             }
 
