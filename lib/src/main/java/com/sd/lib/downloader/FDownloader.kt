@@ -123,7 +123,7 @@ object FDownloader : IDownloader {
                 updater = downloadUpdater,
             )
             true
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             check(e !is DownloadException)
             notifyError(task, DownloadExceptionSubmitTask(e))
             false

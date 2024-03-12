@@ -11,6 +11,7 @@ interface IDownloadExecutor {
      * @param file    要保存的下载文件
      * @param updater 下载信息更新对象
      */
+    @Throws(Throwable::class)
     fun submit(
         request: DownloadRequest,
         file: File,
