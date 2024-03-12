@@ -6,6 +6,7 @@ import android.util.Log
 import com.sd.lib.downloader.exception.DownloadException
 import com.sd.lib.downloader.exception.DownloadExceptionCancellation
 import com.sd.lib.downloader.exception.DownloadExceptionCompleteFile
+import com.sd.lib.downloader.exception.DownloadExceptionIllegalRequest
 import com.sd.lib.downloader.exception.DownloadExceptionPrepareFile
 import com.sd.lib.downloader.exception.DownloadExceptionSubmitTask
 import com.sd.lib.downloader.executor.IDownloadExecutor
@@ -71,6 +72,12 @@ object FDownloader : IDownloader {
         if (_mapTask.containsKey(url)) return true
 
         val task = DownloadTask(url)
+
+        if (url.isEmpty()) {
+            logMsg { "addTask error url is empty" }
+            notifyError(task, DownloadExceptionIllegalRequest("url is empty"))
+            return false
+        }
 
         val tempFile = _downloadDir.getKeyTempFile(url)
         if (tempFile == null) {
