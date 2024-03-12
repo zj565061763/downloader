@@ -25,13 +25,13 @@ interface IDownloader {
     /**
      * 是否有[url]对应的下载任务
      */
-    fun hasTask(url: String?): Boolean
+    fun hasTask(url: String): Boolean
 
     /**
      * 添加下载任务
      * @return true-任务添加成功或者已经添加
      */
-    fun addTask(url: String?): Boolean
+    fun addTask(url: String): Boolean
 
     /**
      * 添加下载任务
@@ -42,7 +42,7 @@ interface IDownloader {
     /**
      * 取消下载任务
      */
-    fun cancelTask(url: String?)
+    fun cancelTask(url: String)
 
     /**
      * 下载回调

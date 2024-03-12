@@ -27,8 +27,7 @@ class DownloadRequest private constructor(builder: Builder) {
             this.preferBreakpoint = preferBreakpoint
         }
 
-        fun build(url: String?): DownloadRequest {
-            require(!url.isNullOrEmpty()) { "url is null or empty" }
+        fun build(url: String): DownloadRequest {
             this.url = url
             return DownloadRequest(this)
         }
