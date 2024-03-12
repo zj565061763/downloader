@@ -20,7 +20,7 @@ interface IDownloadExecutor {
     /**
      * 取消[url]下载任务
      */
-    fun cancel(url: String?)
+    fun cancel(url: String)
 
     interface Updater {
         /**

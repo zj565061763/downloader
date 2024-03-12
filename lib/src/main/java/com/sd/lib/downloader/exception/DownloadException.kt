@@ -1,7 +1,7 @@
 package com.sd.lib.downloader.exception
 
 open class DownloadException @JvmOverloads constructor(
-    message: String? = "",
+    message: String? = null,
     cause: Throwable? = null,
 ) : Exception(message, cause) {
 
