@@ -14,6 +14,9 @@ fun IDownloader.Callback.unregister() {
     FDownloader.unregisterCallback(this)
 }
 
+/**
+ * 把当前回调对象转为监听[url]的回调对象，回调对象会在[url]任务结束后自动被移除
+ */
 fun IDownloader.Callback.withUrl(url: String): IDownloader.Callback {
     val callback = this
     return if (callback is UrlCallback) {
@@ -32,7 +35,7 @@ private class UrlCallback(
             callback.onDownloadInfo(info)
             when (info) {
                 is IDownloadInfo.Success,
-                is IDownloadInfo.Error -> FDownloader.unregisterCallback(this)
+                is IDownloadInfo.Error -> this@UrlCallback.unregister()
                 else -> {}
             }
         }
