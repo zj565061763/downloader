@@ -48,6 +48,9 @@ interface IDownloader {
      * 下载回调
      */
     interface Callback {
+        /**
+         * 下载信息回调(MainThread)
+         */
         fun onDownloadInfo(info: IDownloadInfo)
     }
 }
