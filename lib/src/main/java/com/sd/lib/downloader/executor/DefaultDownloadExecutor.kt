@@ -40,47 +40,22 @@ class DefaultDownloadExecutor @JvmOverloads constructor(
             .trustAllCerts()
     }
 
-    override fun submit(request: DownloadRequest, file: File, updater: IDownloadExecutor.Updater) {
-        val url = request.url
+    override fun submit(
+        request: DownloadRequest,
+        file: File,
+        updater: IDownloadExecutor.Updater,
+    ) {
         _scope.launch(
             context = CoroutineExceptionHandler { _, _ -> },
             start = CoroutineStart.LAZY,
         ) {
-            val length = file.length()
-            val breakpoint = request.preferBreakpoint ?: _preferBreakpoint && length > 0
-
-            if (breakpoint) {
-                val httpRequest = newHttpRequest(request)
-                val code = httpRequest.run {
-                    this.header("Range", "bytes=$length-")
-                    this.code()
-                }
-
-                ensureActive()
-                if (code == HttpURLConnection.HTTP_PARTIAL) {
-                    downloadBreakpoint(
-                        httpRequest = httpRequest,
-                        file = file,
-                        updater = updater,
-                    )
-                    return@launch
-                }
-            }
-
-            val httpRequest = newHttpRequest(request)
-            val code = httpRequest.code()
-
-            ensureActive()
-            if (code == HttpURLConnection.HTTP_OK) {
-                downloadNormal(
-                    httpRequest = httpRequest,
-                    file = file,
-                    updater = updater,
-                )
-            } else {
-                throw DownloadHttpExceptionResponseCode(code)
-            }
+            handleRequest(
+                request = request,
+                file = file,
+                updater = updater,
+            )
         }.also { job ->
+            val url = request.url
             _taskHolder[url] = job
             job.invokeOnCompletion { t ->
                 _taskHolder.remove(url)
@@ -99,6 +74,47 @@ class DefaultDownloadExecutor @JvmOverloads constructor(
         val job = _taskHolder[url] ?: return false
         job.cancel()
         return true
+    }
+
+    private suspend fun handleRequest(
+        request: DownloadRequest,
+        file: File,
+        updater: IDownloadExecutor.Updater,
+    ) {
+        val length = file.length()
+        val breakpoint = request.preferBreakpoint ?: _preferBreakpoint && length > 0
+
+        if (breakpoint) {
+            val httpRequest = newHttpRequest(request)
+            val code = httpRequest.run {
+                this.header("Range", "bytes=$length-")
+                this.code()
+            }
+
+            currentCoroutineContext().ensureActive()
+            if (code == HttpURLConnection.HTTP_PARTIAL) {
+                downloadBreakpoint(
+                    httpRequest = httpRequest,
+                    file = file,
+                    updater = updater,
+                )
+                return
+            }
+        }
+
+        val httpRequest = newHttpRequest(request)
+        val code = httpRequest.code()
+
+        currentCoroutineContext().ensureActive()
+        if (code == HttpURLConnection.HTTP_OK) {
+            downloadNormal(
+                httpRequest = httpRequest,
+                file = file,
+                updater = updater,
+            )
+        } else {
+            throw DownloadHttpExceptionResponseCode(code)
+        }
     }
 
     private suspend fun downloadNormal(
