@@ -61,7 +61,7 @@ private class AwaitCallback(
                     continuation.resume(Result.success(info.file))
                 }
                 is IDownloadInfo.Error -> {
-                    logMsg { "awaitTask resume error url:${url} exception:${info.exception.javaClass.simpleName}" }
+                    logMsg { "awaitTask resume error url:${url} exception:${info.exception.javaClass.simpleName} ${info.exception}" }
                     FDownloader.removeCallback(this)
                     continuation.resume(Result.failure(info.exception))
                 }
