@@ -69,7 +69,7 @@ object FDownloader : IDownloader {
 
     @Synchronized
     override fun hasTask(url: String): Boolean {
-        return _mapTask[url] != null
+        return _mapTask.containsKey(url)
     }
 
     override fun addTask(url: String): Boolean {
