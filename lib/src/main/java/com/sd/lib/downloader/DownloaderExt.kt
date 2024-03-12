@@ -52,11 +52,11 @@ private class AwaitCallback(
             callback?.onDownloadInfo(info)
             when (info) {
                 is IDownloadInfo.Success -> {
-                    FDownloader.unregisterCallback(this)
+                    this@AwaitCallback.unregister()
                     continuation.resume(Result.success(info.file))
                 }
                 is IDownloadInfo.Error -> {
-                    FDownloader.unregisterCallback(this)
+                    this@AwaitCallback.unregister()
                     continuation.resume(Result.failure(info.exception))
                 }
                 else -> {}
