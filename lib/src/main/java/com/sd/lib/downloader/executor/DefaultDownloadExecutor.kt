@@ -4,7 +4,6 @@ import com.sd.lib.downloader.DownloadRequest
 import com.sd.lib.downloader.exception.DownloadHttpExceptionResponseCode
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
@@ -37,10 +36,7 @@ class DefaultDownloadExecutor @JvmOverloads constructor(
         file: File,
         updater: IDownloadExecutor.Updater,
     ) {
-        _scope.launch(
-            context = CoroutineExceptionHandler { _, _ -> },
-            start = CoroutineStart.LAZY,
-        ) {
+        _scope.launch(CoroutineExceptionHandler { _, _ -> }) {
             handleRequest(
                 request = request,
                 file = file,
@@ -48,16 +44,15 @@ class DefaultDownloadExecutor @JvmOverloads constructor(
             )
         }.also { job ->
             val url = request.url
-            _taskHolder[url] = job
-            job.invokeOnCompletion { t ->
+            job.invokeOnCompletion { e ->
                 _taskHolder.remove(url)
-                if (t != null) {
-                    updater.notifyError(t)
+                if (e != null) {
+                    updater.notifyError(e)
                 } else {
                     updater.notifySuccess()
                 }
             }
-            job.start()
+            _taskHolder[url] = job
         }
     }
 
