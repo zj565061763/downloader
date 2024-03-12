@@ -3,10 +3,10 @@ package com.sd.demo.downloader
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import com.sd.demo.downloader.databinding.SampleDownloadBinding
+import com.sd.lib.downloader.DownloadCallback
 import com.sd.lib.downloader.DownloadRequest
 import com.sd.lib.downloader.FDownloader
 import com.sd.lib.downloader.IDownloadInfo
-import com.sd.lib.downloader.IDownloader
 import com.sd.lib.downloader.register
 import com.sd.lib.downloader.unregister
 
@@ -50,14 +50,21 @@ class SampleDownload : ComponentActivity() {
     /**
      * 下载回调
      */
-    private val _downloadCallback = object : IDownloader.Callback {
-        override fun onDownloadInfo(info: IDownloadInfo) {
-            when (info) {
-                is IDownloadInfo.Initialized -> logMsg { "callback Initialized" }
-                is IDownloadInfo.Progress -> logMsg { "callback Progress ${info.progress}" }
-                is IDownloadInfo.Success -> logMsg { "callback Success file:${info.file.absolutePath}" }
-                is IDownloadInfo.Error -> logMsg { "callback Error ${info.exception}" }
-            }
+    private val _downloadCallback = object : DownloadCallback() {
+        override fun onInitialized(info: IDownloadInfo.Initialized) {
+            logMsg { "callback onInitialized" }
+        }
+
+        override fun onProgress(info: IDownloadInfo.Progress) {
+            logMsg { "callback onProgress ${info.progress}" }
+        }
+
+        override fun onSuccess(info: IDownloadInfo.Success) {
+            logMsg { "callback onSuccess file:${info.file.absolutePath}" }
+        }
+
+        override fun onError(info: IDownloadInfo.Error) {
+            logMsg { "callback onError ${info.exception}" }
         }
     }
 

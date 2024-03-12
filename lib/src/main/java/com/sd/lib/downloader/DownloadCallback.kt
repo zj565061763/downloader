@@ -14,6 +14,22 @@ fun IDownloader.Callback.unregister() {
     FDownloader.unregisterCallback(this)
 }
 
+abstract class DownloadCallback : IDownloader.Callback {
+    final override fun onDownloadInfo(info: IDownloadInfo) {
+        when (info) {
+            is IDownloadInfo.Initialized -> onInitialized(info)
+            is IDownloadInfo.Progress -> onProgress(info)
+            is IDownloadInfo.Success -> onSuccess(info)
+            is IDownloadInfo.Error -> onError(info)
+        }
+    }
+
+    protected open fun onInitialized(info: IDownloadInfo.Initialized) = Unit
+    protected open fun onProgress(info: IDownloadInfo.Progress) = Unit
+    protected open fun onSuccess(info: IDownloadInfo.Success) = Unit
+    protected open fun onError(info: IDownloadInfo.Error) = Unit
+}
+
 /**
  * 把当前回调对象转为监听[url]的回调对象，回调对象会在[url]任务结束后自动被移除
  */
