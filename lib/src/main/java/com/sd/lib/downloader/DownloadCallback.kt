@@ -14,6 +14,9 @@ fun IDownloader.Callback.unregister() {
     FDownloader.unregisterCallback(this)
 }
 
+/**
+ * 下载回调
+ */
 abstract class DownloadCallback : IDownloader.Callback {
     final override fun onDownloadInfo(info: IDownloadInfo) {
         when (info) {
