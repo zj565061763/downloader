@@ -133,9 +133,10 @@ object FDownloader : IDownloader {
     override fun cancelTask(url: String) {
         if (hasTask(url)) {
             logMsg { "cancelTask start url:${url}" }
-            config.downloadExecutor.cancel(url)
 
             removePendingRequest(url)
+            config.downloadExecutor.cancel(url)
+
             if (hasTask(url)) {
                 _cancelingTasks.add(url)
             }
