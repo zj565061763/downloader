@@ -82,10 +82,11 @@ internal class DownloadDir(dir: File) : IDownloadDir {
         }
     }
 
-    @Synchronized
     private fun <T> modify(block: (dir: File?) -> T): T {
-        val directory = if (_dir.fMakeDirs()) _dir else null
-        return block(directory)
+        synchronized(this@DownloadDir) {
+            val directory = if (_dir.fMakeDirs()) _dir else null
+            return block(directory)
+        }
     }
 
     private fun newKeyFile(key: String, ext: String): File? {
