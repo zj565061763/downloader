@@ -7,6 +7,8 @@ import com.sd.lib.downloader.DownloadRequest
 import com.sd.lib.downloader.FDownloader
 import com.sd.lib.downloader.IDownloadInfo
 import com.sd.lib.downloader.IDownloader
+import com.sd.lib.downloader.register
+import com.sd.lib.downloader.unregister
 
 class SampleDownload : ComponentActivity() {
     private val _binding by lazy { SampleDownloadBinding.inflate(layoutInflater) }
@@ -18,8 +20,8 @@ class SampleDownload : ComponentActivity() {
         _binding.btnStartDownload.setOnClickListener { startDownload() }
         _binding.btnCancelDownload.setOnClickListener { cancelDownload() }
 
-        // 添加下载回调
-        FDownloader.addCallback(_downloadCallback)
+        // 注册下载回调
+        _downloadCallback.register()
     }
 
     /**
@@ -63,8 +65,8 @@ class SampleDownload : ComponentActivity() {
         super.onDestroy()
         cancelDownload()
 
-        // 移除下载回调
-        FDownloader.removeCallback(_downloadCallback)
+        // 取消注册下载回调
+        _downloadCallback.unregister()
 
         // 删除所有临时文件（下载中的临时文件不会被删除）
         FDownloader.deleteTempFile()

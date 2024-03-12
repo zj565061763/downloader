@@ -25,13 +25,13 @@ object FDownloader : IDownloader {
     private val _downloadDir: IDownloadDir by lazy { DownloadDir(config.downloadDirectory) }
     private val config get() = DownloaderConfig.get()
 
-    override fun addCallback(callback: IDownloader.Callback) {
+    override fun registerCallback(callback: IDownloader.Callback) {
         if (_callbacks.put(callback, "") == null) {
             logMsg { "addCallback:${callback} size:${_callbacks.size}" }
         }
     }
 
-    override fun removeCallback(callback: IDownloader.Callback) {
+    override fun unregisterCallback(callback: IDownloader.Callback) {
         if (_callbacks.remove(callback) != null) {
             logMsg { "removeCallback:${callback} size:${_callbacks.size}" }
         }

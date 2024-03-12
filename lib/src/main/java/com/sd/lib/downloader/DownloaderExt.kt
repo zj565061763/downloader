@@ -33,10 +33,10 @@ suspend fun IDownloader.awaitTask(
         )
 
         continuation.invokeOnCancellation {
-            FDownloader.removeCallback(awaitCallback)
+            FDownloader.unregisterCallback(awaitCallback)
         }
 
-        FDownloader.addCallback(awaitCallback)
+        FDownloader.registerCallback(awaitCallback)
         FDownloader.addTask(request)
     }
 }
@@ -52,11 +52,11 @@ private class AwaitCallback(
             callback?.onDownloadInfo(info)
             when (info) {
                 is IDownloadInfo.Success -> {
-                    FDownloader.removeCallback(this)
+                    FDownloader.unregisterCallback(this)
                     continuation.resume(Result.success(info.file))
                 }
                 is IDownloadInfo.Error -> {
-                    FDownloader.removeCallback(this)
+                    FDownloader.unregisterCallback(this)
                     continuation.resume(Result.failure(info.exception))
                 }
                 else -> {}
