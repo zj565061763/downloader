@@ -7,7 +7,7 @@ import com.sd.lib.downloader.exception.DownloadException
 import com.sd.lib.downloader.exception.DownloadExceptionCancellation
 import com.sd.lib.downloader.exception.DownloadExceptionCompleteFile
 import com.sd.lib.downloader.exception.DownloadExceptionIllegalRequest
-import com.sd.lib.downloader.exception.DownloadExceptionPrepareFile
+import com.sd.lib.downloader.exception.DownloadExceptionCreateTempFile
 import com.sd.lib.downloader.exception.DownloadExceptionSubmitTask
 import com.sd.lib.downloader.exception.DownloadExceptionTempFileNotFound
 import com.sd.lib.downloader.executor.IDownloadExecutor
@@ -100,7 +100,7 @@ object FDownloader : IDownloader {
         val tempFile = _downloadDir.getKeyTempFile(url)
         if (tempFile == null) {
             logMsg { "addTask error create temp file failed:${url}" }
-            notifyError(task, DownloadExceptionPrepareFile())
+            notifyError(task, DownloadExceptionCreateTempFile())
             return false
         }
 
