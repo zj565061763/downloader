@@ -89,7 +89,7 @@ internal class DownloadDir(dir: File) : IDownloadDir {
     }
 
     private fun newKeyFile(key: String, ext: String): File? {
-        val dotExt = if (ext.isEmpty()) "" else ".$ext"
+        val dotExt = ext.takeIf { it.isEmpty() } ?: ".$ext"
         return modify { dir ->
             dir?.resolve(md5(key) + dotExt)
         }
