@@ -123,7 +123,6 @@ class DefaultDownloadExecutor @JvmOverloads constructor(
                     },
                     callback = { count ->
                         updater.notifyProgress(total, count)
-                        false
                     },
                 )
             }
@@ -149,7 +148,6 @@ class DefaultDownloadExecutor @JvmOverloads constructor(
                     },
                     callback = { count ->
                         updater.notifyProgress(total, count + length)
-                        false
                     },
                 )
             }
@@ -165,9 +163,9 @@ private fun newHttpRequest(downloadRequest: DownloadRequest): HttpRequest {
         .trustAllCerts()
 }
 
-private suspend fun InputStream.copyToOutput(
+private suspend inline fun InputStream.copyToOutput(
     output: (buffer: ByteArray, offset: Int, length: Int) -> Unit,
-    callback: ((count: Long) -> Boolean)? = null,
+    callback: (count: Long) -> Unit,
 ): Long {
     var bytesCopied: Long = 0
     val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
@@ -181,7 +179,7 @@ private suspend fun InputStream.copyToOutput(
         currentCoroutineContext().ensureActive()
 
         bytesCopied += bytes
-        if (callback?.invoke(bytesCopied) == true) break
+        callback(bytesCopied)
 
         currentCoroutineContext().ensureActive()
         bytes = read(buffer)
