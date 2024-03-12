@@ -36,7 +36,7 @@ class DownloaderConfig private constructor(builder: Builder) {
             private set
 
         /**
-         * 调试模式（tag：FDownloader）
+         * 调试模式(tag：FDownloader)
          */
         fun setDebug(debug: Boolean) = apply {
             this.isDebug = debug
