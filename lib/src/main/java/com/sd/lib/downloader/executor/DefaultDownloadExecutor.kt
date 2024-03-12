@@ -16,7 +16,6 @@ import java.io.File
 import java.io.InputStream
 import java.io.RandomAccessFile
 import java.net.HttpURLConnection
-import java.util.Collections
 
 class DefaultDownloadExecutor @JvmOverloads constructor(
     limitedParallelism: Int = 3,
@@ -24,7 +23,7 @@ class DefaultDownloadExecutor @JvmOverloads constructor(
 ) : IDownloadExecutor {
 
     private val _preferBreakpoint = preferBreakpoint
-    private val _taskHolder: MutableMap<String, Job> = Collections.synchronizedMap(hashMapOf())
+    private val _taskHolder: MutableMap<String, Job> = hashMapOf()
 
     @OptIn(ExperimentalCoroutinesApi::class)
     private val _scope by lazy {
