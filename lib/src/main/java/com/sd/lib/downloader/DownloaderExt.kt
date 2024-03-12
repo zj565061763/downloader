@@ -33,10 +33,10 @@ suspend fun IDownloader.awaitTask(
         )
 
         continuation.invokeOnCancellation {
-            FDownloader.unregisterCallback(awaitCallback)
+            awaitCallback.unregister()
         }
 
-        FDownloader.registerCallback(awaitCallback)
+        awaitCallback.register()
         FDownloader.addTask(request)
     }
 }
