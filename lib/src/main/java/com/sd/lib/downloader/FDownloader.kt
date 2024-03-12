@@ -9,6 +9,7 @@ import com.sd.lib.downloader.exception.DownloadExceptionCompleteFile
 import com.sd.lib.downloader.exception.DownloadExceptionIllegalRequest
 import com.sd.lib.downloader.exception.DownloadExceptionPrepareFile
 import com.sd.lib.downloader.exception.DownloadExceptionSubmitTask
+import com.sd.lib.downloader.exception.DownloadExceptionTempFileNotFound
 import com.sd.lib.downloader.executor.IDownloadExecutor
 import java.io.File
 import java.util.Collections
@@ -246,8 +247,8 @@ private class DefaultDownloadUpdater(
             logMsg { "updater download success $_url" }
 
             if (!_tempFile.exists()) {
-                logMsg { "updater download success error temp file not exists $_url" }
-                FDownloader.notifyError(_task, DownloadExceptionCompleteFile())
+                logMsg { "updater download success error temp file not found $_url" }
+                FDownloader.notifyError(_task, DownloadExceptionTempFileNotFound())
                 return
             }
 
