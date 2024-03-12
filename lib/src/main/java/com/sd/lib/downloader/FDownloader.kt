@@ -203,7 +203,7 @@ object FDownloader : IDownloader {
 
             val info = IDownloadInfo.Error(url, exception)
             notifyDownloadInfo(info) {
-                logMsg { "notify callback Error url:${url} exception:${exception.javaClass.simpleName} $exception" }
+                logMsg { "notify callback Error url:${url} exception:${exception}" }
             }
 
             removePendingRequest(url)?.let { request ->

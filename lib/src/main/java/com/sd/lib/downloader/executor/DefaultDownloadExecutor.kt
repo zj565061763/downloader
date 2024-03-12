@@ -1,6 +1,7 @@
 package com.sd.lib.downloader.executor
 
 import com.sd.lib.downloader.DownloadRequest
+import com.sd.lib.downloader.exception.DownloadHttpException
 import com.sd.lib.downloader.exception.DownloadHttpExceptionResponseCode
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
@@ -48,7 +49,7 @@ class DefaultDownloadExecutor @JvmOverloads constructor(
                 _taskHolder.remove(url)
                 if (e != null) {
                     if (e is HttpRequest.HttpRequestException) {
-                        updater.notifyError(e.cause ?: e)
+                        updater.notifyError(DownloadHttpException(cause = e.cause ?: e))
                     } else {
                         updater.notifyError(e)
                     }

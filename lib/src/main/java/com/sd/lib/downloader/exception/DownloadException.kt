@@ -8,7 +8,7 @@ open class DownloadException @JvmOverloads constructor(
     /** 异常描述 */
     val desc: String
         get() = buildString {
-            val message = formatMessage ?: ""
+            val message = formatMessage ?: this@DownloadException.javaClass.simpleName
             val cause = formatCause ?: ""
 
             append(message)
