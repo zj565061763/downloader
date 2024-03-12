@@ -109,14 +109,6 @@ class DefaultDownloadExecutor @JvmOverloads constructor(
         }
     }
 
-    private fun newHttpRequest(downloadRequest: DownloadRequest): HttpRequest {
-        return HttpRequest.get(downloadRequest.url)
-            .connectTimeout(15 * 1000)
-            .readTimeout(15 * 1000)
-            .trustAllHosts()
-            .trustAllCerts()
-    }
-
     private suspend fun downloadNormal(
         httpRequest: HttpRequest,
         file: File,
@@ -163,6 +155,14 @@ class DefaultDownloadExecutor @JvmOverloads constructor(
             }
         }
     }
+}
+
+private fun newHttpRequest(downloadRequest: DownloadRequest): HttpRequest {
+    return HttpRequest.get(downloadRequest.url)
+        .connectTimeout(15 * 1000)
+        .readTimeout(15 * 1000)
+        .trustAllHosts()
+        .trustAllCerts()
 }
 
 private suspend fun InputStream.copyToOutput(
