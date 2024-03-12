@@ -27,13 +27,13 @@ object FDownloader : IDownloader {
 
     override fun registerCallback(callback: IDownloader.Callback) {
         if (_callbacks.put(callback, "") == null) {
-            logMsg { "addCallback:${callback} size:${_callbacks.size}" }
+            logMsg { "registerCallback:${callback} size:${_callbacks.size}" }
         }
     }
 
     override fun unregisterCallback(callback: IDownloader.Callback) {
         if (_callbacks.remove(callback) != null) {
-            logMsg { "removeCallback:${callback} size:${_callbacks.size}" }
+            logMsg { "unregisterCallback:${callback} size:${_callbacks.size}" }
         }
     }
 
