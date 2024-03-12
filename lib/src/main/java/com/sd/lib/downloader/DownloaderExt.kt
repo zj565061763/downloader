@@ -25,7 +25,6 @@ suspend fun IDownloader.awaitTask(
     request: DownloadRequest,
     callback: IDownloader.Callback? = null,
 ): Result<File> {
-    val url = request.url
     return suspendCancellableCoroutine { continuation ->
         val awaitCallback = AwaitCallback(
             url = request.url,
@@ -37,11 +36,8 @@ suspend fun IDownloader.awaitTask(
             FDownloader.removeCallback(awaitCallback)
         }
 
-        if (continuation.isActive) {
-            logMsg { "awaitTask url:${url}" }
-            FDownloader.addCallback(awaitCallback)
-            FDownloader.addTask(request)
-        }
+        FDownloader.addCallback(awaitCallback)
+        FDownloader.addTask(request)
     }
 }
 
@@ -56,12 +52,10 @@ private class AwaitCallback(
             callback?.onDownloadInfo(info)
             when (info) {
                 is IDownloadInfo.Success -> {
-                    logMsg { "awaitTask resume success url:${url}" }
                     FDownloader.removeCallback(this)
                     continuation.resume(Result.success(info.file))
                 }
                 is IDownloadInfo.Error -> {
-                    logMsg { "awaitTask resume error url:${url} exception:${info.exception.javaClass.simpleName} ${info.exception}" }
                     FDownloader.removeCallback(this)
                     continuation.resume(Result.failure(info.exception))
                 }
