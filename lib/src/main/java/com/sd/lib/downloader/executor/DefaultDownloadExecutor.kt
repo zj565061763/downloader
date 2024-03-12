@@ -13,6 +13,7 @@ import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
 import java.io.File
+import java.io.IOException
 import java.io.InputStream
 import java.io.RandomAccessFile
 import java.net.HttpURLConnection
@@ -48,10 +49,11 @@ class DefaultDownloadExecutor @JvmOverloads constructor(
             job.invokeOnCompletion { e ->
                 _taskHolder.remove(url)
                 if (e != null) {
-                    if (e is HttpRequest.HttpRequestException) {
-                        updater.notifyError(DownloadHttpException(cause = e.cause ?: e))
+                    val cause = e.findCause()
+                    if (cause is IOException) {
+                        updater.notifyError(DownloadHttpException(cause = cause))
                     } else {
-                        updater.notifyError(e)
+                        updater.notifyError(cause)
                     }
                 } else {
                     updater.notifySuccess()
@@ -158,6 +160,13 @@ private fun newHttpRequest(downloadRequest: DownloadRequest): HttpRequest {
         .readTimeout(15 * 1000)
         .trustAllHosts()
         .trustAllCerts()
+}
+
+private fun Throwable.findCause(): Throwable {
+    return when (val e = this) {
+        is HttpRequest.HttpRequestException -> e.cause ?: e
+        else -> e
+    }
 }
 
 private suspend inline fun InputStream.copyToOutput(
