@@ -32,14 +32,14 @@ DownloaderConfig.init(
 ```kotlin
 interface IDownloader {
     /**
-     * 添加回调对象，可以监听所有的下载任务
+     * 注册回调对象，可以监听所有的下载任务
      */
-    fun addCallback(callback: Callback)
+    fun registerCallback(callback: Callback)
 
     /**
-     * 移除回调对象
+     * 取消注册回调对象
      */
-    fun removeCallback(callback: Callback)
+    fun unregisterCallback(callback: Callback)
 
     /**
      * 删除下载文件(临时文件不会被删除)
