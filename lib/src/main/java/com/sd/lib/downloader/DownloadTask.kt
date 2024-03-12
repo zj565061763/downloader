@@ -1,33 +1,34 @@
 package com.sd.lib.downloader
 
-internal class DownloadTask(val url: String) {
-    private var _state = DownloadState.None
+import java.util.concurrent.atomic.AtomicReference
+
+internal class DownloadTask(
+    val url: String,
+) {
+    private val _stateRef: AtomicReference<DownloadState> = AtomicReference(DownloadState.None)
     private val _transmitParam = TransmitParam()
 
-    @Synchronized
+    /**
+     * 初始化
+     */
     fun notifyInitialized(): Boolean {
-        return when (_state) {
-            DownloadState.None -> {
-                _state = DownloadState.Initialized
-                true
-            }
-            else -> false
-        }
+        return _stateRef.compareAndSet(DownloadState.None, DownloadState.Initialized)
     }
 
     /**
      * 下载进度
      */
-    @Synchronized
     fun notifyProgress(total: Long, current: Long): IDownloadInfo.Progress? {
-        return when (_state) {
+        return when (_stateRef.get()) {
             DownloadState.None -> error("Task not initialized")
             DownloadState.Initialized,
             DownloadState.Progress -> {
-                if (_transmitParam.transmit(total, current)) {
-                    _transmitParam.toProgress(url)
-                } else {
-                    null
+                synchronized(_transmitParam) {
+                    if (_transmitParam.transmit(total, current)) {
+                        _transmitParam.toProgress(url)
+                    } else {
+                        null
+                    }
                 }
             }
             else -> null
@@ -37,15 +38,11 @@ internal class DownloadTask(val url: String) {
     /**
      * 下载成功
      */
-    @Synchronized
     fun notifySuccess(): Boolean {
-        return when (_state) {
+        return when (val state = _stateRef.get()) {
             DownloadState.None -> error("Task not initialized")
             DownloadState.Initialized,
-            DownloadState.Progress -> {
-                _state = DownloadState.Success
-                true
-            }
+            DownloadState.Progress -> _stateRef.compareAndSet(state, DownloadState.Success)
             else -> false
         }
     }
@@ -53,15 +50,11 @@ internal class DownloadTask(val url: String) {
     /**
      * 下载失败
      */
-    @Synchronized
     fun notifyError(): Boolean {
-        return when (_state) {
+        return when (val state = _stateRef.get()) {
             DownloadState.Success,
             DownloadState.Error -> false
-            else -> {
-                _state = DownloadState.Error
-                true
-            }
+            else -> _stateRef.compareAndSet(state, DownloadState.Error)
         }
     }
 
