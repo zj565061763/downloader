@@ -36,5 +36,6 @@ kotlin {
 
 dependencies {
     implementation(libs.androidx.appcompat)
+    implementation(libs.androidx.lifecycle.viewmodel)
     implementation(project(":lib"))
 }
