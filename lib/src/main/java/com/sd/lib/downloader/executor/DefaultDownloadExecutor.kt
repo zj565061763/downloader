@@ -19,7 +19,9 @@ import java.io.RandomAccessFile
 import java.net.HttpURLConnection
 
 class DefaultDownloadExecutor @JvmOverloads constructor(
+    /** 同时下载的任务数量 */
     limitedParallelism: Int = 3,
+    /** 是否支持断点下载 */
     preferBreakpoint: Boolean = false,
 ) : IDownloadExecutor {
 
