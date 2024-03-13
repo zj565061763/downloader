@@ -1,9 +1,34 @@
 package com.sd.lib.downloader
 
 import kotlinx.coroutines.CancellableContinuation
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import java.io.File
 import kotlin.coroutines.resume
+
+fun IDownloader.downloadInfoFlow(): Flow<IDownloadInfo> {
+    return callbackFlow {
+        val scope = MainScope()
+
+        val callback = object : IDownloader.Callback {
+            override fun onDownloadInfo(info: IDownloadInfo) {
+                scope.launch {
+                    send(info)
+                }
+            }
+        }.also { it.register() }
+
+        awaitClose {
+            callback.unregister()
+            scope.cancel()
+        }
+    }
+}
 
 /**
  * 添加下载任务

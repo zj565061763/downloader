@@ -8,6 +8,7 @@ import com.sd.lib.downloader.DownloadRequest
 import com.sd.lib.downloader.FDownloader
 import com.sd.lib.downloader.IDownloadInfo
 import com.sd.lib.downloader.addTaskAwait
+import com.sd.lib.downloader.downloadInfoFlow
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
@@ -26,6 +27,19 @@ class SampleAwaitDownload : ComponentActivity() {
         _binding.btnStartDownload.setOnClickListener { startDownload() }
         _binding.btnCancelDownload.setOnClickListener { cancelDownload() }
         _binding.btnCancelJob.setOnClickListener { cancelJob() }
+
+        collectDownloadInfo()
+    }
+
+    /**
+     * 收集下载信息
+     */
+    private fun collectDownloadInfo() {
+        _scope.launch {
+            FDownloader.downloadInfoFlow().collect { info ->
+                logMsg { "collect $info" }
+            }
+        }
     }
 
     /**
