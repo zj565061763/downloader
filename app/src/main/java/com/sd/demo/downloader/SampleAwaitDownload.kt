@@ -2,6 +2,7 @@ package com.sd.demo.downloader
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.lifecycle.lifecycleScope
 import com.sd.demo.downloader.databinding.SampleAwaitDownloadBinding
 import com.sd.lib.downloader.DownloadCallback
 import com.sd.lib.downloader.DownloadRequest
@@ -10,15 +11,12 @@ import com.sd.lib.downloader.IDownloadInfo
 import com.sd.lib.downloader.addTaskAwait
 import com.sd.lib.downloader.downloadInfoFlow
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.MainScope
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 
 class SampleAwaitDownload : ComponentActivity() {
     private val _binding by lazy { SampleAwaitDownloadBinding.inflate(layoutInflater) }
     private val url = "https://dldir1.qq.com/weixin/Windows/WeChatSetup.exe"
 
-    private val _scope = MainScope()
     private var _awaitJob: Job? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -35,7 +33,7 @@ class SampleAwaitDownload : ComponentActivity() {
      * 收集下载信息
      */
     private fun collectDownloadInfo() {
-        _scope.launch {
+        lifecycleScope.launch {
             FDownloader.downloadInfoFlow().collect { info ->
                 logMsg { "collect $info" }
             }
@@ -51,7 +49,7 @@ class SampleAwaitDownload : ComponentActivity() {
             .build(url)
 
         _awaitJob?.cancel()
-        _awaitJob = _scope.launch {
+        _awaitJob = lifecycleScope.launch {
             FDownloader.addTaskAwait(
                 request = request,
                 callback = object : DownloadCallback() {
@@ -99,8 +97,6 @@ class SampleAwaitDownload : ComponentActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        _scope.cancel()
-
         cancelDownload()
 
         // 删除所有临时文件（下载中的临时文件不会被删除）
