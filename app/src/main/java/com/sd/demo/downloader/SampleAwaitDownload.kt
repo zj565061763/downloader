@@ -88,7 +88,7 @@ class SampleAwaitDownload : ComponentActivity() {
     }
 
     /**
-     * 取消[_awaitJob]
+     * 取消[_awaitJob]，不会取消下载任务
      */
     private fun cancelJob() {
         _awaitJob?.cancel()
