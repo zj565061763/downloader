@@ -7,8 +7,8 @@ android {
     namespace = "com.sd.demo.downloader"
     compileSdk = libs.versions.androidCompileSdk.get().toInt()
     defaultConfig {
+        targetSdk = libs.versions.androidCompileSdk.get().toInt()
         minSdk = 21
-        targetSdk = libs.versions.androidTargetSdk.get().toInt()
         applicationId = "com.sd.demo.downloader"
         versionCode = 1
         versionName = "1.0"
