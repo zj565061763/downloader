@@ -92,7 +92,7 @@ internal class DownloadDir(dir: File) : IDownloadDir {
     private fun newKeyFile(key: String, ext: String): File? {
         val dotExt = ext.takeIf { it.isEmpty() } ?: ".$ext"
         return modify { dir ->
-            dir?.resolve(md5(key) + dotExt)
+            dir?.resolve(fMd5(key) + dotExt)
         }
     }
 }
@@ -104,8 +104,13 @@ private fun File?.fMakeDirs(): Boolean {
     return this.mkdirs()
 }
 
-private fun md5(value: String): String {
-    return MessageDigest.getInstance("MD5")
-        .digest(value.toByteArray())
-        .joinToString("") { "%02X".format(it) }
+private fun fMd5(input: String): String {
+    val md5Bytes = MessageDigest.getInstance("MD5").digest(input.toByteArray())
+    return buildString {
+        for (byte in md5Bytes) {
+            val hex = Integer.toHexString(0xff and byte.toInt())
+            if (hex.length == 1) append("0")
+            append(hex)
+        }
+    }
 }
