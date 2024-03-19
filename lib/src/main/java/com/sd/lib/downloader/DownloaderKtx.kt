@@ -11,14 +11,16 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import java.io.File
 import kotlin.coroutines.resume
 
-fun IDownloader.downloadInfoFlow(): Flow<IDownloadInfo> {
+fun IDownloader.downloadInfoFlow(url: String? = null): Flow<IDownloadInfo> {
     return callbackFlow {
         val scope = MainScope()
 
         val callback = object : IDownloader.Callback {
             override fun onDownloadInfo(info: IDownloadInfo) {
-                scope.launch {
-                    send(info)
+                if (url == null || url == info.url) {
+                    scope.launch {
+                        send(info)
+                    }
                 }
             }
         }.also { it.register() }
