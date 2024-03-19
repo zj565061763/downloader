@@ -59,12 +59,12 @@ suspend fun IDownloader.addTaskAwait(
             callback = callback,
         )
 
+        awaitCallback.register()
+        FDownloader.addTask(request)
+
         continuation.invokeOnCancellation {
             awaitCallback.unregister()
         }
-
-        awaitCallback.register()
-        FDownloader.addTask(request)
     }
 }
 
