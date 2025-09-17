@@ -10,7 +10,7 @@ import com.sd.lib.downloader.FDownloader
 
 class SampleDownload : ComponentActivity() {
   private val _binding by lazy { SampleDownloadBinding.inflate(layoutInflater) }
-  private val url = "https://dldir1.qq.com/weixin/Windows/WeChatSetup.exe"
+  private val url = "https://dldir1v6.qq.com/weixin/Universal/Mac/WeChatMac.dmg"
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
