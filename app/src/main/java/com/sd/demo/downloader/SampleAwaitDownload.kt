@@ -52,10 +52,10 @@ class SampleAwaitDownload : ComponentActivity() {
         callback = object : Downloader.Callback {
           override fun onDownloadInfo(info: DownloadInfo) {
             when (info) {
-              is DownloadInfo.Initialized -> logMsg { "callback onInitialized" }
-              is DownloadInfo.Progress -> logMsg { "callback onProgress ${info.progress}" }
-              is DownloadInfo.Success -> logMsg { "callback onSuccess file:${info.file.absolutePath}" }
-              is DownloadInfo.Error -> logMsg { "callback onError ${info.exception}" }
+              is DownloadInfo.Initialized -> logMsg { "callback Initialized" }
+              is DownloadInfo.Progress -> logMsg { "callback Progress ${info.progress}" }
+              is DownloadInfo.Success -> logMsg { "callback Success file:${info.file.absolutePath}" }
+              is DownloadInfo.Error -> logMsg { "callback Error ${info.exception}" }
             }
           }
         },
