@@ -187,13 +187,15 @@ object FDownloader : Downloader {
   private fun notifyInitialized(task: DownloadTask) {
     if (task.notifyInitialized()) {
       DownloadInfo.Initialized(task.url).notifyCallbacks {
-        logMsg { "notify callback Initialized" }
+        logMsg { "notifyCallbacks ${it.url} Initialized" }
       }
     }
   }
 
   internal fun notifyProgress(task: DownloadTask, total: Long, current: Long) {
-    task.notifyProgress(total, current)?.notifyCallbacks()
+    task.notifyProgress(total, current)?.notifyCallbacks {
+      logMsg { "notifyCallbacks ${it.url} Progress ${it.progress}" }
+    }
   }
 
   internal fun notifySuccess(task: DownloadTask, file: File) {
@@ -201,7 +203,7 @@ object FDownloader : Downloader {
     if (task.notifySuccess()) {
       removeTask(url)
       DownloadInfo.Success(url, file).notifyCallbacks {
-        logMsg { "notify callback Success url:${url} file:${file.absolutePath}" }
+        logMsg { "notify callback ${it.url} Success file:${file.absolutePath}" }
       }
     }
   }
@@ -211,7 +213,7 @@ object FDownloader : Downloader {
     if (task.notifyError()) {
       removeTask(url)
       DownloadInfo.Error(url, exception).notifyCallbacks {
-        logMsg { "notify callback Error url:${url} exception:${exception}" }
+        logMsg { "notify callback ${it.url} Error exception:${exception}" }
       }
       removePendingRequest(url)?.also { request ->
         addTask(request)
@@ -219,10 +221,10 @@ object FDownloader : Downloader {
     }
   }
 
-  private fun DownloadInfo.notifyCallbacks(block: (() -> Unit)? = null) {
+  private fun <T : DownloadInfo> T.notifyCallbacks(block: ((T) -> Unit)? = null) {
     val info = this
     _handler.post {
-      block?.invoke()
+      block?.invoke(info)
       for (item in _callbacks.keys) {
         item.onDownloadInfo(info)
       }
