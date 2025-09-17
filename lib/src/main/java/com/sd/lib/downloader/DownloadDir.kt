@@ -64,9 +64,8 @@ private class DownloadDirImpl(dir: File) : DownloadDir {
   }
 
   private fun <T> listFiles(block: (files: Array<File>) -> T): T {
-    return modify {
-      val files = it?.listFiles() ?: emptyArray()
-      block(files)
+    return modify { dir ->
+      block(dir?.listFiles() ?: emptyArray())
     }
   }
 
@@ -79,8 +78,7 @@ private class DownloadDirImpl(dir: File) : DownloadDir {
 
   private fun <T> modify(block: (dir: File?) -> T): T {
     synchronized(this@DownloadDirImpl) {
-      val directory = if (_dir.fMakeDirs()) _dir else null
-      return block(directory)
+      return block(_dir.takeIf { it.fMakeDirs() })
     }
   }
 }
