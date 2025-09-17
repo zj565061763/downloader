@@ -122,17 +122,15 @@ object FDownloader : Downloader {
     logMsg { "addTask url:${url} temp:${tempFile.absolutePath} size:${_mapTask.size} tempSize:${_mapTempFile.size}" }
     notifyInitialized(task)
 
-    val downloadUpdater = DefaultDownloadUpdater(
-      task = task,
-      tempFile = tempFile,
-      downloadDir = _downloadDir,
-    )
-
     return try {
       _config.downloadExecutor.submit(
         request = request,
         file = tempFile,
-        updater = downloadUpdater,
+        updater = DefaultDownloadUpdater(
+          task = task,
+          tempFile = tempFile,
+          downloadDir = _downloadDir,
+        ),
       )
       true
     } catch (e: Throwable) {
