@@ -94,19 +94,23 @@ private fun Context.defaultDownloadDir(): File {
   val rootDir = getExternalFilesDir(null) ?: filesDir
   return rootDir.resolve("sd.lib.downloader")
     .let { dir ->
-      val process = currentProcess()
-      if (process.isNullOrEmpty()) dir else dir.resolve(process)
+      val noneDefaultProcess = noneDefaultProcessOrNull()
+      if (noneDefaultProcess.isNullOrEmpty()) dir else {
+        dir.resolve(noneDefaultProcess.removePrefix(packageName).replace(":", "_"))
+      }
     }
 }
 
-private fun Context.currentProcess(): String? {
-  return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-    Application.getProcessName()
-  } else {
-    val pid = Process.myPid()
-    (getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager)
-      ?.runningAppProcesses
-      ?.firstOrNull { it.pid == pid }
-      ?.processName
-  }
+/** 非默认进程名称 */
+private fun Context.noneDefaultProcessOrNull(): String? {
+  return when {
+    Build.VERSION.SDK_INT >= Build.VERSION_CODES.P -> Application.getProcessName()
+    else -> {
+      val pid = Process.myPid()
+      (getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager)
+        ?.runningAppProcesses
+        ?.firstOrNull { it.pid == pid }
+        ?.processName
+    }
+  }?.takeIf { it != packageName }
 }
