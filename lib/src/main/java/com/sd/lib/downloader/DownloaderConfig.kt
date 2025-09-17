@@ -2,7 +2,7 @@ package com.sd.lib.downloader
 
 import android.content.Context
 import com.sd.lib.downloader.executor.DefaultDownloadExecutor
-import com.sd.lib.downloader.executor.IDownloadExecutor
+import com.sd.lib.downloader.executor.DownloadExecutor
 import java.io.File
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -12,7 +12,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 class DownloaderConfig private constructor(builder: Builder) {
   internal val isDebug: Boolean
   internal val downloadDirectory: File
-  internal val downloadExecutor: IDownloadExecutor
+  internal val downloadExecutor: DownloadExecutor
 
   init {
     this.isDebug = builder.isDebug
@@ -32,7 +32,7 @@ class DownloaderConfig private constructor(builder: Builder) {
     internal var downloadDirectory: File? = null
       private set
 
-    internal var downloadExecutor: IDownloadExecutor? = null
+    internal var downloadExecutor: DownloadExecutor? = null
       private set
 
     /**
@@ -52,7 +52,7 @@ class DownloaderConfig private constructor(builder: Builder) {
     /**
      * 下载执行器
      */
-    fun setDownloadExecutor(executor: IDownloadExecutor?) = apply {
+    fun setDownloadExecutor(executor: DownloadExecutor?) = apply {
       this.downloadExecutor = executor
     }
 

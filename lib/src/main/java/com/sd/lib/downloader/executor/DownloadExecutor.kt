@@ -4,7 +4,7 @@ import com.sd.lib.downloader.DownloadRequest
 import java.io.File
 import java.util.concurrent.CancellationException
 
-interface IDownloadExecutor {
+interface DownloadExecutor {
   /**
    * 提交下载任务
    * @param request 下载请求

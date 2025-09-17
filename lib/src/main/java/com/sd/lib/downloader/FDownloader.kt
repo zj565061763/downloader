@@ -11,7 +11,7 @@ import com.sd.lib.downloader.exception.DownloadExceptionCreateTempFile
 import com.sd.lib.downloader.exception.DownloadExceptionIllegalRequest
 import com.sd.lib.downloader.exception.DownloadExceptionSubmitTask
 import com.sd.lib.downloader.exception.DownloadExceptionTempFileNotFound
-import com.sd.lib.downloader.executor.IDownloadExecutor
+import com.sd.lib.downloader.executor.DownloadExecutor
 import java.io.File
 import java.util.Collections
 import java.util.concurrent.CancellationException
@@ -240,7 +240,7 @@ private class DefaultDownloadUpdater(
   task: DownloadTask,
   tempFile: File,
   downloadDir: DownloadDir,
-) : IDownloadExecutor.Updater {
+) : DownloadExecutor.Updater {
 
   private val _url = task.url
   private val _task = task

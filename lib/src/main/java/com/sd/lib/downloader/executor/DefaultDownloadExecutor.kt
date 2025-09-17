@@ -24,7 +24,7 @@ class DefaultDownloadExecutor @JvmOverloads constructor(
   limitedParallelism: Int = 3,
   /** 是否支持断点下载 */
   preferBreakpoint: Boolean = false,
-) : IDownloadExecutor {
+) : DownloadExecutor {
 
   private val _preferBreakpoint = preferBreakpoint
   private val _taskHolder: MutableMap<String, Job> = Collections.synchronizedMap(hashMapOf())
@@ -39,7 +39,7 @@ class DefaultDownloadExecutor @JvmOverloads constructor(
   override fun submit(
     request: DownloadRequest,
     file: File,
-    updater: IDownloadExecutor.Updater,
+    updater: DownloadExecutor.Updater,
   ) {
     val url = request.url
     _scope.launch(CoroutineExceptionHandler { _, _ -> }) {
@@ -73,7 +73,7 @@ class DefaultDownloadExecutor @JvmOverloads constructor(
   private suspend fun handleRequest(
     request: DownloadRequest,
     file: File,
-    updater: IDownloadExecutor.Updater,
+    updater: DownloadExecutor.Updater,
   ) {
     val length = file.length()
     val breakpoint = request.preferBreakpoint ?: _preferBreakpoint && length > 0
@@ -114,7 +114,7 @@ class DefaultDownloadExecutor @JvmOverloads constructor(
   private suspend fun downloadNormal(
     httpRequest: HttpRequest,
     file: File,
-    updater: IDownloadExecutor.Updater,
+    updater: DownloadExecutor.Updater,
   ) {
     val total = httpRequest.contentLength().toLong()
     httpRequest.stream().use { input ->
@@ -134,7 +134,7 @@ class DefaultDownloadExecutor @JvmOverloads constructor(
   private suspend fun downloadBreakpoint(
     httpRequest: HttpRequest,
     file: File,
-    updater: IDownloadExecutor.Updater,
+    updater: DownloadExecutor.Updater,
   ) {
     val length = file.length()
     val randomAccessFile = RandomAccessFile(file, "rwd").apply {
