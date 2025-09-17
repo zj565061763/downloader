@@ -21,9 +21,7 @@ internal class DownloadTask(
   fun notifyProgress(total: Long, current: Long): DownloadInfo.Progress? {
     return when (_state.get()) {
       DownloadState.None -> error("Task not initialized")
-      DownloadState.Initialized,
-      DownloadState.Progress,
-        -> {
+      DownloadState.Initialized, DownloadState.Progress -> {
         synchronized(_transmitParam) {
           if (_transmitParam.transmit(total, current)) {
             _transmitParam.toProgress(url)
