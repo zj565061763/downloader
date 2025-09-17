@@ -8,16 +8,10 @@ internal class DownloadTask(
   private val _state: AtomicReference<DownloadState> = AtomicReference(DownloadState.None)
   private val _transmitParam = TransmitParam()
 
-  /**
-   * 初始化
-   */
   fun notifyInitialized(): Boolean {
     return _state.compareAndSet(DownloadState.None, DownloadState.Initialized)
   }
 
-  /**
-   * 下载进度
-   */
   fun notifyProgress(total: Long, current: Long): DownloadInfo.Progress? {
     return when (_state.get()) {
       DownloadState.None -> error("Task not initialized")
@@ -34,9 +28,6 @@ internal class DownloadTask(
     }
   }
 
-  /**
-   * 下载成功
-   */
   fun notifySuccess(): Boolean {
     return when (val state = _state.get()) {
       DownloadState.None -> error("Task not initialized")
@@ -47,9 +38,6 @@ internal class DownloadTask(
     }
   }
 
-  /**
-   * 下载失败
-   */
   fun notifyError(): Boolean {
     return when (val state = _state.get()) {
       DownloadState.Success,
@@ -61,18 +49,10 @@ internal class DownloadTask(
 
   private enum class DownloadState {
     None,
-
-    /** 初始化 */
     Initialized,
-
-    /** 下载中 */
     Progress,
-
-    /** 下载成功 */
     Success,
-
-    /** 下载失败 */
-    Error;
+    Error,
   }
 }
 
