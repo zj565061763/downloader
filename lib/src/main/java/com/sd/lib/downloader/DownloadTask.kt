@@ -128,11 +128,19 @@ private class TransmitParam {
     val newProgress = (current * 100 / total).toInt().coerceAtMost(100)
     this.progress = newProgress
 
+    if (_lastSpeedTime <= 0) {
+      _lastSpeedTime = System.currentTimeMillis()
+    }
+
     if (newProgress > oldProgress) {
       val time = System.currentTimeMillis()
       val changeTime = time - _lastSpeedTime
-      val changeCount = current - _lastSpeedCount
-      speedBps = (changeCount * (1000f / changeTime)).toInt().coerceAtLeast(0)
+      if (changeTime > 0) {
+        val changeCount = (current - _lastSpeedCount).coerceAtLeast(0)
+        speedBps = (changeCount * (1000f / changeTime)).toInt()
+      } else {
+        speedBps = 0
+      }
       _lastSpeedTime = time
       _lastSpeedCount = current
     }
