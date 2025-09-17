@@ -34,3 +34,24 @@ open class DownloadException @JvmOverloads constructor(
     }
   }
 }
+
+/** 非法的请求 */
+class DownloadExceptionIllegalRequest internal constructor(message: String) : DownloadException(message = message)
+
+/** 创建临时文件异常 */
+class DownloadExceptionCreateTempFile internal constructor() : DownloadException()
+
+/** 提交任务异常 */
+class DownloadExceptionSubmitTask internal constructor(cause: Throwable) : DownloadException(cause = cause)
+
+/** 临时文件未找到 */
+class DownloadExceptionTempFileNotFound internal constructor() : DownloadException()
+
+/** 创建下载文件异常 */
+class DownloadExceptionCreateDownloadFile internal constructor() : DownloadException()
+
+/** 完成下载文件异常 */
+class DownloadExceptionCompleteFile internal constructor() : DownloadException()
+
+/** 取消下载 */
+class DownloadExceptionCancellation internal constructor() : DownloadException()
