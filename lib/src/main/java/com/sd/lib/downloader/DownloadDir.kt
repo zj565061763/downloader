@@ -5,14 +5,14 @@ import java.security.MessageDigest
 
 internal interface DownloadDir {
   /**
-   * 获取[key]对应的临时文件
+   * [key]对应的临时文件
    */
-  fun getTempFileForKey(key: String): File?
+  fun tempFileForKey(key: String): File?
 
   /**
-   * 获取[key]对应的文件，如果key有扩展名，则返回的文件名包括[key]的扩展名
+   * [key]对应的文件，如果key有扩展名，则返回文件使用[key]的扩展名
    */
-  fun getFileForKey(key: String): File?
+  fun fileForKey(key: String): File?
 
   /**
    * 访问所有临时文件
@@ -37,14 +37,14 @@ private const val TEMP_EXT = "temp"
 private class DownloadDirImpl(dir: File) : DownloadDir {
   private val _dir = dir
 
-  override fun getTempFileForKey(key: String): File? {
+  override fun tempFileForKey(key: String): File? {
     return newFileForKey(
       key = key,
       ext = TEMP_EXT,
     )
   }
 
-  override fun getFileForKey(key: String): File? {
+  override fun fileForKey(key: String): File? {
     return newFileForKey(
       key = key,
       ext = key.substringAfterLast(".", ""),

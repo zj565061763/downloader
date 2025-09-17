@@ -110,7 +110,7 @@ object FDownloader : Downloader {
       return false
     }
 
-    val tempFile = _downloadDir.getTempFileForKey(url)
+    val tempFile = _downloadDir.tempFileForKey(url)
     if (tempFile == null) {
       logMsg { "addTask error create temp file failed:${url}" }
       notifyError(task, DownloadExceptionCreateTempFile())
@@ -269,7 +269,7 @@ private class DefaultDownloadUpdater(
         return
       }
 
-      val downloadFile = _downloadDir.getFileForKey(_url)
+      val downloadFile = _downloadDir.fileForKey(_url)
       if (downloadFile == null) {
         logMsg { "updater download success error create download file $_url" }
         FDownloader.notifyError(_task, DownloadExceptionCreateDownloadFile())
