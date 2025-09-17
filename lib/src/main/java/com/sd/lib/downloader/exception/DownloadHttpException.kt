@@ -5,6 +5,4 @@ open class DownloadHttpException(
   cause: Throwable? = null,
 ) : DownloadException(message, cause)
 
-class DownloadHttpExceptionResponseCode(
-  val code: Int,
-) : DownloadHttpException()
+class DownloadHttpExceptionResponseCode(val code: Int) : DownloadHttpException()
