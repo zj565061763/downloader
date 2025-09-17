@@ -3,12 +3,10 @@ package com.sd.demo.downloader
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import com.sd.demo.downloader.databinding.SampleDownloadBinding
-import com.sd.lib.downloader.DownloadCallback
 import com.sd.lib.downloader.DownloadRequest
+import com.sd.lib.downloader.Downloader
 import com.sd.lib.downloader.FDownloader
 import com.sd.lib.downloader.IDownloadInfo
-import com.sd.lib.downloader.register
-import com.sd.lib.downloader.unregister
 
 class SampleDownload : ComponentActivity() {
   private val _binding by lazy { SampleDownloadBinding.inflate(layoutInflater) }
@@ -17,11 +15,15 @@ class SampleDownload : ComponentActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     setContentView(_binding.root)
-    _binding.btnStartDownload.setOnClickListener { startDownload() }
-    _binding.btnCancelDownload.setOnClickListener { cancelDownload() }
+    _binding.btnStartDownload.setOnClickListener {
+      startDownload()
+    }
+    _binding.btnCancelDownload.setOnClickListener {
+      cancelDownload()
+    }
 
     // 注册下载回调
-    _downloadCallback.register()
+    FDownloader.registerCallback(_downloadCallback)
   }
 
   /**
@@ -50,21 +52,14 @@ class SampleDownload : ComponentActivity() {
   /**
    * 下载回调
    */
-  private val _downloadCallback = object : DownloadCallback() {
-    override fun onInitialized(info: IDownloadInfo.Initialized) {
-      logMsg { "callback onInitialized" }
-    }
-
-    override fun onProgress(info: IDownloadInfo.Progress) {
-      logMsg { "callback onProgress ${info.progress}" }
-    }
-
-    override fun onSuccess(info: IDownloadInfo.Success) {
-      logMsg { "callback onSuccess file:${info.file.absolutePath}" }
-    }
-
-    override fun onError(info: IDownloadInfo.Error) {
-      logMsg { "callback onError ${info.exception}" }
+  private val _downloadCallback = object : Downloader.Callback {
+    override fun onDownloadInfo(info: IDownloadInfo) {
+      when (info) {
+        is IDownloadInfo.Initialized -> logMsg { "callback onInitialized" }
+        is IDownloadInfo.Progress -> logMsg { "callback onProgress ${info.progress}" }
+        is IDownloadInfo.Success -> logMsg { "callback onSuccess file:${info.file.absolutePath}" }
+        is IDownloadInfo.Error -> logMsg { "callback onError ${info.exception}" }
+      }
     }
   }
 
@@ -72,6 +67,6 @@ class SampleDownload : ComponentActivity() {
     super.onDestroy()
     cancelDownload()
     // 取消注册下载回调
-    _downloadCallback.unregister()
+    FDownloader.unregisterCallback(_downloadCallback)
   }
 }

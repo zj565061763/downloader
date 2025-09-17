@@ -1,6 +1,5 @@
 package com.sd.lib.downloader
 
-import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.awaitClose
@@ -14,19 +13,16 @@ import kotlin.coroutines.resume
 fun Downloader.downloadInfoFlow(url: String? = null): Flow<IDownloadInfo> {
   return callbackFlow {
     val scope = MainScope()
-
     val callback = object : Downloader.Callback {
       override fun onDownloadInfo(info: IDownloadInfo) {
         if (url == null || url == info.url) {
-          scope.launch {
-            send(info)
-          }
+          scope.launch { send(info) }
         }
       }
-    }.also { it.register() }
-
+    }
+    registerCallback(callback)
     awaitClose {
-      callback.unregister()
+      unregisterCallback(callback)
       scope.cancel()
     }
   }
@@ -53,41 +49,34 @@ suspend fun Downloader.addTaskAwait(
   callback: Downloader.Callback? = null,
 ): Result<File> {
   return suspendCancellableCoroutine { continuation ->
-    val awaitCallback = AwaitCallback(
-      url = request.url,
-      continuation = continuation,
-      callback = callback,
-    )
+    val realCallback = object : Downloader.Callback {
+      override fun onDownloadInfo(info: IDownloadInfo) {
+        if (!continuation.isActive) {
+          unregisterCallback(this)
+          return
+        }
+        if (info.url == request.url) {
+          callback?.onDownloadInfo(info)
+          when (info) {
+            is IDownloadInfo.Success -> {
+              unregisterCallback(this)
+              continuation.resume(Result.success(info.file))
+            }
+            is IDownloadInfo.Error -> {
+              unregisterCallback(this)
+              continuation.resume(Result.failure(info.exception))
+            }
+            else -> {}
+          }
+        }
+      }
+    }
 
-    awaitCallback.register()
-    FDownloader.addTask(request)
+    registerCallback(realCallback)
+    addTask(request)
 
     continuation.invokeOnCancellation {
-      awaitCallback.unregister()
-    }
-  }
-}
-
-private class AwaitCallback(
-  private val url: String,
-  private val continuation: CancellableContinuation<Result<File>>,
-  private val callback: Downloader.Callback?,
-) : Downloader.Callback {
-
-  override fun onDownloadInfo(info: IDownloadInfo) {
-    if (info.url == url && continuation.isActive) {
-      callback?.onDownloadInfo(info)
-      when (info) {
-        is IDownloadInfo.Success -> {
-          this@AwaitCallback.unregister()
-          continuation.resume(Result.success(info.file))
-        }
-        is IDownloadInfo.Error -> {
-          this@AwaitCallback.unregister()
-          continuation.resume(Result.failure(info.exception))
-        }
-        else -> {}
-      }
+      unregisterCallback(realCallback)
     }
   }
 }

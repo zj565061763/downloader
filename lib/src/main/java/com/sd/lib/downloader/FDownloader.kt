@@ -50,7 +50,7 @@ object FDownloader : Downloader {
 
   override fun deleteTempFile() {
     _downloadDir.deleteTempFile { !_mapTempFile.containsKey(it) }
-      .let { count ->
+      .also { count ->
         if (count > 0) {
           logMsg { "deleteTempFile count:${count}" }
         }
@@ -59,7 +59,7 @@ object FDownloader : Downloader {
 
   override fun deleteDownloadFile() {
     _downloadDir.deleteFile { true }
-      .let { count ->
+      .also { count ->
         if (count > 0) {
           logMsg { "deleteDownloadFile count:${count}" }
         }
@@ -68,7 +68,7 @@ object FDownloader : Downloader {
 
   override fun deleteDownloadFileWithExtension(extension: String) {
     _downloadDir.deleteFile { it.extension == extension }
-      .let { count ->
+      .also { count ->
         if (count > 0) {
           logMsg { "deleteDownloadFileWithExtension ext:${extension} count:${count} " }
         }
@@ -186,7 +186,7 @@ object FDownloader : Downloader {
   }
 
   internal fun notifyProgress(task: DownloadTask, total: Long, current: Long) {
-    task.notifyProgress(total, current)?.let { info ->
+    task.notifyProgress(total, current)?.also { info ->
       notifyDownloadInfo(info)
     }
   }
@@ -213,7 +213,7 @@ object FDownloader : Downloader {
         logMsg { "notify callback Error url:${url} exception:${exception}" }
       }
 
-      removePendingRequest(url)?.let { request ->
+      removePendingRequest(url)?.also { request ->
         addTask(request)
       }
     }

@@ -4,8 +4,8 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.lifecycle.lifecycleScope
 import com.sd.demo.downloader.databinding.SampleAwaitDownloadBinding
-import com.sd.lib.downloader.DownloadCallback
 import com.sd.lib.downloader.DownloadRequest
+import com.sd.lib.downloader.Downloader
 import com.sd.lib.downloader.FDownloader
 import com.sd.lib.downloader.IDownloadInfo
 import com.sd.lib.downloader.addTaskAwait
@@ -22,17 +22,16 @@ class SampleAwaitDownload : ComponentActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     setContentView(_binding.root)
-    _binding.btnStartDownload.setOnClickListener { startDownload() }
-    _binding.btnCancelDownload.setOnClickListener { cancelDownload() }
-    _binding.btnCancelJob.setOnClickListener { cancelJob() }
+    _binding.btnStartDownload.setOnClickListener {
+      startDownload()
+    }
+    _binding.btnCancelDownload.setOnClickListener {
+      cancelDownload()
+    }
+    _binding.btnCancelJob.setOnClickListener {
+      cancelJob()
+    }
 
-    collectDownloadInfo()
-  }
-
-  /**
-   * 收集下载信息
-   */
-  private fun collectDownloadInfo() {
     lifecycleScope.launch {
       FDownloader.downloadInfoFlow().collect { info ->
         logMsg { "collect $info" }
@@ -44,37 +43,26 @@ class SampleAwaitDownload : ComponentActivity() {
    * 开始下载
    */
   private fun startDownload() {
-    val request = DownloadRequest.Builder()
-      .setPreferBreakpoint(true)
-      .build(url)
-
     _awaitJob?.cancel()
     _awaitJob = lifecycleScope.launch {
       FDownloader.addTaskAwait(
-        request = request,
-        callback = object : DownloadCallback() {
-          override fun onInitialized(info: IDownloadInfo.Initialized) {
-            logMsg { "callback onInitialized" }
-          }
-
-          override fun onProgress(info: IDownloadInfo.Progress) {
-            logMsg { "callback onProgress ${info.progress}" }
-          }
-
-          override fun onSuccess(info: IDownloadInfo.Success) {
-            logMsg { "callback onSuccess file:${info.file.absolutePath}" }
-          }
-
-          override fun onError(info: IDownloadInfo.Error) {
-            logMsg { "callback onError ${info.exception}" }
+        request = DownloadRequest.Builder()
+          .setPreferBreakpoint(true)
+          .build(url),
+        callback = object : Downloader.Callback {
+          override fun onDownloadInfo(info: IDownloadInfo) {
+            when (info) {
+              is IDownloadInfo.Initialized -> logMsg { "callback onInitialized" }
+              is IDownloadInfo.Progress -> logMsg { "callback onProgress ${info.progress}" }
+              is IDownloadInfo.Success -> logMsg { "callback onSuccess file:${info.file.absolutePath}" }
+              is IDownloadInfo.Error -> logMsg { "callback onError ${info.exception}" }
+            }
           }
         },
-      ).let { result ->
-        result.onSuccess {
-          logMsg { "await onSuccess $it" }
-        }.onFailure {
-          logMsg { "await onFailure $it" }
-        }
+      ).onSuccess {
+        logMsg { "await onSuccess $it" }
+      }.onFailure {
+        logMsg { "await onFailure $it" }
       }
     }
   }
