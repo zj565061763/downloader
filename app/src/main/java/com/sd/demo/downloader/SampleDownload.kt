@@ -6,7 +6,7 @@ import com.sd.demo.downloader.databinding.SampleDownloadBinding
 import com.sd.lib.downloader.DownloadRequest
 import com.sd.lib.downloader.Downloader
 import com.sd.lib.downloader.FDownloader
-import com.sd.lib.downloader.IDownloadInfo
+import com.sd.lib.downloader.DownloadInfo
 
 class SampleDownload : ComponentActivity() {
   private val _binding by lazy { SampleDownloadBinding.inflate(layoutInflater) }
@@ -53,12 +53,12 @@ class SampleDownload : ComponentActivity() {
    * 下载回调
    */
   private val _downloadCallback = object : Downloader.Callback {
-    override fun onDownloadInfo(info: IDownloadInfo) {
+    override fun onDownloadInfo(info: DownloadInfo) {
       when (info) {
-        is IDownloadInfo.Initialized -> logMsg { "callback onInitialized" }
-        is IDownloadInfo.Progress -> logMsg { "callback onProgress ${info.progress}" }
-        is IDownloadInfo.Success -> logMsg { "callback onSuccess file:${info.file.absolutePath}" }
-        is IDownloadInfo.Error -> logMsg { "callback onError ${info.exception}" }
+        is DownloadInfo.Initialized -> logMsg { "callback onInitialized" }
+        is DownloadInfo.Progress -> logMsg { "callback onProgress ${info.progress}" }
+        is DownloadInfo.Success -> logMsg { "callback onSuccess file:${info.file.absolutePath}" }
+        is DownloadInfo.Error -> logMsg { "callback onError ${info.exception}" }
       }
     }
   }

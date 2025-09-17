@@ -47,6 +47,6 @@ interface Downloader {
 
   interface Callback {
     /** 主线程回调 */
-    fun onDownloadInfo(info: IDownloadInfo)
+    fun onDownloadInfo(info: DownloadInfo)
   }
 }

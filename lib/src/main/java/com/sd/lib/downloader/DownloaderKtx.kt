@@ -10,11 +10,11 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import java.io.File
 import kotlin.coroutines.resume
 
-fun Downloader.downloadInfoFlow(url: String? = null): Flow<IDownloadInfo> {
+fun Downloader.downloadInfoFlow(url: String? = null): Flow<DownloadInfo> {
   return callbackFlow {
     val scope = MainScope()
     val callback = object : Downloader.Callback {
-      override fun onDownloadInfo(info: IDownloadInfo) {
+      override fun onDownloadInfo(info: DownloadInfo) {
         if (url == null || url == info.url) {
           scope.launch { send(info) }
         }
@@ -50,7 +50,7 @@ suspend fun Downloader.addTaskAwait(
 ): Result<File> {
   return suspendCancellableCoroutine { continuation ->
     val realCallback = object : Downloader.Callback {
-      override fun onDownloadInfo(info: IDownloadInfo) {
+      override fun onDownloadInfo(info: DownloadInfo) {
         if (!continuation.isActive) {
           unregisterCallback(this)
           return
@@ -58,11 +58,11 @@ suspend fun Downloader.addTaskAwait(
         if (info.url == request.url) {
           callback?.onDownloadInfo(info)
           when (info) {
-            is IDownloadInfo.Success -> {
+            is DownloadInfo.Success -> {
               unregisterCallback(this)
               continuation.resume(Result.success(info.file))
             }
-            is IDownloadInfo.Error -> {
+            is DownloadInfo.Error -> {
               unregisterCallback(this)
               continuation.resume(Result.failure(info.exception))
             }

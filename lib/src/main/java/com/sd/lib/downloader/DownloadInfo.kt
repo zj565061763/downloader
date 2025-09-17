@@ -3,13 +3,13 @@ package com.sd.lib.downloader
 import com.sd.lib.downloader.exception.DownloadException
 import java.io.File
 
-sealed interface IDownloadInfo {
+sealed interface DownloadInfo {
   val url: String
 
   /**
    * 初始化
    */
-  data class Initialized(override val url: String) : IDownloadInfo
+  data class Initialized(override val url: String) : DownloadInfo
 
   /**
    * 下载中
@@ -28,7 +28,7 @@ sealed interface IDownloadInfo {
 
     /** 传输速率（B/S） */
     val speedBps: Int,
-  ) : IDownloadInfo
+  ) : DownloadInfo
 
   /**
    * 下载成功
@@ -36,7 +36,7 @@ sealed interface IDownloadInfo {
   data class Success(
     override val url: String,
     val file: File,
-  ) : IDownloadInfo
+  ) : DownloadInfo
 
   /**
    * 下载失败
@@ -44,5 +44,5 @@ sealed interface IDownloadInfo {
   data class Error(
     override val url: String,
     val exception: DownloadException,
-  ) : IDownloadInfo
+  ) : DownloadInfo
 }

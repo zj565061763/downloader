@@ -183,7 +183,7 @@ object FDownloader : Downloader {
 
   private fun notifyInitialized(task: DownloadTask) {
     if (task.notifyInitialized()) {
-      val info = IDownloadInfo.Initialized(task.url)
+      val info = DownloadInfo.Initialized(task.url)
       notifyDownloadInfo(info) {
         logMsg { "notify callback Initialized" }
       }
@@ -201,7 +201,7 @@ object FDownloader : Downloader {
     if (task.notifySuccess()) {
       removeTask(url)
 
-      val info = IDownloadInfo.Success(url, file)
+      val info = DownloadInfo.Success(url, file)
       notifyDownloadInfo(info) {
         logMsg { "notify callback Success url:${url} file:${file.absolutePath}" }
       }
@@ -213,7 +213,7 @@ object FDownloader : Downloader {
     if (task.notifyError()) {
       removeTask(url)
 
-      val info = IDownloadInfo.Error(url, exception)
+      val info = DownloadInfo.Error(url, exception)
       notifyDownloadInfo(info) {
         logMsg { "notify callback Error url:${url} exception:${exception}" }
       }
@@ -225,7 +225,7 @@ object FDownloader : Downloader {
   }
 
   private fun notifyDownloadInfo(
-    info: IDownloadInfo,
+    info: DownloadInfo,
     block: (() -> Unit)? = null,
   ) {
     _handler.post {

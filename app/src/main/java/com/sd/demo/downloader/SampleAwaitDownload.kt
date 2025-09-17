@@ -7,7 +7,7 @@ import com.sd.demo.downloader.databinding.SampleAwaitDownloadBinding
 import com.sd.lib.downloader.DownloadRequest
 import com.sd.lib.downloader.Downloader
 import com.sd.lib.downloader.FDownloader
-import com.sd.lib.downloader.IDownloadInfo
+import com.sd.lib.downloader.DownloadInfo
 import com.sd.lib.downloader.addTaskAwait
 import com.sd.lib.downloader.downloadInfoFlow
 import kotlinx.coroutines.Job
@@ -50,12 +50,12 @@ class SampleAwaitDownload : ComponentActivity() {
           .setPreferBreakpoint(true)
           .build(url),
         callback = object : Downloader.Callback {
-          override fun onDownloadInfo(info: IDownloadInfo) {
+          override fun onDownloadInfo(info: DownloadInfo) {
             when (info) {
-              is IDownloadInfo.Initialized -> logMsg { "callback onInitialized" }
-              is IDownloadInfo.Progress -> logMsg { "callback onProgress ${info.progress}" }
-              is IDownloadInfo.Success -> logMsg { "callback onSuccess file:${info.file.absolutePath}" }
-              is IDownloadInfo.Error -> logMsg { "callback onError ${info.exception}" }
+              is DownloadInfo.Initialized -> logMsg { "callback onInitialized" }
+              is DownloadInfo.Progress -> logMsg { "callback onProgress ${info.progress}" }
+              is DownloadInfo.Success -> logMsg { "callback onSuccess file:${info.file.absolutePath}" }
+              is DownloadInfo.Error -> logMsg { "callback onError ${info.exception}" }
             }
           }
         },

@@ -18,7 +18,7 @@ internal class DownloadTask(
   /**
    * 下载进度
    */
-  fun notifyProgress(total: Long, current: Long): IDownloadInfo.Progress? {
+  fun notifyProgress(total: Long, current: Long): DownloadInfo.Progress? {
     return when (_state.get()) {
       DownloadState.None -> error("Task not initialized")
       DownloadState.Initialized,
@@ -78,8 +78,8 @@ internal class DownloadTask(
   }
 }
 
-private fun TransmitParam.toProgress(url: String): IDownloadInfo.Progress {
-  return IDownloadInfo.Progress(
+private fun TransmitParam.toProgress(url: String): DownloadInfo.Progress {
+  return DownloadInfo.Progress(
     url = url,
     total = this.total,
     current = this.current,
