@@ -1,49 +1,39 @@
-plugins {
-    id("com.android.library")
-    id("org.jetbrains.kotlin.android")
-    `maven-publish`
-}
+import com.vanniktech.maven.publish.AndroidSingleVariantLibrary
 
-val libGroupId = "com.sd.lib.android"
-val libArtifactId = "downloader"
-val libVersionName = "1.0.0-alpha10"
+plugins {
+  alias(libs.plugins.android.library)
+  alias(libs.plugins.kotlin.android)
+  alias(libs.plugins.mavenPublish)
+}
 
 android {
-    namespace = "com.sd.lib.downloader"
-    compileSdk = libs.versions.androidCompileSdk.get().toInt()
-    defaultConfig {
-        minSdk = 21
-    }
+  namespace = "com.sd.lib.downloader"
+  compileSdk = libs.versions.androidCompileSdk.get().toInt()
+  defaultConfig {
+    minSdk = 21
+  }
 
-    kotlinOptions {
-        freeCompilerArgs += "-module-name=$libGroupId.$libArtifactId"
-    }
+  compileOptions {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+  }
 
-    publishing {
-        singleVariant("release") {
-            withSourcesJar()
-        }
-    }
-}
+  kotlinOptions {
+    jvmTarget = "1.8"
+  }
 
-kotlin {
-    jvmToolchain(8)
 }
 
 dependencies {
-    implementation(libs.kotlin.coroutines)
+  compileOnly(libs.kotlin.coroutines)
 }
 
-publishing {
-    publications {
-        create<MavenPublication>("release") {
-            groupId = libGroupId
-            artifactId = libArtifactId
-            version = libVersionName
-
-            afterEvaluate {
-                from(components["release"])
-            }
-        }
-    }
+mavenPublishing {
+  configure(
+    AndroidSingleVariantLibrary(
+      variant = "release",
+      sourcesJar = true,
+      publishJavadocJar = true,
+    )
+  )
 }

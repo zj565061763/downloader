@@ -1,19 +1,22 @@
 [versions]
 
-androidCompileSdk = "34"
+androidCompileSdk = "35"
 
 androidGradlePlugin = "8.3.0"
-kotlin = "1.9.23"
+kotlin = "1.9.25"
+
+maven-publish = "0.32.0"
 
 [libraries]
 
-androidx-appcompat = "androidx.appcompat:appcompat:1.6.1"
-androidx-lifecycle-viewmodel = "androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0"
+androidx-appcompat = "androidx.appcompat:appcompat:1.7.1"
+androidx-lifecycle-viewmodel = "androidx.lifecycle:lifecycle-viewmodel-ktx:2.9.3"
 
-kotlin-coroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.0"
+kotlin-coroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1"
 
 [plugins]
 
 android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }
 android-library = { id = "com.android.library", version.ref = "androidGradlePlugin" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+mavenPublish = { id = "com.vanniktech.maven.publish", version.ref = "maven-publish" }
