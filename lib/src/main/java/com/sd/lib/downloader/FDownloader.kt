@@ -25,7 +25,7 @@ object FDownloader : Downloader {
   private val _mapTempFile: MutableMap<File, String> = Collections.synchronizedMap(mutableMapOf())
 
   /** 正在取消中的任务 */
-  private val _cancelingTasks: MutableSet<String> = mutableSetOf()
+  private val _cancellingTasks: MutableSet<String> = mutableSetOf()
   /** 等待中的请求 */
   private val _pendingRequests: MutableMap<String, DownloadRequest> = mutableMapOf()
 
@@ -94,7 +94,7 @@ object FDownloader : Downloader {
     val url = request.url
 
     if (hasTask(url)) {
-      if (_cancelingTasks.contains(url)) {
+      if (_cancellingTasks.contains(url)) {
         // url对应的任务正在取消中，把请求添加到等待列表
         _pendingRequests[url] = request
         logMsg { "addTask addPendingRequest url:${url} request:${request} pendingSize:${_pendingRequests.size}" }
@@ -151,7 +151,7 @@ object FDownloader : Downloader {
       _config.downloadExecutor.cancel(url)
 
       if (hasTask(url)) {
-        _cancelingTasks.add(url)
+        _cancellingTasks.add(url)
       }
 
       logMsg { "cancelTask finish url:${url}" }
@@ -166,8 +166,8 @@ object FDownloader : Downloader {
     val info = _mapTask.remove(url)
     if (info != null) {
       _mapTempFile.remove(info.tempFile)
-      _cancelingTasks.remove(url)
-      logMsg { "removeTask url:${url} size:${_mapTask.size} tempSize:${_mapTempFile.size} cancelingSize:${_cancelingTasks.size}" }
+      _cancellingTasks.remove(url)
+      logMsg { "removeTask url:${url} size:${_mapTask.size} tempSize:${_mapTempFile.size} cancelingSize:${_cancellingTasks.size}" }
     }
   }
 
