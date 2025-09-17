@@ -149,6 +149,11 @@ object FDownloader : Downloader {
       _config.downloadExecutor.cancel(url)
 
       if (hasTask(url)) {
+        /**
+         * 如果[DownloadExecutor.cancel]之后，任务依然存在，
+         * 说明没有同步回调[DownloadExecutor.Updater.notifyError]移除任务。
+         */
+        logMsg { "The task was not removed synchronously url:${url}" }
         _cancellingTasks.add(url)
       }
 
