@@ -18,7 +18,6 @@ import java.io.IOException
 import java.io.InputStream
 import java.io.RandomAccessFile
 import java.net.HttpURLConnection
-import java.util.Collections
 
 class DefaultDownloadExecutor @JvmOverloads constructor(
   /** 同时下载的任务数量 */
@@ -27,7 +26,7 @@ class DefaultDownloadExecutor @JvmOverloads constructor(
   preferBreakpoint: Boolean = true,
 ) : DownloadExecutor {
   private val _preferBreakpoint = preferBreakpoint
-  private val _taskHolder: MutableMap<String, Job> = Collections.synchronizedMap(hashMapOf())
+  private val _mapJob: MutableMap<String, Job> = mutableMapOf()
 
   @OptIn(ExperimentalCoroutinesApi::class)
   private val _scope by lazy {
@@ -49,9 +48,9 @@ class DefaultDownloadExecutor @JvmOverloads constructor(
         updater = updater,
       )
     }.also { job ->
-      _taskHolder[url] = job
+      _mapJob[url] = job
       job.invokeOnCompletion { e ->
-        _taskHolder.remove(url)
+        _mapJob.remove(url)
         if (e != null) {
           val cause = e.findCause()
           if (cause is IOException) {
@@ -67,7 +66,7 @@ class DefaultDownloadExecutor @JvmOverloads constructor(
   }
 
   override fun cancel(url: String) {
-    _taskHolder[url]?.cancel()
+    _mapJob[url]?.cancel()
   }
 
   private suspend fun handleRequest(
