@@ -98,11 +98,5 @@ class SampleAwaitDownload : ComponentActivity() {
   override fun onDestroy() {
     super.onDestroy()
     cancelDownload()
-
-    // 删除所有临时文件（下载中的临时文件不会被删除）
-    FDownloader.deleteTempFile()
-
-    // 删除下载文件（临时文件不会被删除）
-    FDownloader.deleteDownloadFile(null)
   }
 }

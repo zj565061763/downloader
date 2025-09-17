@@ -4,8 +4,8 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
-import androidx.lifecycle.lifecycleScope
 import com.sd.demo.downloader.databinding.ActivityMainBinding
+import com.sd.lib.downloader.FDownloader
 
 class MainActivity : ComponentActivity() {
   private val _binding by lazy { ActivityMainBinding.inflate(layoutInflater) }
@@ -19,8 +19,14 @@ class MainActivity : ComponentActivity() {
     _binding.btnSampleAwaitDownload.setOnClickListener {
       startActivity(Intent(this, SampleAwaitDownload::class.java))
     }
+  }
 
-    lifecycleScope
+  override fun onResume() {
+    super.onResume()
+    // 删除所有临时文件（下载中的临时文件不会被删除）
+    FDownloader.deleteTempFile()
+    // 删除所有下载文件（临时文件不会被删除）
+    FDownloader.deleteDownloadFile()
   }
 }
 

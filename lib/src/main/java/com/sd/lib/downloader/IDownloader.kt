@@ -2,25 +2,30 @@ package com.sd.lib.downloader
 
 interface IDownloader {
   /**
-   * 注册回调对象，可以监听所有的下载任务
+   * 注册回调对象，监听所有下载任务
    */
   fun registerCallback(callback: Callback)
 
   /**
-   * 取消注册回调对象
+   * 取消注册
    */
   fun unregisterCallback(callback: Callback)
 
   /**
-   * 删除下载文件(临时文件不会被删除)
-   * @param ext 文件扩展名(例如mp3)，null-删除所有下载文件
-   */
-  fun deleteDownloadFile(ext: String?)
-
-  /**
-   * 删除所有临时文件(下载中的临时文件不会被删除)
+   * 删除所有临时文件（下载中的临时文件不会被删除）
    */
   fun deleteTempFile()
+
+  /**
+   * 删除所有下载文件（临时文件不会被删除）
+   */
+  fun deleteDownloadFile()
+
+  /**
+   * 根据扩展名[extension]删除下载文件（临时文件不会被删除）
+   * @param extension 文件扩展名(例如mp3)，如果为空-删除没有扩展名的文件
+   */
+  fun deleteDownloadFileWithExtension(extension: String)
 
   /**
    * 是否有[url]对应的下载任务
@@ -44,13 +49,8 @@ interface IDownloader {
    */
   fun cancelTask(url: String)
 
-  /**
-   * 下载回调
-   */
   interface Callback {
-    /**
-     * 下载信息回调(MainThread)
-     */
+    /** 主线程回调 */
     fun onDownloadInfo(info: IDownloadInfo)
   }
 }

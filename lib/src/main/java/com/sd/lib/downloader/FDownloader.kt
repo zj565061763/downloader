@@ -48,24 +48,31 @@ object FDownloader : IDownloader {
     }
   }
 
-  override fun deleteDownloadFile(ext: String?) {
-    _downloadDir.deleteFile {
-      ext == null || ext == it.extension
-    }.let { count ->
-      if (count > 0) {
-        logMsg { "deleteDownloadFile ext:${ext} count:${count} " }
+  override fun deleteTempFile() {
+    _downloadDir.deleteTempFile { !_mapTempFile.containsKey(it) }
+      .let { count ->
+        if (count > 0) {
+          logMsg { "deleteTempFile count:${count}" }
+        }
       }
-    }
   }
 
-  override fun deleteTempFile() {
-    _downloadDir.deleteTempFile {
-      !_mapTempFile.containsKey(it)
-    }.let { count ->
-      if (count > 0) {
-        logMsg { "deleteTempFile count:${count}" }
+  override fun deleteDownloadFile() {
+    _downloadDir.deleteFile { true }
+      .let { count ->
+        if (count > 0) {
+          logMsg { "deleteDownloadFile count:${count}" }
+        }
       }
-    }
+  }
+
+  override fun deleteDownloadFileWithExtension(extension: String) {
+    _downloadDir.deleteFile { it.extension == extension }
+      .let { count ->
+        if (count > 0) {
+          logMsg { "deleteDownloadFileWithExtension ext:${extension} count:${count} " }
+        }
+      }
   }
 
   @Synchronized

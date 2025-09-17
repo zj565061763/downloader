@@ -8,21 +8,14 @@ private const val TEMP_EXT = "temp"
 
 internal interface IDownloadDir {
   /**
-   * 获取[key]对应的文件，如果key有扩展名，则返回的文件名包括[key]的扩展名
-   */
-  fun getKeyFile(key: String): File?
-
-  /**
    * 获取[key]对应的临时文件，扩展名[TEMP_EXT]
    */
   fun getKeyTempFile(key: String): File?
 
   /**
-   * 删除当前目录下的文件，临时文件(扩展名为[TEMP_EXT])不会被删除
-   * @param block 遍历文件，返回true则删除该文件
-   * @return 返回删除的文件数量
+   * 获取[key]对应的文件，如果key有扩展名，则返回的文件名包括[key]的扩展名
    */
-  fun deleteFile(block: ((File) -> Boolean)? = null): Int
+  fun getKeyFile(key: String): File?
 
   /**
    * 删除当前目录下的临时文件(扩展名为[TEMP_EXT])
@@ -30,17 +23,17 @@ internal interface IDownloadDir {
    * @return 返回删除的文件数量
    */
   fun deleteTempFile(block: ((File) -> Boolean)? = null): Int
+
+  /**
+   * 删除当前目录下的文件，临时文件(扩展名为[TEMP_EXT])不会被删除
+   * @param block 遍历文件，返回true则删除该文件
+   * @return 返回删除的文件数量
+   */
+  fun deleteFile(block: ((File) -> Boolean)? = null): Int
 }
 
 internal class DownloadDir(dir: File) : IDownloadDir {
   private val _dir = dir
-
-  override fun getKeyFile(key: String): File? {
-    return newKeyFile(
-      key = key,
-      ext = key.substringAfterLast(".", ""),
-    )
-  }
 
   override fun getKeyTempFile(key: String): File? {
     return newKeyFile(
@@ -49,11 +42,18 @@ internal class DownloadDir(dir: File) : IDownloadDir {
     )
   }
 
-  override fun deleteFile(block: ((File) -> Boolean)?): Int {
+  override fun getKeyFile(key: String): File? {
+    return newKeyFile(
+      key = key,
+      ext = key.substringAfterLast(".", ""),
+    )
+  }
+
+  override fun deleteTempFile(block: ((File) -> Boolean)?): Int {
     return listFiles { files ->
       var count = 0
       for (item in files) {
-        if (item.extension == TEMP_EXT) continue
+        if (item.extension != TEMP_EXT) continue
         if (block == null || block(item)) {
           if (item.deleteRecursively()) count++
         }
@@ -62,11 +62,11 @@ internal class DownloadDir(dir: File) : IDownloadDir {
     }
   }
 
-  override fun deleteTempFile(block: ((File) -> Boolean)?): Int {
+  override fun deleteFile(block: ((File) -> Boolean)?): Int {
     return listFiles { files ->
       var count = 0
       for (item in files) {
-        if (item.extension != TEMP_EXT) continue
+        if (item.extension == TEMP_EXT) continue
         if (block == null || block(item)) {
           if (item.deleteRecursively()) count++
         }
