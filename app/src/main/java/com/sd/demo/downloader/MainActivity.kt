@@ -23,10 +23,10 @@ class MainActivity : ComponentActivity() {
 
   override fun onResume() {
     super.onResume()
-    // 删除所有临时文件（下载中的临时文件不会被删除）
+    // 删除所有临时文件（不含下载中的临时文件）
     FDownloader.deleteTempFile()
-    // 删除所有下载文件（临时文件不会被删除）
-    FDownloader.deleteDownloadFile()
+    // 删除所有下载文件（不含临时文件）
+    FDownloader.deleteDownloadFile { it.deleteRecursively() }
   }
 }
 

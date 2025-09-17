@@ -49,30 +49,35 @@ object FDownloader : Downloader {
   }
 
   override fun deleteTempFile() {
-    _downloadDir.deleteTempFile { !_mapTempFile.containsKey(it) }
-      .also { count ->
-        if (count > 0) {
-          logMsg { "deleteTempFile count:${count}" }
+    _downloadDir.tempFiles { files ->
+      var count = 0
+      files.forEach { file ->
+        if (!_mapTempFile.containsKey(file)) {
+          if (file.deleteRecursively()) count++
         }
       }
+      count
+    }.also { count ->
+      if (count > 0) {
+        logMsg { "deleteTempFile count:${count}" }
+      }
+    }
   }
 
-  override fun deleteDownloadFile() {
-    _downloadDir.deleteFile { true }
-      .also { count ->
-        if (count > 0) {
-          logMsg { "deleteDownloadFile count:${count}" }
+  override fun deleteDownloadFile(block: (File) -> Boolean) {
+    _downloadDir.files { files ->
+      var count = 0
+      files.forEach { file ->
+        if (block(file)) {
+          if (file.deleteRecursively()) count++
         }
       }
-  }
-
-  override fun deleteDownloadFileWithExtension(extension: String) {
-    _downloadDir.deleteFile { it.extension == extension }
-      .also { count ->
-        if (count > 0) {
-          logMsg { "deleteDownloadFileWithExtension ext:${extension} count:${count} " }
-        }
+      count
+    }.also { count ->
+      if (count > 0) {
+        logMsg { "deleteTempFile count:${count}" }
       }
+    }
   }
 
   @Synchronized

@@ -1,5 +1,7 @@
 package com.sd.lib.downloader
 
+import java.io.File
+
 interface Downloader {
   /**
    * 注册回调对象，监听所有下载任务
@@ -12,20 +14,14 @@ interface Downloader {
   fun unregisterCallback(callback: Callback)
 
   /**
-   * 删除所有临时文件（下载中的临时文件不会被删除）
+   * 删除所有临时文件（不含下载中的临时文件）
    */
   fun deleteTempFile()
 
   /**
-   * 删除所有下载文件（临时文件不会被删除）
+   * 删除[block]返回true的下载文件（不含临时文件）
    */
-  fun deleteDownloadFile()
-
-  /**
-   * 根据扩展名[extension]删除下载文件（临时文件不会被删除）
-   * @param extension 文件扩展名(例如mp3)，如果为空-删除没有扩展名的文件
-   */
-  fun deleteDownloadFileWithExtension(extension: String)
+  fun deleteDownloadFile(block: (File) -> Boolean)
 
   /**
    * 是否有[url]对应的下载任务
