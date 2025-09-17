@@ -42,14 +42,14 @@ private class DownloadDirImpl(dir: File) : DownloadDir {
   private val _dir = dir
 
   override fun getTempFileForKey(key: String): File? {
-    return newKeyFile(
+    return newFileForKey(
       key = key,
       ext = TEMP_EXT,
     )
   }
 
   override fun getFileForKey(key: String): File? {
-    return newKeyFile(
+    return newFileForKey(
       key = key,
       ext = key.substringAfterLast(".", ""),
     )
@@ -95,7 +95,7 @@ private class DownloadDirImpl(dir: File) : DownloadDir {
     }
   }
 
-  private fun newKeyFile(key: String, ext: String): File? {
+  private fun newFileForKey(key: String, ext: String): File? {
     val dotExt = ext.takeIf { it.isEmpty() || it.startsWith(".") } ?: ".$ext"
     return modify { dir ->
       dir?.resolve(fMd5(key) + dotExt)
