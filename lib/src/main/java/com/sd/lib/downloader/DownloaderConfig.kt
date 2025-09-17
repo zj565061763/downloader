@@ -16,7 +16,7 @@ class DownloaderConfig private constructor(builder: Builder) {
   init {
     this.isDebug = builder.isDebug
     this.downloadDirectory = builder.downloadDirectory ?: builder.context.run {
-      getExternalFilesDir(null) ?: filesDir ?: error("files dir is unavailable")
+      getExternalFilesDir(null) ?: filesDir ?: error("download dir is unavailable")
     }.resolve("f_dir_lib_downloader")
     this.downloadExecutor = builder.downloadExecutor ?: DefaultDownloadExecutor()
   }
