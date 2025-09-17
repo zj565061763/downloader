@@ -5,7 +5,7 @@ import java.security.MessageDigest
 
 internal interface DownloadDir {
   /**
-   * 获取[key]对应的临时文件，扩展名[TEMP_EXT]
+   * 获取[key]对应的临时文件
    */
   fun getTempFileForKey(key: String): File?
 
@@ -15,14 +15,14 @@ internal interface DownloadDir {
   fun getFileForKey(key: String): File?
 
   /**
-   * 删除当前目录下的临时文件(扩展名为[TEMP_EXT])
+   * 删除当前目录下的临时文件
    * @param block 遍历临时文件，返回true则删除该文件
    * @return 返回删除的文件数量
    */
   fun deleteTempFile(block: ((File) -> Boolean)? = null): Int
 
   /**
-   * 删除当前目录下的文件，临时文件(扩展名为[TEMP_EXT])不会被删除
+   * 删除当前目录下的文件，临时文件不会被删除
    * @param block 遍历文件，返回true则删除该文件
    * @return 返回删除的文件数量
    */
@@ -88,23 +88,22 @@ private class DownloadDirImpl(dir: File) : DownloadDir {
     }
   }
 
-  private fun <T> modify(block: (dir: File?) -> T): T {
-    synchronized(this@DownloadDirImpl) {
-      val directory = if (_dir.fMakeDirs()) _dir else null
-      return block(directory)
-    }
-  }
-
   private fun newFileForKey(key: String, ext: String): File? {
     val dotExt = ext.takeIf { it.isEmpty() || it.startsWith(".") } ?: ".$ext"
     return modify { dir ->
       dir?.resolve(fMd5(key) + dotExt)
     }
   }
+
+  private fun <T> modify(block: (dir: File?) -> T): T {
+    synchronized(this@DownloadDirImpl) {
+      val directory = if (_dir.fMakeDirs()) _dir else null
+      return block(directory)
+    }
+  }
 }
 
-private fun File?.fMakeDirs(): Boolean {
-  if (this == null) return false
+private fun File.fMakeDirs(): Boolean {
   if (this.isDirectory) return true
   if (this.isFile) this.delete()
   return this.mkdirs()
