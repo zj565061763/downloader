@@ -19,7 +19,7 @@ internal interface DownloadDir {
    * @param block 遍历临时文件，返回true则删除该文件
    * @return 返回删除的文件数量
    */
-  fun deleteTempFile(block: ((File) -> Boolean)? = null): Int
+  fun deleteTempFile(block: (File) -> Boolean): Int
 
   /**
    * 删除当前目录下的文件，临时文件不会被删除
@@ -55,12 +55,12 @@ private class DownloadDirImpl(dir: File) : DownloadDir {
     )
   }
 
-  override fun deleteTempFile(block: ((File) -> Boolean)?): Int {
+  override fun deleteTempFile(block: (File) -> Boolean): Int {
     return listFiles { files ->
       var count = 0
       for (item in files) {
         if (item.extension != TEMP_EXT) continue
-        if (block == null || block(item)) {
+        if (block(item)) {
           if (item.deleteRecursively()) count++
         }
       }
