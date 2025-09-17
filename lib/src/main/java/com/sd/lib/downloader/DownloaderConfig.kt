@@ -4,7 +4,6 @@ import android.content.Context
 import com.sd.lib.downloader.executor.DefaultDownloadExecutor
 import com.sd.lib.downloader.executor.DownloadExecutor
 import java.io.File
-import java.util.concurrent.atomic.AtomicBoolean
 
 /**
  * 下载器配置
@@ -63,8 +62,6 @@ class DownloaderConfig private constructor(builder: Builder) {
   }
 
   companion object {
-    private val sInitFlag = AtomicBoolean(false)
-
     @Volatile
     private var sConfig: DownloaderConfig? = null
 
@@ -73,8 +70,10 @@ class DownloaderConfig private constructor(builder: Builder) {
      */
     @JvmStatic
     fun init(config: DownloaderConfig) {
-      if (sInitFlag.compareAndSet(false, true)) {
-        sConfig = config
+      synchronized(this@Companion) {
+        if (sConfig == null) {
+          sConfig = config
+        }
       }
     }
 
@@ -82,7 +81,9 @@ class DownloaderConfig private constructor(builder: Builder) {
      * 配置信息
      */
     internal fun get(): DownloaderConfig {
-      return checkNotNull(sConfig) { "You should call init() before this." }
+      return sConfig ?: synchronized(this@Companion) {
+        checkNotNull(sConfig) { "You should call init() before this." }
+      }
     }
   }
 }
