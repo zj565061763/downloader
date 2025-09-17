@@ -8,23 +8,20 @@ open class DownloadException @JvmOverloads constructor(
   /** 异常描述 */
   val desc: String
     get() = buildString {
-      val message = formatMessage ?: this@DownloadException.javaClass.simpleName
-      val cause = formatCause ?: ""
-
-      append(message)
-      if (message.isNotEmpty() && cause.isNotEmpty()) {
-        append(" ")
-      }
-      append(cause)
+      val formatMessage = formatMessage.ifEmpty { this@DownloadException.javaClass.simpleName }
+      val formatCause = formatCause
+      append(formatMessage)
+      if (formatMessage.isNotEmpty() && formatCause.isNotEmpty()) append(" ")
+      append(formatCause)
     }
 
   /** 异常信息 */
-  protected open val formatMessage: String?
-    get() = localizedMessage
+  protected open val formatMessage: String
+    get() = message ?: ""
 
   /** 异常原因 */
-  protected open val formatCause: String?
-    get() = cause?.toString()
+  protected open val formatCause: String
+    get() = cause?.toString() ?: ""
 
   override fun toString(): String {
     return desc
