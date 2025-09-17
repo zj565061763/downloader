@@ -258,24 +258,24 @@ private class DefaultDownloadUpdater(
 
   override fun notifySuccess() {
     if (_isFinish.compareAndSet(false, true)) {
-      logMsg { "updater download success $_url" }
       if (!_tempFile.exists()) {
-        logMsg { "updater download success error temp file not found $_url" }
+        logMsg { "updater notifySuccess error temp file not found $_url" }
         FDownloader.notifyError(_task, DownloadExceptionTempFileNotFound())
         return
       }
 
       val downloadFile = _downloadDir.fileForKey(_url)
       if (downloadFile == null) {
-        logMsg { "updater download success error create download file $_url" }
+        logMsg { "updater notifySuccess error create download file $_url" }
         FDownloader.notifyError(_task, DownloadExceptionCreateDownloadFile())
         return
       }
 
       if (_tempFile.renameTo(downloadFile)) {
+        logMsg { "updater notifySuccess $_url" }
         FDownloader.notifySuccess(_task, downloadFile)
       } else {
-        logMsg { "updater download success error rename temp file to download file $_url" }
+        logMsg { "updater notifySuccess error rename temp file to download file $_url" }
         FDownloader.notifyError(_task, DownloadExceptionCompleteFile())
       }
     }
@@ -283,7 +283,7 @@ private class DefaultDownloadUpdater(
 
   override fun notifyError(e: Throwable) {
     if (_isFinish.compareAndSet(false, true)) {
-      logMsg { "updater download error:${e} $_url" }
+      logMsg { "updater notifyError ${e} $_url" }
       if (e is CancellationException) {
         FDownloader.notifyError(_task, DownloadExceptionCancellation())
       } else {
