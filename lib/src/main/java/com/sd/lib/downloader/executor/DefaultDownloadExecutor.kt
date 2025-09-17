@@ -22,8 +22,8 @@ import java.util.Collections
 class DefaultDownloadExecutor @JvmOverloads constructor(
   /** 同时下载的任务数量 */
   limitedParallelism: Int = 3,
-  /** 是否支持断点下载 */
-  preferBreakpoint: Boolean = false,
+  /** 是否优先使用断点下载 */
+  preferBreakpoint: Boolean = true,
 ) : DownloadExecutor {
 
   private val _preferBreakpoint = preferBreakpoint

@@ -18,9 +18,9 @@ DownloaderConfig.init(
     /**
      * 设置下载处理器，如果为null或者不设置则默认的下载处理器为：DefaultDownloadExecutor
      * limitedParallelism：下载中的最大任务数量，默认：3（注意这里是指下载中的数量，最大发起数量不限制）
-     * preferBreakpoint：是否优先使用断点下载，默认：false
+     * preferBreakpoint：是否优先使用断点下载，默认：true
      */
-    .setDownloadExecutor(DefaultDownloadExecutor(limitedParallelism = 3, preferBreakpoint = false))
+    .setDownloadExecutor(DefaultDownloadExecutor(limitedParallelism = 3, preferBreakpoint = true))
 
     // 设置是否输出日志（tag：FDownloader），默认：false
     .setDebug(true)
