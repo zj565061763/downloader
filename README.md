@@ -1,6 +1,10 @@
+[![Maven Central](https://img.shields.io/maven-central/v/io.github.zj565061763.android/downloader)](https://central.sonatype.com/search?q=g:io.github.zj565061763.android+downloader)
+
 # Gradle
 
-[![](https://jitpack.io/v/zj565061763/downloader.svg)](https://jitpack.io/#zj565061763/downloader)
+```kotlin
+implementation("io.github.zj565061763.android:downloader:$version")
+```
 
 # 初始化
 
