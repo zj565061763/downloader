@@ -18,6 +18,7 @@ import java.io.IOException
 import java.io.InputStream
 import java.io.RandomAccessFile
 import java.net.HttpURLConnection
+import java.util.Collections
 
 class DefaultDownloadExecutor @JvmOverloads constructor(
   /** 同时下载的任务数量 */
@@ -26,7 +27,7 @@ class DefaultDownloadExecutor @JvmOverloads constructor(
   preferBreakpoint: Boolean = true,
 ) : DownloadExecutor {
   private val _preferBreakpoint = preferBreakpoint
-  private val _mapJob: MutableMap<String, Job> = mutableMapOf()
+  private val _mapJob: MutableMap<String, Job> = Collections.synchronizedMap(mutableMapOf())
 
   @OptIn(ExperimentalCoroutinesApi::class)
   private val _scope by lazy {
