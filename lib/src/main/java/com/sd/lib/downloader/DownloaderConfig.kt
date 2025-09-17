@@ -1,6 +1,10 @@
 package com.sd.lib.downloader
 
+import android.app.ActivityManager
+import android.app.Application
 import android.content.Context
+import android.os.Build
+import android.os.Process
 import com.sd.lib.downloader.executor.DefaultDownloadExecutor
 import com.sd.lib.downloader.executor.DownloadExecutor
 import java.io.File
@@ -15,9 +19,7 @@ class DownloaderConfig private constructor(builder: Builder) {
 
   init {
     this.isDebug = builder.isDebug
-    this.downloadDirectory = builder.downloadDirectory ?: builder.context.run {
-      getExternalFilesDir(null) ?: filesDir ?: error("download dir is unavailable")
-    }.resolve("f_dir_lib_downloader")
+    this.downloadDirectory = builder.downloadDirectory ?: builder.context.defaultDownloadDir()
     this.downloadExecutor = builder.downloadExecutor ?: DefaultDownloadExecutor()
   }
 
@@ -85,5 +87,26 @@ class DownloaderConfig private constructor(builder: Builder) {
         checkNotNull(sConfig) { "You should call init() before this." }
       }
     }
+  }
+}
+
+private fun Context.defaultDownloadDir(): File {
+  val rootDir = getExternalFilesDir(null) ?: filesDir ?: error("download dir is unavailable")
+  return rootDir.resolve("f_dir_lib_downloader")
+    .let { dir ->
+      val process = currentProcess()
+      if (process.isNullOrEmpty()) dir else dir.resolve(process)
+    }
+}
+
+private fun Context.currentProcess(): String? {
+  return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+    Application.getProcessName()
+  } else {
+    val pid = Process.myPid()
+    (getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager)
+      ?.runningAppProcesses
+      ?.firstOrNull { it.pid == pid }
+      ?.processName
   }
 }
