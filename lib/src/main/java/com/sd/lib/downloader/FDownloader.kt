@@ -20,14 +20,14 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 object FDownloader : Downloader {
   /** 所有任务 */
-  private val _mapTask: MutableMap<String, DownloadTaskInfo> = hashMapOf()
+  private val _mapTask: MutableMap<String, DownloadTaskInfo> = mutableMapOf()
   /** 下载中的临时文件 */
-  private val _mapTempFile: MutableMap<File, String> = Collections.synchronizedMap(hashMapOf())
+  private val _mapTempFile: MutableMap<File, String> = Collections.synchronizedMap(mutableMapOf())
 
   /** 正在取消中的任务 */
-  private val _cancelingTasks: MutableSet<String> = hashSetOf()
+  private val _cancelingTasks: MutableSet<String> = mutableSetOf()
   /** 等待中的请求 */
-  private val _pendingRequests: MutableMap<String, DownloadRequest> = hashMapOf()
+  private val _pendingRequests: MutableMap<String, DownloadRequest> = mutableMapOf()
 
   /** 下载目录 */
   private val _downloadDir: DownloadDir = DownloadDir.get(config.downloadDirectory)
