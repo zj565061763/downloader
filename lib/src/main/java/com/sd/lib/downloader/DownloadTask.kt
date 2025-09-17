@@ -6,7 +6,7 @@ internal class DownloadTask(
   val url: String,
 ) {
   private val _state: AtomicReference<DownloadState> = AtomicReference(DownloadState.None)
-  private val _transmitParam = TransmitParam()
+  private val _transmitParams = TransmitParams()
 
   fun notifyInitialized(): Boolean {
     return _state.compareAndSet(DownloadState.None, DownloadState.Initialized)
@@ -16,9 +16,9 @@ internal class DownloadTask(
     return when (_state.get()) {
       DownloadState.None -> error("Task not initialized")
       DownloadState.Initialized, DownloadState.Progress -> {
-        synchronized(_transmitParam) {
-          if (_transmitParam.transmit(total, current)) {
-            _transmitParam.toProgress(url)
+        synchronized(_transmitParams) {
+          if (_transmitParams.transmit(total, current)) {
+            _transmitParams.toProgress(url)
           } else {
             null
           }
@@ -56,7 +56,7 @@ internal class DownloadTask(
   }
 }
 
-private fun TransmitParam.toProgress(url: String): DownloadInfo.Progress {
+private fun TransmitParams.toProgress(url: String): DownloadInfo.Progress {
   return DownloadInfo.Progress(
     url = url,
     total = this.total,
@@ -66,7 +66,7 @@ private fun TransmitParam.toProgress(url: String): DownloadInfo.Progress {
   )
 }
 
-private class TransmitParam {
+private class TransmitParams {
   private var _lastSpeedTime: Long = 0
   private var _lastSpeedCount: Long = 0
 
