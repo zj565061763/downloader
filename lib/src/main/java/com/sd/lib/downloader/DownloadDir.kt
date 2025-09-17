@@ -59,7 +59,7 @@ private class DownloadDirImpl(dir: File) : DownloadDir {
 
   override fun <T> files(block: (List<File>) -> T): T {
     return listFiles { files ->
-      block(files.filterNot { it.extension == TEMP_EXT })
+      block(files.filter { it.extension != TEMP_EXT })
     }
   }
 
