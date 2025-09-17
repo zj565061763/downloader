@@ -3,19 +3,16 @@ package com.sd.lib.downloader
 import java.io.File
 import java.security.MessageDigest
 
-/** 临时文件扩展名 */
-private const val TEMP_EXT = "temp"
-
-internal interface IDownloadDir {
+internal interface DownloadDir {
   /**
    * 获取[key]对应的临时文件，扩展名[TEMP_EXT]
    */
-  fun getKeyTempFile(key: String): File?
+  fun getTempFileForKey(key: String): File?
 
   /**
    * 获取[key]对应的文件，如果key有扩展名，则返回的文件名包括[key]的扩展名
    */
-  fun getKeyFile(key: String): File?
+  fun getFileForKey(key: String): File?
 
   /**
    * 删除当前目录下的临时文件(扩展名为[TEMP_EXT])
@@ -30,19 +27,28 @@ internal interface IDownloadDir {
    * @return 返回删除的文件数量
    */
   fun deleteFile(block: ((File) -> Boolean)? = null): Int
+
+  companion object {
+    fun get(dir: File): DownloadDir {
+      return DownloadDirImpl(dir = dir)
+    }
+  }
 }
 
-internal class DownloadDir(dir: File) : IDownloadDir {
+/** 临时文件扩展名 */
+private const val TEMP_EXT = "temp"
+
+private class DownloadDirImpl(dir: File) : DownloadDir {
   private val _dir = dir
 
-  override fun getKeyTempFile(key: String): File? {
+  override fun getTempFileForKey(key: String): File? {
     return newKeyFile(
       key = key,
       ext = TEMP_EXT,
     )
   }
 
-  override fun getKeyFile(key: String): File? {
+  override fun getFileForKey(key: String): File? {
     return newKeyFile(
       key = key,
       ext = key.substringAfterLast(".", ""),
@@ -83,7 +89,7 @@ internal class DownloadDir(dir: File) : IDownloadDir {
   }
 
   private fun <T> modify(block: (dir: File?) -> T): T {
-    synchronized(this@DownloadDir) {
+    synchronized(this@DownloadDirImpl) {
       val directory = if (_dir.fMakeDirs()) _dir else null
       return block(directory)
     }

@@ -30,7 +30,7 @@ object FDownloader : Downloader {
   private val _pendingRequests: MutableMap<String, DownloadRequest> = hashMapOf()
 
   /** 下载目录 */
-  private val _downloadDir: IDownloadDir = DownloadDir(config.downloadDirectory)
+  private val _downloadDir: DownloadDir = DownloadDir.get(config.downloadDirectory)
   private val _callbacks: MutableMap<Downloader.Callback, String> = ConcurrentHashMap()
 
   private val config get() = DownloaderConfig.get()
@@ -105,7 +105,7 @@ object FDownloader : Downloader {
       return false
     }
 
-    val tempFile = _downloadDir.getKeyTempFile(url)
+    val tempFile = _downloadDir.getTempFileForKey(url)
     if (tempFile == null) {
       logMsg { "addTask error create temp file failed:${url}" }
       notifyError(task, DownloadExceptionCreateTempFile())
@@ -239,7 +239,7 @@ object FDownloader : Downloader {
 private class DefaultDownloadUpdater(
   task: DownloadTask,
   tempFile: File,
-  downloadDir: IDownloadDir,
+  downloadDir: DownloadDir,
 ) : IDownloadExecutor.Updater {
 
   private val _url = task.url
@@ -264,7 +264,7 @@ private class DefaultDownloadUpdater(
         return
       }
 
-      val downloadFile = _downloadDir.getKeyFile(_url)
+      val downloadFile = _downloadDir.getFileForKey(_url)
       if (downloadFile == null) {
         logMsg { "updater download success error create download file $_url" }
         FDownloader.notifyError(_task, DownloadExceptionCreateDownloadFile())
