@@ -31,5 +31,5 @@ class MainActivity : ComponentActivity() {
 }
 
 inline fun logMsg(block: () -> String) {
-  Log.i("downloader-demo", block())
+  Log.i("sd-demo", block())
 }
