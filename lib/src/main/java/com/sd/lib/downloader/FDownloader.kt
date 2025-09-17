@@ -244,7 +244,6 @@ private class DefaultDownloadUpdater(
   tempFile: File,
   downloadDir: DownloadDir,
 ) : DownloadExecutor.Updater {
-
   private val _url = task.url
   private val _task = task
   private val _tempFile = tempFile
@@ -260,7 +259,6 @@ private class DefaultDownloadUpdater(
   override fun notifySuccess() {
     if (_isFinish.compareAndSet(false, true)) {
       logMsg { "updater download success $_url" }
-
       if (!_tempFile.exists()) {
         logMsg { "updater download success error temp file not found $_url" }
         FDownloader.notifyError(_task, DownloadExceptionTempFileNotFound())
@@ -286,7 +284,6 @@ private class DefaultDownloadUpdater(
   override fun notifyError(e: Throwable) {
     if (_isFinish.compareAndSet(false, true)) {
       logMsg { "updater download error:${e} $_url" }
-
       if (e is CancellationException) {
         FDownloader.notifyError(_task, DownloadExceptionCancellation())
       } else {
