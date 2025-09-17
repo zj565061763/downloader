@@ -30,10 +30,10 @@ object FDownloader : Downloader {
   private val _pendingRequests: MutableMap<String, DownloadRequest> = mutableMapOf()
 
   /** 下载目录 */
-  private val _downloadDir: DownloadDir = DownloadDir.get(config.downloadDirectory)
+  private val _downloadDir: DownloadDir = DownloadDir.get(_config.downloadDirectory)
   private val _callbacks: MutableMap<Downloader.Callback, String> = ConcurrentHashMap()
 
-  private val config get() = DownloaderConfig.get()
+  private val _config get() = DownloaderConfig.get()
   private val _handler by lazy { Handler(Looper.getMainLooper()) }
 
   override fun registerCallback(callback: Downloader.Callback) {
@@ -129,7 +129,7 @@ object FDownloader : Downloader {
     )
 
     return try {
-      config.downloadExecutor.submit(
+      _config.downloadExecutor.submit(
         request = request,
         file = tempFile,
         updater = downloadUpdater,
@@ -148,7 +148,7 @@ object FDownloader : Downloader {
       logMsg { "cancelTask start url:${url}" }
 
       removePendingRequest(url)
-      config.downloadExecutor.cancel(url)
+      _config.downloadExecutor.cancel(url)
 
       if (hasTask(url)) {
         _cancelingTasks.add(url)
