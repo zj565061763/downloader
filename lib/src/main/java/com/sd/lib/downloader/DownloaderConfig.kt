@@ -91,8 +91,8 @@ class DownloaderConfig private constructor(builder: Builder) {
 }
 
 private fun Context.defaultDownloadDir(): File {
-  val rootDir = getExternalFilesDir(null) ?: filesDir ?: error("download dir is unavailable")
-  return rootDir.resolve("f_dir_lib_downloader")
+  val rootDir = getExternalFilesDir(null) ?: filesDir
+  return rootDir.resolve("sd.lib.downloader")
     .let { dir ->
       val process = currentProcess()
       if (process.isNullOrEmpty()) dir else dir.resolve(process)
