@@ -26,7 +26,7 @@ internal interface DownloadDir {
    * @param block 遍历文件，返回true则删除该文件
    * @return 返回删除的文件数量
    */
-  fun deleteFile(block: ((File) -> Boolean)? = null): Int
+  fun deleteFile(block: (File) -> Boolean): Int
 
   companion object {
     fun get(dir: File): DownloadDir {
@@ -68,12 +68,12 @@ private class DownloadDirImpl(dir: File) : DownloadDir {
     }
   }
 
-  override fun deleteFile(block: ((File) -> Boolean)?): Int {
+  override fun deleteFile(block: (File) -> Boolean): Int {
     return listFiles { files ->
       var count = 0
       for (item in files) {
         if (item.extension == TEMP_EXT) continue
-        if (block == null || block(item)) {
+        if (block(item)) {
           if (item.deleteRecursively()) count++
         }
       }
