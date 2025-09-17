@@ -11,11 +11,11 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import java.io.File
 import kotlin.coroutines.resume
 
-fun IDownloader.downloadInfoFlow(url: String? = null): Flow<IDownloadInfo> {
+fun Downloader.downloadInfoFlow(url: String? = null): Flow<IDownloadInfo> {
   return callbackFlow {
     val scope = MainScope()
 
-    val callback = object : IDownloader.Callback {
+    val callback = object : Downloader.Callback {
       override fun onDownloadInfo(info: IDownloadInfo) {
         if (url == null || url == info.url) {
           scope.launch {
@@ -35,9 +35,9 @@ fun IDownloader.downloadInfoFlow(url: String? = null): Flow<IDownloadInfo> {
 /**
  * 添加下载任务
  */
-suspend fun IDownloader.addTaskAwait(
+suspend fun Downloader.addTaskAwait(
   url: String,
-  callback: IDownloader.Callback? = null,
+  callback: Downloader.Callback? = null,
 ): Result<File> {
   return addTaskAwait(
     request = DownloadRequest.Builder().build(url),
@@ -48,9 +48,9 @@ suspend fun IDownloader.addTaskAwait(
 /**
  * 添加下载任务
  */
-suspend fun IDownloader.addTaskAwait(
+suspend fun Downloader.addTaskAwait(
   request: DownloadRequest,
-  callback: IDownloader.Callback? = null,
+  callback: Downloader.Callback? = null,
 ): Result<File> {
   return suspendCancellableCoroutine { continuation ->
     val awaitCallback = AwaitCallback(
@@ -71,8 +71,8 @@ suspend fun IDownloader.addTaskAwait(
 private class AwaitCallback(
   private val url: String,
   private val continuation: CancellableContinuation<Result<File>>,
-  private val callback: IDownloader.Callback?,
-) : IDownloader.Callback {
+  private val callback: Downloader.Callback?,
+) : Downloader.Callback {
 
   override fun onDownloadInfo(info: IDownloadInfo) {
     if (info.url == url && continuation.isActive) {

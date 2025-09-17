@@ -3,21 +3,21 @@ package com.sd.lib.downloader
 /**
  * 注册
  */
-fun IDownloader.Callback.register() {
+fun Downloader.Callback.register() {
   FDownloader.registerCallback(this)
 }
 
 /**
  * 取消注册
  */
-fun IDownloader.Callback.unregister() {
+fun Downloader.Callback.unregister() {
   FDownloader.unregisterCallback(this)
 }
 
 /**
  * 下载回调
  */
-abstract class DownloadCallback : IDownloader.Callback {
+abstract class DownloadCallback : Downloader.Callback {
   final override fun onDownloadInfo(info: IDownloadInfo) {
     when (info) {
       is IDownloadInfo.Initialized -> onInitialized(info)
@@ -36,7 +36,7 @@ abstract class DownloadCallback : IDownloader.Callback {
 /**
  * 把当前回调对象转为监听[url]的回调对象，回调对象会在[url]任务结束后自动被移除
  */
-fun IDownloader.Callback.withUrl(url: String): IDownloader.Callback {
+fun Downloader.Callback.withUrl(url: String): Downloader.Callback {
   val callback = this
   return if (callback is UrlCallback) {
     callback.takeIf { it.url == url } ?: UrlCallback(url, callback.callback)
@@ -47,8 +47,8 @@ fun IDownloader.Callback.withUrl(url: String): IDownloader.Callback {
 
 private class UrlCallback(
   val url: String,
-  val callback: IDownloader.Callback,
-) : IDownloader.Callback {
+  val callback: Downloader.Callback,
+) : Downloader.Callback {
 
   init {
     require(callback !is UrlCallback)

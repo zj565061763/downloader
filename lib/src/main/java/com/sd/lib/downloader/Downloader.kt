@@ -1,6 +1,6 @@
 package com.sd.lib.downloader
 
-interface IDownloader {
+interface Downloader {
   /**
    * 注册回调对象，监听所有下载任务
    */

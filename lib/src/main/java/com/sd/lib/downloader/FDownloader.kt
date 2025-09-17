@@ -18,7 +18,7 @@ import java.util.concurrent.CancellationException
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicBoolean
 
-object FDownloader : IDownloader {
+object FDownloader : Downloader {
   /** 所有任务 */
   private val _mapTask: MutableMap<String, DownloadTaskInfo> = hashMapOf()
   /** 下载中的临时文件 */
@@ -31,18 +31,18 @@ object FDownloader : IDownloader {
 
   /** 下载目录 */
   private val _downloadDir: IDownloadDir = DownloadDir(config.downloadDirectory)
-  private val _callbacks: MutableMap<IDownloader.Callback, String> = ConcurrentHashMap()
+  private val _callbacks: MutableMap<Downloader.Callback, String> = ConcurrentHashMap()
 
   private val config get() = DownloaderConfig.get()
   private val _handler by lazy { Handler(Looper.getMainLooper()) }
 
-  override fun registerCallback(callback: IDownloader.Callback) {
+  override fun registerCallback(callback: Downloader.Callback) {
     if (_callbacks.put(callback, "") == null) {
       logMsg { "registerCallback:${callback} size:${_callbacks.size}" }
     }
   }
 
-  override fun unregisterCallback(callback: IDownloader.Callback) {
+  override fun unregisterCallback(callback: Downloader.Callback) {
     if (_callbacks.remove(callback) != null) {
       logMsg { "unregisterCallback:${callback} size:${_callbacks.size}" }
     }
