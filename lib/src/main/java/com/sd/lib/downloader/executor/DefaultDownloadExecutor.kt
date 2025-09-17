@@ -8,6 +8,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
@@ -25,15 +26,14 @@ class DefaultDownloadExecutor @JvmOverloads constructor(
   /** 是否优先使用断点下载 */
   preferBreakpoint: Boolean = true,
 ) : DownloadExecutor {
-
   private val _preferBreakpoint = preferBreakpoint
   private val _taskHolder: MutableMap<String, Job> = Collections.synchronizedMap(hashMapOf())
 
   @OptIn(ExperimentalCoroutinesApi::class)
   private val _scope by lazy {
-    val job = SupervisorJob()
+    MainScope()
     val dispatcher = Dispatchers.IO.limitedParallelism(limitedParallelism)
-    CoroutineScope(job + dispatcher)
+    CoroutineScope(SupervisorJob() + dispatcher)
   }
 
   override fun submit(
