@@ -75,7 +75,7 @@ object FDownloader : Downloader {
       count
     }.also { count ->
       if (count > 0) {
-        logMsg { "deleteTempFile count:${count}" }
+        logMsg { "deleteDownloadFile count:${count}" }
       }
     }
   }
