@@ -175,9 +175,15 @@ object FDownloader : Downloader {
     }
   }
 
-  /**
-   * 任务结束，移除下载任务
-   */
+  /** 移除等待中的请求 */
+  @Synchronized
+  private fun removePendingRequest(url: String): DownloadRequest? {
+    return _pendingRequests.remove(url)?.also { request ->
+      logMsg { "removePendingRequest $url request:${request} pendingSize:${_pendingRequests.size}" }
+    }
+  }
+
+  /** 任务结束，移除下载任务 */
   @Synchronized
   private fun removeTask(url: String) {
     val taskInfo = _mapTask.remove(url)
@@ -185,16 +191,6 @@ object FDownloader : Downloader {
       _mapTempFile.remove(taskInfo.tempFile)
       _cancellingTasks.remove(url)
       logMsg { "removeTask $url size:${_mapTask.size} tempSize:${_mapTempFile.size} cancelingSize:${_cancellingTasks.size}" }
-    }
-  }
-
-  /**
-   * 移除等待中的请求
-   */
-  @Synchronized
-  private fun removePendingRequest(url: String): DownloadRequest? {
-    return _pendingRequests.remove(url)?.also { request ->
-      logMsg { "removePendingRequest $url request:${request} pendingSize:${_pendingRequests.size}" }
     }
   }
 
