@@ -55,7 +55,7 @@ suspend fun Downloader.addTaskAwait(
           unregisterCallback(this)
           return
         }
-        if (info.url == request.url) {
+        if (request.url == info.url) {
           callback?.onDownloadInfo(info)
           when (info) {
             is DownloadInfo.Success -> {
