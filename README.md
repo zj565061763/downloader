@@ -12,7 +12,7 @@ implementation("io.github.zj565061763.android:downloader:$version")
 DownloaderConfig.init(
   DownloaderConfig.Builder()
 
-    // 设置下载目录，如果为null或者不设置则默认路径为：(sd卡或者内部存储)/Android/data/包名/files/f_dir_lib_downloader
+    // 设置下载目录，如果为null或者不设置则默认路径为：(sd卡或者内部存储)/Android/data/包名/files/sd.lib.downloader/进程名称
     .setDownloadDirectory(null)
 
     /**
@@ -33,29 +33,22 @@ DownloaderConfig.init(
 
 ```kotlin
 interface Downloader {
-  /**
-   * 注册回调对象，监听所有下载任务
-   */
+  /** 注册回调对象，监听所有下载任务 */
   fun registerCallback(callback: Callback)
 
-  /**
-   * 取消注册
-   */
+  /** 取消注册 */
   fun unregisterCallback(callback: Callback)
 
-  /**
-   * 删除所有临时文件（不含下载中的临时文件）
-   */
+  /** 获取[url]对应的下载文件，如果文件不存在则返回null */
+  fun getDownloadFile(url: String): File?
+
+  /** 删除所有临时文件（不含下载中的临时文件） */
   fun deleteTempFile()
 
-  /**
-   * 删除[block]返回true的下载文件（不含临时文件）
-   */
+  /** 删除[block]返回true的下载文件（不含临时文件） */
   fun deleteDownloadFile(block: (File) -> Boolean)
 
-  /**
-   * 获取[url]对应的下载信息
-   */
+  /** 获取[url]对应的下载信息 */
   fun getDownloadInfo(url: String): AccessibleDownloadInfo?
 
   /**
@@ -70,9 +63,7 @@ interface Downloader {
    */
   fun addTask(request: DownloadRequest): Boolean
 
-  /**
-   * 取消下载任务
-   */
+  /** 取消下载任务 */
   fun cancelTask(url: String)
 
   interface Callback {
