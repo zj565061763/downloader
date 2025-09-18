@@ -88,6 +88,9 @@ class DefaultDownloadExecutor @JvmOverloads constructor(
           downloadNormal(httpRequest = httpRequest, file = file, updater = updater)
           return
         }
+        416 -> {
+          // 不处理，回退到正常下载
+        }
         else -> {
           throw DownloadExceptionHttpResponseCode(code)
         }
