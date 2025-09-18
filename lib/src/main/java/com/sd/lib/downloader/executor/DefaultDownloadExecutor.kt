@@ -84,14 +84,9 @@ class DefaultDownloadExecutor @JvmOverloads constructor(
 
     val httpRequest = newHttpRequest(request)
     val code = httpRequest.code()
-
     currentCoroutineContext().ensureActive()
     if (code == HttpURLConnection.HTTP_OK) {
-      downloadNormal(
-        httpRequest = httpRequest,
-        file = file,
-        updater = updater,
-      )
+      downloadNormal(httpRequest = httpRequest, file = file, updater = updater)
     } else {
       throw DownloadHttpExceptionResponseCode(code)
     }
