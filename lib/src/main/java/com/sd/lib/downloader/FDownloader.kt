@@ -172,7 +172,7 @@ object FDownloader : Downloader {
     if (info != null) {
       _mapTempFile.remove(info.tempFile)
       _cancellingTasks.remove(url)
-      logMsg { "removeTask url:${url} size:${_mapTask.size} tempSize:${_mapTempFile.size} cancelingSize:${_cancellingTasks.size}" }
+      logMsg { "removeTask $url size:${_mapTask.size} tempSize:${_mapTempFile.size} cancelingSize:${_cancellingTasks.size}" }
     }
   }
 
@@ -182,7 +182,7 @@ object FDownloader : Downloader {
   @Synchronized
   private fun removePendingRequest(url: String): DownloadRequest? {
     return _pendingRequests.remove(url)?.also { request ->
-      logMsg { "removePendingRequest url:${url} request:${request} pendingSize:${_pendingRequests.size}" }
+      logMsg { "removePendingRequest $url request:${request} pendingSize:${_pendingRequests.size}" }
     }
   }
 
@@ -205,7 +205,7 @@ object FDownloader : Downloader {
     if (task.notifySuccess()) {
       removeTask(url)
       DownloadInfo.Success(url, file).notifyCallbacks {
-        logMsg { "notify callback ${it.url} Success file:${file.absolutePath}" }
+        logMsg { "notifyCallbacks ${it.url} Success file:${file.absolutePath}" }
       }
     }
   }
@@ -215,7 +215,7 @@ object FDownloader : Downloader {
     if (task.notifyError()) {
       removeTask(url)
       DownloadInfo.Error(url, exception).notifyCallbacks {
-        logMsg { "notify callback ${it.url} Error exception:${exception}" }
+        logMsg { "notifyCallbacks ${it.url} Error exception:${exception}" }
       }
       removePendingRequest(url)?.also { request ->
         addTask(request)
