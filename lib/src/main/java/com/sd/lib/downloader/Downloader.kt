@@ -24,6 +24,11 @@ interface Downloader {
   fun deleteDownloadFile(block: (File) -> Boolean)
 
   /**
+   * 获取[url]对应的下载信息
+   */
+  fun getDownloadInfo(url: String): AccessibleDownloadInfo?
+
+  /**
    * 添加下载任务
    * @return true-任务添加成功或者已经添加
    */

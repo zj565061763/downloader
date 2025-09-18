@@ -80,6 +80,11 @@ object FDownloader : Downloader {
     }
   }
 
+  @Synchronized
+  override fun getDownloadInfo(url: String): AccessibleDownloadInfo? {
+    return _mapTask[url]?.info
+  }
+
   override fun addTask(url: String): Boolean {
     return addTask(DownloadRequest.Builder().build(url))
   }
