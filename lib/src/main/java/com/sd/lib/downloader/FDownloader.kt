@@ -206,24 +206,22 @@ object FDownloader : Downloader {
   }
 
   internal fun notifySuccess(task: DownloadTask, file: File) {
-    val url = task.url
     if (task.notifySuccess()) {
-      removeTask(url)
-      DownloadInfo.Success(url, file).notifyCallbacks {
+      removeTask(task.url)
+      DownloadInfo.Success(task.url, file).notifyCallbacks {
         logMsg { "notifyCallbacks ${task.url} Success file:${file.absolutePath}" }
       }
     }
   }
 
   internal fun notifyError(task: DownloadTask, exception: DownloadException) {
-    val url = task.url
     if (task.notifyError()) {
-      removeTask(url)
-      DownloadInfo.Error(url, exception).notifyCallbacks {
+      removeTask(task.url)
+      DownloadInfo.Error(task.url, exception).notifyCallbacks {
         logMsg { "notifyCallbacks ${task.url} Error exception:${exception}" }
       }
       // 检查是否有正在等待中的请求
-      removePendingRequest(url)?.also { request ->
+      removePendingRequest(task.url)?.also { request ->
         addTask(request)
       }
     }
