@@ -5,6 +5,7 @@ import com.sd.lib.downloader.R
 import java.net.ConnectException
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
+import javax.net.ssl.SSLHandshakeException
 
 open class DownloadExceptionHttp(
   message: String? = null,
@@ -15,6 +16,7 @@ open class DownloadExceptionHttp(
       is ConnectException -> ""
       is SocketTimeoutException -> ""
       is UnknownHostException -> ""
+      is SSLHandshakeException -> ""
       else -> super.formatMessage(context)
     }
   }
@@ -24,6 +26,7 @@ open class DownloadExceptionHttp(
       is ConnectException -> context.getString(R.string.lib_downloader_ExceptionHttp_ConnectException)
       is SocketTimeoutException -> context.getString(R.string.lib_downloader_ExceptionHttp_SocketTimeoutException)
       is UnknownHostException -> context.getString(R.string.lib_downloader_ExceptionHttp_UnknownHostException)
+      is SSLHandshakeException -> context.getString(R.string.lib_downloader_ExceptionHttp_SSLHandshakeException)
       else -> super.formatCause(context)
     }
   }

@@ -9,4 +9,5 @@
     <string name="lib_downloader_ExceptionHttp_ConnectException">连接失败</string>
     <string name="lib_downloader_ExceptionHttp_SocketTimeoutException">连接超时</string>
     <string name="lib_downloader_ExceptionHttp_UnknownHostException">连接Host失败</string>
+    <string name="lib_downloader_ExceptionHttp_SSLHandshakeException">SSL连接失败</string>
 </resources>
