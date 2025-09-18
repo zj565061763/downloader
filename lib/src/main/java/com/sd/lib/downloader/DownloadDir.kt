@@ -32,7 +32,7 @@ internal interface DownloadDir {
 }
 
 /** 临时文件扩展名 */
-private const val TEMP_EXT = "temp"
+private const val ExtTemp = "temp"
 
 private class DownloadDirImpl(dir: File) : DownloadDir {
   private val _dir = dir
@@ -40,7 +40,7 @@ private class DownloadDirImpl(dir: File) : DownloadDir {
   override fun tempFileForKey(key: String): File? {
     return newFileForKey(
       key = key,
-      ext = TEMP_EXT,
+      ext = ExtTemp,
     )
   }
 
@@ -53,13 +53,13 @@ private class DownloadDirImpl(dir: File) : DownloadDir {
 
   override fun <T> tempFiles(block: (List<File>) -> T): T {
     return listFiles { files ->
-      block(files.filter { it.extension == TEMP_EXT })
+      block(files.filter { it.extension == ExtTemp })
     }
   }
 
   override fun <T> files(block: (List<File>) -> T): T {
     return listFiles { files ->
-      block(files.filter { it.extension != TEMP_EXT })
+      block(files.filter { it.extension != ExtTemp })
     }
   }
 
