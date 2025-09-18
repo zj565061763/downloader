@@ -1,8 +1,8 @@
 package com.sd.lib.downloader.executor
 
 import com.sd.lib.downloader.DownloadRequest
-import com.sd.lib.downloader.exception.DownloadHttpException
-import com.sd.lib.downloader.exception.DownloadHttpExceptionResponseCode
+import com.sd.lib.downloader.exception.DownloadExceptionHttp
+import com.sd.lib.downloader.exception.DownloadExceptionHttpResponseCode
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -49,7 +49,7 @@ class DefaultDownloadExecutor @JvmOverloads constructor(
         if (e != null) {
           val cause = e.findCause()
           if (cause is IOException) {
-            updater.notifyError(DownloadHttpException(cause = cause))
+            updater.notifyError(DownloadExceptionHttp(cause = cause))
           } else {
             updater.notifyError(cause)
           }
@@ -91,7 +91,7 @@ class DefaultDownloadExecutor @JvmOverloads constructor(
     if (code == HttpURLConnection.HTTP_OK) {
       downloadNormal(httpRequest = httpRequest, file = file, updater = updater)
     } else {
-      throw DownloadHttpExceptionResponseCode(code)
+      throw DownloadExceptionHttpResponseCode(code)
     }
   }
 
