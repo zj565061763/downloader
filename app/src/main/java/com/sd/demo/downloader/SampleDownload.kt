@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import com.sd.demo.downloader.databinding.SampleDownloadBinding
 import com.sd.lib.downloader.DownloadInfo
+import com.sd.lib.downloader.DownloadProgressNotifyStrategy
 import com.sd.lib.downloader.DownloadRequest
 import com.sd.lib.downloader.Downloader
 import com.sd.lib.downloader.FDownloader
@@ -34,6 +35,8 @@ class SampleDownload : ComponentActivity() {
     val request = DownloadRequest.Builder()
       // true-优先断点下载；false-不使用断点下载；null-跟随初始化配置
       .setPreferBreakpoint(true)
+      // 设置下载进度通知策略
+      .setProgressNotifyStrategy(DownloadProgressNotifyStrategy.WhenProgressIncreased(increased = 0.5f))
       // 下载地址
       .build(url)
 
