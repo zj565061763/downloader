@@ -7,7 +7,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
@@ -30,7 +29,6 @@ class DefaultDownloadExecutor @JvmOverloads constructor(
 
   @OptIn(ExperimentalCoroutinesApi::class)
   private val _scope by lazy {
-    MainScope()
     val dispatcher = Dispatchers.IO.limitedParallelism(limitedParallelism)
     CoroutineScope(SupervisorJob() + dispatcher)
   }
