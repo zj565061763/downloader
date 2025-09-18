@@ -13,7 +13,7 @@ import kotlinx.coroutines.launch
 
 class SampleAwaitDownload : ComponentActivity() {
   private val _binding by lazy { SampleAwaitDownloadBinding.inflate(layoutInflater) }
-  private val url = "https://dldir1.qq.com/weixin/Windows/WeChatSetup.exe"
+  private val url = "https://dldir1v6.qq.com/weixin/android/weixin8063android2920_0x28003f33_arm64.apk"
 
   private var _awaitJob: Job? = null
 
