@@ -80,11 +80,6 @@ object FDownloader : Downloader {
     }
   }
 
-  @Synchronized
-  override fun hasTask(url: String): Boolean {
-    return _mapTask.containsKey(url)
-  }
-
   override fun addTask(url: String): Boolean {
     return addTask(DownloadRequest.Builder().build(url))
   }

@@ -24,11 +24,6 @@ interface Downloader {
   fun deleteDownloadFile(block: (File) -> Boolean)
 
   /**
-   * 是否有[url]对应的下载任务
-   */
-  fun hasTask(url: String): Boolean
-
-  /**
    * 添加下载任务
    * @return true-任务添加成功或者已经添加
    */
