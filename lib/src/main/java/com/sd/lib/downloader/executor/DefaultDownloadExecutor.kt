@@ -75,14 +75,9 @@ class DefaultDownloadExecutor @JvmOverloads constructor(
         this.header("Range", "bytes=$length-")
         this.code()
       }
-
       currentCoroutineContext().ensureActive()
       if (code == HttpURLConnection.HTTP_PARTIAL) {
-        downloadBreakpoint(
-          httpRequest = httpRequest,
-          file = file,
-          updater = updater,
-        )
+        downloadBreakpoint(httpRequest = httpRequest, file = file, updater = updater)
         return
       }
     }
