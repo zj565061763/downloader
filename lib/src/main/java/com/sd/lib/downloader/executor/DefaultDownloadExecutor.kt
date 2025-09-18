@@ -41,14 +41,17 @@ class DefaultDownloadExecutor @JvmOverloads constructor(
     val url = request.url
     _mapJob[url] = _scope.launch {
       try {
-        handleRequest(request = request, file = file, updater = updater)
-        updater.notifySuccess()
-      } catch (e: Throwable) {
-        val cause = e.findCause()
-        if (cause is IOException) {
-          updater.notifyError(DownloadHttpException(cause = cause))
-        } else {
-          updater.notifyError(cause)
+        runCatching {
+          handleRequest(request = request, file = file, updater = updater)
+        }.onSuccess {
+          updater.notifySuccess()
+        }.onFailure { e ->
+          val cause = e.findCause()
+          if (cause is IOException) {
+            updater.notifyError(DownloadHttpException(cause = cause))
+          } else {
+            updater.notifyError(cause)
+          }
         }
       } finally {
         _mapJob.remove(url)
