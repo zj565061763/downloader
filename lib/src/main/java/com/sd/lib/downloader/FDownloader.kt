@@ -159,7 +159,15 @@ object FDownloader : Downloader {
          */
         logMsg { "cancelTask $url was not removed synchronously" }
         _cancellingTasks.add(url)
-        notifyCancelling(taskInfo.task)
+
+        val task = taskInfo.task
+        if (task.notifyCancelling()) {
+          val cancellingInfo = DownloadInfo.Cancelling(task.url)
+          _mapTask[url] = taskInfo.copy(info = cancellingInfo)
+          cancellingInfo.notifyCallbacks {
+            logMsg { "notifyCallbacks ${task.url} Cancelling" }
+          }
+        }
       }
 
       logMsg { "cancelTask $url finish" }
@@ -186,14 +194,6 @@ object FDownloader : Downloader {
   private fun removePendingRequest(url: String): DownloadRequest? {
     return _pendingRequests.remove(url)?.also { request ->
       logMsg { "removePendingRequest $url request:${request} pendingSize:${_pendingRequests.size}" }
-    }
-  }
-
-  private fun notifyCancelling(task: DownloadTask) {
-    if (task.notifyCancelling()) {
-      DownloadInfo.Cancelling(task.url).notifyCallbacks {
-        logMsg { "notifyCallbacks ${task.url} Cancelling" }
-      }
     }
   }
 
