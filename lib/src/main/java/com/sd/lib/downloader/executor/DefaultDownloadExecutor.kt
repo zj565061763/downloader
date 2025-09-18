@@ -3,7 +3,6 @@ package com.sd.lib.downloader.executor
 import com.sd.lib.downloader.DownloadRequest
 import com.sd.lib.downloader.exception.DownloadHttpException
 import com.sd.lib.downloader.exception.DownloadHttpExceptionResponseCode
-import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -42,26 +41,20 @@ class DefaultDownloadExecutor @JvmOverloads constructor(
     updater: DownloadExecutor.Updater,
   ) {
     val url = request.url
-    _scope.launch(CoroutineExceptionHandler { _, _ -> }) {
-      handleRequest(
-        request = request,
-        file = file,
-        updater = updater,
-      )
-    }.also { job ->
-      _mapJob[url] = job
-      job.invokeOnCompletion { e ->
-        _mapJob.remove(url)
-        if (e != null) {
-          val cause = e.findCause()
-          if (cause is IOException) {
-            updater.notifyError(DownloadHttpException(cause = cause))
-          } else {
-            updater.notifyError(cause)
-          }
+    _scope.launch {
+      _mapJob[url] = currentCoroutineContext()[Job]!!
+      try {
+        handleRequest(request = request, file = file, updater = updater)
+        updater.notifySuccess()
+      } catch (e: Throwable) {
+        val cause = e.findCause()
+        if (cause is IOException) {
+          updater.notifyError(DownloadHttpException(cause = cause))
         } else {
-          updater.notifySuccess()
+          updater.notifyError(cause)
         }
+      } finally {
+        _mapJob.remove(url)
       }
     }
   }
@@ -111,6 +104,7 @@ class DefaultDownloadExecutor @JvmOverloads constructor(
     }
   }
 
+  /** 正常下载 */
   private suspend fun downloadNormal(
     httpRequest: HttpRequest,
     file: File,
@@ -131,6 +125,7 @@ class DefaultDownloadExecutor @JvmOverloads constructor(
     }
   }
 
+  /** 断点下载 */
   private suspend fun downloadBreakpoint(
     httpRequest: HttpRequest,
     file: File,

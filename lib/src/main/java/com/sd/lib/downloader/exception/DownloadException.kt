@@ -28,8 +28,7 @@ open class DownloadException @JvmOverloads constructor(
   }
 
   companion object {
-    @JvmStatic
-    fun wrap(e: Throwable): DownloadException {
+    internal fun wrap(e: Throwable): DownloadException {
       return if (e is DownloadException) e else DownloadException(cause = e)
     }
   }
