@@ -49,7 +49,7 @@ private class DownloadDirImpl(dir: File) : DownloadDir {
     return newFileForKey(
       key = key,
       ext = key.substringAfterLast(".", ""),
-      ensureExist = true,
+      checkExist = true,
     )
   }
 
@@ -74,12 +74,12 @@ private class DownloadDirImpl(dir: File) : DownloadDir {
   private fun newFileForKey(
     key: String,
     ext: String,
-    ensureExist: Boolean = false,
+    checkExist: Boolean = false,
   ): File? {
     val dotExt = ext.takeIf { it.isEmpty() || it.startsWith(".") } ?: ".$ext"
     return modify { dir ->
       val file = dir?.resolve(fMd5(key) + dotExt)
-      if (ensureExist) file?.takeIf { it.isFile } else file
+      if (checkExist) file?.takeIf { it.isFile } else file
     }
   }
 
