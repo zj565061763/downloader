@@ -4,24 +4,16 @@ import java.io.File
 import java.security.MessageDigest
 
 internal interface DownloadDir {
-  /**
-   * [key]对应的临时文件
-   */
+  /** [key]对应的临时文件 */
   fun tempFileForKey(key: String): File?
 
-  /**
-   * [key]对应的文件，如果key有扩展名，则使用[key]的扩展名
-   */
+  /** [key]对应的文件，如果key有扩展名，则使用[key]的扩展名 */
   fun fileForKey(key: String): File?
 
-  /**
-   * 访问所有临时文件
-   */
+  /** 访问所有临时文件 */
   fun <T> tempFiles(block: (List<File>) -> T): T
 
-  /**
-   * 访问所有非临时文件
-   */
+  /** 访问所有非临时文件 */
   fun <T> files(block: (List<File>) -> T): T
 
   companion object {
