@@ -97,7 +97,7 @@ object FDownloader : Downloader {
       if (_cancellingTasks.contains(url)) {
         // url对应的任务正在取消中，把请求添加到等待列表
         _pendingRequests[url] = request
-        logMsg { "addTask addPendingRequest url:${url} request:${request} pendingSize:${_pendingRequests.size}" }
+        logMsg { "addTask $url addPendingRequest request:${request} pendingSize:${_pendingRequests.size}" }
       }
       return true
     }
@@ -113,14 +113,14 @@ object FDownloader : Downloader {
 
     val tempFile = _downloadDir.tempFileForKey(url)
     if (tempFile == null) {
-      logMsg { "addTask error create temp file failed:${url}" }
+      logMsg { "addTask $url error create temp file failed" }
       notifyError(task, DownloadExceptionCreateTempFile())
       return false
     }
 
     _mapTask[url] = DownloadTaskInfo(tempFile)
     _mapTempFile[tempFile] = url
-    logMsg { "addTask url:${url} temp:${tempFile.absolutePath} size:${_mapTask.size} tempSize:${_mapTempFile.size}" }
+    logMsg { "addTask $url temp:${tempFile.absolutePath} size:${_mapTask.size} tempSize:${_mapTempFile.size}" }
     notifyInitialized(task)
 
     return try {
@@ -136,6 +136,7 @@ object FDownloader : Downloader {
       true
     } catch (e: Throwable) {
       check(e !is DownloadException)
+      logMsg { "addTask $url submit error $e" }
       notifyError(task, DownloadExceptionSubmitTask(e))
       false
     }
