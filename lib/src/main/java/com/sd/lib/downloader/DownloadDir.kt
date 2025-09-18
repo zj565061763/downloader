@@ -10,7 +10,7 @@ internal interface DownloadDir {
   fun tempFileForKey(key: String): File?
 
   /**
-   * [key]对应的文件，如果key有扩展名，则返回文件使用[key]的扩展名
+   * [key]对应的文件，如果key有扩展名，则使用[key]的扩展名
    */
   fun fileForKey(key: String): File?
 
