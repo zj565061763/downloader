@@ -36,7 +36,7 @@ class SampleDownload : ComponentActivity() {
       // true-优先断点下载；false-不使用断点下载；null-跟随初始化配置
       .setPreferBreakpoint(true)
       // 设置下载进度通知策略
-      .setProgressNotifyStrategy(DownloadProgressNotifyStrategy.WhenProgressIncreased(increased = 0.5f))
+      .setProgressNotifyStrategy(DownloadProgressNotifyStrategy.WhenProgressIncreased(increased = 1f))
       // 下载地址
       .build(url)
 
