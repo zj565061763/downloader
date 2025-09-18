@@ -5,7 +5,6 @@ import android.app.Application
 import android.content.Context
 import android.os.Build
 import android.os.Process
-import com.sd.lib.downloader.executor.DefaultDownloadExecutor
 import com.sd.lib.downloader.executor.DownloadExecutor
 import java.io.File
 
@@ -21,7 +20,7 @@ class DownloaderConfig private constructor(builder: Builder) {
   init {
     this.isDebug = builder.isDebug
     this.downloadDirectory = builder.downloadDirectory ?: builder.context.defaultDownloadDir()
-    this.downloadExecutor = builder.downloadExecutor ?: DefaultDownloadExecutor()
+    this.downloadExecutor = builder.downloadExecutor ?: DownloadExecutor.getDefault()
     this.progressNotifyStrategy = builder.progressNotifyStrategy ?: DownloadProgressNotifyStrategy.WhenProgressIncreased(increased = 1f)
   }
 
