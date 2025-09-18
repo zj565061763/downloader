@@ -49,7 +49,7 @@ object FDownloader : Downloader {
   }
 
   override fun getDownloadFile(url: String): File? {
-    return _downloadDir.fileForKey(url)?.takeIf { it.isFile }
+    return _downloadDir.existOrNullFileForKey(url)
   }
 
   override fun deleteTempFile() {

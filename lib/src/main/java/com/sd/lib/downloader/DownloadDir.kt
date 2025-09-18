@@ -10,6 +10,8 @@ internal interface DownloadDir {
   /** [key]对应的文件，如果key有扩展名，则使用[key]的扩展名 */
   fun fileForKey(key: String): File?
 
+  fun existOrNullFileForKey(key: String): File?
+
   /** 访问所有临时文件 */
   fun <T> tempFiles(block: (List<File>) -> T): T
 
@@ -43,6 +45,14 @@ private class DownloadDirImpl(dir: File) : DownloadDir {
     )
   }
 
+  override fun existOrNullFileForKey(key: String): File? {
+    return newFileForKey(
+      key = key,
+      ext = key.substringAfterLast(".", ""),
+      ensureExist = true,
+    )
+  }
+
   override fun <T> tempFiles(block: (List<File>) -> T): T {
     return listFiles { files ->
       block(files.filter { it.extension == ExtTemp })
@@ -61,10 +71,15 @@ private class DownloadDirImpl(dir: File) : DownloadDir {
     }
   }
 
-  private fun newFileForKey(key: String, ext: String): File? {
+  private fun newFileForKey(
+    key: String,
+    ext: String,
+    ensureExist: Boolean = false,
+  ): File? {
     val dotExt = ext.takeIf { it.isEmpty() || it.startsWith(".") } ?: ".$ext"
     return modify { dir ->
-      dir?.resolve(fMd5(key) + dotExt)
+      val file = dir?.resolve(fMd5(key) + dotExt)
+      if (ensureExist) file?.takeIf { it.isFile } else file
     }
   }
 
