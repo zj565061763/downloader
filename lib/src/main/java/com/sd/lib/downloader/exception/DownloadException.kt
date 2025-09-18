@@ -11,7 +11,7 @@ open class DownloadException @JvmOverloads constructor(
   /** 异常描述 */
   fun getDesc(context: Context): String {
     return buildString {
-      val formatMessage = formatMessage(context).ifEmpty { this@DownloadException.javaClass.simpleName }
+      val formatMessage = formatMessage(context) ?: this@DownloadException.javaClass.simpleName
       val formatCause = formatCause(context)
       append(formatMessage)
       if (formatMessage.isNotEmpty() && formatCause.isNotEmpty()) append(" ")
@@ -20,8 +20,8 @@ open class DownloadException @JvmOverloads constructor(
   }
 
   /** 异常信息 */
-  protected open fun formatMessage(context: Context): String {
-    return message ?: ""
+  protected open fun formatMessage(context: Context): String? {
+    return message
   }
 
   /** 异常原因 */
