@@ -3,6 +3,7 @@ package com.sd.lib.downloader.executor
 import com.sd.lib.downloader.DownloadRequest
 import com.sd.lib.downloader.exception.DownloadExceptionHttp
 import com.sd.lib.downloader.exception.DownloadExceptionHttpResponseCode
+import com.sd.lib.downloader.logMsg
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -44,8 +45,10 @@ class DefaultDownloadExecutor @JvmOverloads constructor(
       handleRequest(request = request, file = file, updater = updater)
     }.also { job ->
       _mapJob[url] = job
+      logMsg { "executor $url submit size:${_mapJob.size}" }
       job.invokeOnCompletion { e ->
         _mapJob.remove(url)
+        logMsg { "executor $url finish $e size:${_mapJob.size}" }
         if (e != null) {
           val cause = e.findCause()
           if (cause is IOException) {
@@ -74,10 +77,12 @@ class DefaultDownloadExecutor @JvmOverloads constructor(
 
     if (breakpoint) {
       val httpRequest = newHttpRequest(request)
+      logMsg { "executor ${request.url} breakpoint start" }
       val code = httpRequest.run {
         this.header("Range", "bytes=$length-")
         this.code()
       }
+      logMsg { "executor ${request.url} breakpoint finish code:$code" }
       currentCoroutineContext().ensureActive()
       when (code) {
         HttpURLConnection.HTTP_PARTIAL -> {
@@ -98,7 +103,9 @@ class DefaultDownloadExecutor @JvmOverloads constructor(
     }
 
     val httpRequest = newHttpRequest(request)
+    logMsg { "executor ${request.url} normal start" }
     val code = httpRequest.code()
+    logMsg { "executor ${request.url} normal finish code:$code" }
     currentCoroutineContext().ensureActive()
     if (code == HttpURLConnection.HTTP_OK) {
       downloadNormal(httpRequest = httpRequest, file = file, updater = updater)
