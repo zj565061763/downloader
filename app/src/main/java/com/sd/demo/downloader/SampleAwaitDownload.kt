@@ -4,9 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.lifecycle.lifecycleScope
 import com.sd.demo.downloader.databinding.SampleAwaitDownloadBinding
-import com.sd.lib.downloader.DownloadInfo
 import com.sd.lib.downloader.DownloadRequest
-import com.sd.lib.downloader.Downloader
 import com.sd.lib.downloader.FDownloader
 import com.sd.lib.downloader.addTaskAwait
 import com.sd.lib.downloader.downloadInfoFlow
@@ -48,20 +46,7 @@ class SampleAwaitDownload : ComponentActivity() {
       val request = DownloadRequest.Builder()
         .setPreferBreakpoint(true)
         .build(url)
-
-      val callback = object : Downloader.Callback {
-        override fun onDownloadInfo(info: DownloadInfo) {
-          when (info) {
-            is DownloadInfo.Initialized -> logMsg { "callback Initialized" }
-            is DownloadInfo.Progress -> logMsg { "callback Progress ${info.progress}" }
-            is DownloadInfo.Cancelling -> logMsg { "callback Cancelling" }
-            is DownloadInfo.Success -> logMsg { "callback Success file:${info.file.absolutePath}" }
-            is DownloadInfo.Error -> logMsg { "callback Error ${info.exception}" }
-          }
-        }
-      }
-
-      FDownloader.addTaskAwait(request = request, callback = callback)
+      FDownloader.addTaskAwait(request)
         .onSuccess {
           logMsg { "await onSuccess $it" }
         }.onFailure {
