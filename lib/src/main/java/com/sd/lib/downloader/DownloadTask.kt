@@ -16,7 +16,7 @@ internal class DownloadTask(
   fun notifyProgress(total: Long, current: Long): DownloadInfo.Progress? {
     return when (_state.get()) {
       DownloadState.None -> error("Task not initialized")
-      DownloadState.Initialized, DownloadState.Progress -> {
+      DownloadState.Initialized -> {
         synchronized(_transmitParams) {
           if (_transmitParams.transmit(total, current)) {
             _transmitParams.toProgress(url)
@@ -32,9 +32,7 @@ internal class DownloadTask(
   fun notifyCancelling(): Boolean {
     return when (val state = _state.get()) {
       DownloadState.None -> error("Task not initialized")
-      DownloadState.Initialized,
-      DownloadState.Progress,
-        -> _state.compareAndSet(state, DownloadState.Cancelling)
+      DownloadState.Initialized -> _state.compareAndSet(state, DownloadState.Cancelling)
       else -> false
     }
   }
@@ -42,18 +40,14 @@ internal class DownloadTask(
   fun notifySuccess(): Boolean {
     return when (val state = _state.get()) {
       DownloadState.None -> error("Task not initialized")
-      DownloadState.Initialized,
-      DownloadState.Progress,
-        -> _state.compareAndSet(state, DownloadState.Success)
+      DownloadState.Initialized -> _state.compareAndSet(state, DownloadState.Success)
       else -> false
     }
   }
 
   fun notifyError(): Boolean {
     return when (val state = _state.get()) {
-      DownloadState.Success,
-      DownloadState.Error,
-        -> false
+      DownloadState.Success, DownloadState.Error -> false
       else -> _state.compareAndSet(state, DownloadState.Error)
     }
   }
@@ -61,7 +55,6 @@ internal class DownloadTask(
   private enum class DownloadState {
     None,
     Initialized,
-    Progress,
     Cancelling,
     Success,
     Error,
