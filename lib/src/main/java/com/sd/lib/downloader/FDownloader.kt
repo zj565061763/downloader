@@ -222,6 +222,7 @@ object FDownloader : Downloader {
       DownloadInfo.Error(url, exception).notifyCallbacks {
         logMsg { "notifyCallbacks ${task.url} Error exception:${exception}" }
       }
+      // 检查是否有正在等待中的请求
       removePendingRequest(url)?.also { request ->
         addTask(request)
       }
