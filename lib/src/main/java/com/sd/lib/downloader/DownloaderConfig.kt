@@ -16,11 +16,13 @@ class DownloaderConfig private constructor(builder: Builder) {
   internal val isDebug: Boolean
   internal val downloadDirectory: File
   internal val downloadExecutor: DownloadExecutor
+  internal val progressNotifyStrategy: DownloadProgressNotifyStrategy
 
   init {
     this.isDebug = builder.isDebug
     this.downloadDirectory = builder.downloadDirectory ?: builder.context.defaultDownloadDir()
     this.downloadExecutor = builder.downloadExecutor ?: DefaultDownloadExecutor()
+    this.progressNotifyStrategy = builder.progressNotifyStrategy ?: DownloadProgressNotifyStrategy.WhenProgressIncreased()
   }
 
   class Builder {
@@ -34,6 +36,9 @@ class DownloaderConfig private constructor(builder: Builder) {
       private set
 
     internal var downloadExecutor: DownloadExecutor? = null
+      private set
+
+    internal var progressNotifyStrategy: DownloadProgressNotifyStrategy? = null
       private set
 
     /**
@@ -55,6 +60,13 @@ class DownloaderConfig private constructor(builder: Builder) {
      */
     fun setDownloadExecutor(executor: DownloadExecutor?) = apply {
       this.downloadExecutor = executor
+    }
+
+    /**
+     * 下载进度通知策略
+     */
+    fun setProgressNotifyStrategy(strategy: DownloadProgressNotifyStrategy?) = apply {
+      this.progressNotifyStrategy = strategy
     }
 
     fun build(context: Context): DownloaderConfig {
@@ -88,6 +100,13 @@ class DownloaderConfig private constructor(builder: Builder) {
       }
     }
   }
+}
+
+sealed interface DownloadProgressNotifyStrategy {
+  /** 当下载进度增加大于等于[increased]时，发起通知 */
+  data class WhenProgressIncreased(
+    val increased: Float = 1f,
+  ) : DownloadProgressNotifyStrategy
 }
 
 private fun Context.defaultDownloadDir(): File {

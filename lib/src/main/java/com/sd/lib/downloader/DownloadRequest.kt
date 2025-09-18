@@ -7,9 +7,13 @@ class DownloadRequest private constructor(builder: Builder) {
   /** 是否需要断点下载 */
   val preferBreakpoint: Boolean?
 
+  /** 下载进度通知策略 */
+  val progressNotifyStrategy: DownloadProgressNotifyStrategy?
+
   init {
     this.url = builder.url
     this.preferBreakpoint = builder.preferBreakpoint
+    this.progressNotifyStrategy = builder.progressNotifyStrategy
   }
 
   class Builder {
@@ -19,12 +23,22 @@ class DownloadRequest private constructor(builder: Builder) {
     internal var preferBreakpoint: Boolean? = null
       private set
 
+    internal var progressNotifyStrategy: DownloadProgressNotifyStrategy? = null
+      private set
+
     /**
      * 设置是否需要断点下载
      * @param preferBreakpoint true-是；false-否；null-跟随默认配置
      */
     fun setPreferBreakpoint(preferBreakpoint: Boolean?) = apply {
       this.preferBreakpoint = preferBreakpoint
+    }
+
+    /**
+     * 下载进度通知策略
+     */
+    fun setProgressNotifyStrategy(strategy: DownloadProgressNotifyStrategy?) = apply {
+      this.progressNotifyStrategy = strategy
     }
 
     fun build(url: String): DownloadRequest {

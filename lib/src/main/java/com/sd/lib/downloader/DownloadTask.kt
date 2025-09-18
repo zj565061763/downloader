@@ -4,9 +4,10 @@ import java.util.concurrent.atomic.AtomicReference
 
 internal class DownloadTask(
   val url: String,
+  progressNotifyStrategy: DownloadProgressNotifyStrategy,
 ) {
   private val _state: AtomicReference<DownloadState> = AtomicReference(DownloadState.None)
-  private val _transmitParams = TransmitParams()
+  private val _transmitParams = TransmitParams(progressNotifyStrategy)
 
   fun notifyInitialized(): Boolean {
     return _state.compareAndSet(DownloadState.None, DownloadState.Initialized)
@@ -62,14 +63,12 @@ private fun TransmitParams.toProgress(url: String): DownloadInfo.Progress {
     total = this.total,
     current = this.current,
     progress = this.progress,
-    speedBps = this.speedBps,
   )
 }
 
-private class TransmitParams {
-  private var _lastSpeedTime: Long = 0
-  private var _lastSpeedCount: Long = 0
-
+private class TransmitParams(
+  val progressNotifyStrategy: DownloadProgressNotifyStrategy,
+) {
   /** 总数量 */
   var total: Long = 0
     private set
@@ -79,11 +78,7 @@ private class TransmitParams {
     private set
 
   /** 传输进度[0-100] */
-  var progress: Int = 0
-    private set
-
-  /** 传输速率（B/S） */
-  var speedBps: Int = 0
+  var progress: Float = 0f
     private set
 
   /**
@@ -96,46 +91,38 @@ private class TransmitParams {
     val oldProgress = progress
 
     if (total <= 0 || current <= 0) {
-      reset()
-      return oldProgress != progress
+      this.total = 0
+      this.current = 0
+      this.progress = 0f
+      return this.progress != oldProgress
     }
 
     this.total = total
     this.current = current
+    val newProgress = (current.toDouble() / total.toDouble() * 100).toFloat().coerceAtMost(100f)
 
-    val newProgress = (current * 100 / total).toInt().coerceAtMost(100)
-    this.progress = newProgress
-
-    if (_lastSpeedTime <= 0) {
-      _lastSpeedTime = System.currentTimeMillis()
-    }
-
-    if (newProgress > oldProgress) {
-      val time = System.currentTimeMillis()
-      val changeTime = time - _lastSpeedTime
-      if (changeTime > 0) {
-        val changeCount = (current - _lastSpeedCount).coerceAtLeast(0)
-        speedBps = (changeCount * (1000f / changeTime)).toInt()
+    if (newProgress >= 100f) {
+      if (newProgress > oldProgress) {
+        this.progress = 100f
+        return true
       } else {
-        speedBps = 0
+        return false
       }
-      _lastSpeedTime = time
-      _lastSpeedCount = current
     }
 
-    return newProgress > oldProgress
-  }
+    when (progressNotifyStrategy) {
+      is DownloadProgressNotifyStrategy.WhenProgressIncreased -> {
+        val increased = progressNotifyStrategy.increased
+        if ((newProgress - oldProgress) >= increased) {
+          this.progress = newProgress
+        }
+      }
+    }
 
-  private fun reset() {
-    _lastSpeedTime = 0
-    _lastSpeedCount = 0
-    total = 0
-    current = 0
-    progress = 0
-    speedBps = 0
+    return this.progress > oldProgress
   }
 
   override fun toString(): String {
-    return "${current}/${total} $progress $speedBps"
+    return "${current}/${total} $progress"
   }
 }
