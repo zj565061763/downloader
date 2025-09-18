@@ -8,6 +8,13 @@ open class DownloadExceptionHttp(
   message: String? = null,
   cause: Throwable? = null,
 ) : DownloadException(message, cause) {
+  override fun formatMessage(context: Context): String? {
+    return when (cause) {
+      is SocketTimeoutException -> ""
+      else -> super.formatMessage(context)
+    }
+  }
+
   override fun formatCause(context: Context): String {
     return when (cause) {
       is SocketTimeoutException -> context.getString(R.string.lib_downloader_ExceptionHttp_SocketTimeoutException)
