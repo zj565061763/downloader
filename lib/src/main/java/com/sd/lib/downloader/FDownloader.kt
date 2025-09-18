@@ -129,7 +129,7 @@ object FDownloader : Downloader {
     if (task.notifyInitialized()) {
       val initializedInfo = DownloadInfo.Initialized(task.url)
       _mapTask[url]?.info = initializedInfo
-      initializedInfo.notifyCallbacks {
+      notifyCallbacks(initializedInfo) {
         logMsg { "notifyCallbacks ${task.url} Initialized" }
       }
     }
@@ -174,7 +174,7 @@ object FDownloader : Downloader {
         if (task.notifyCancelling()) {
           val cancellingInfo = DownloadInfo.Cancelling(task.url)
           taskInfo.info = cancellingInfo
-          cancellingInfo.notifyCallbacks {
+          notifyCallbacks(cancellingInfo) {
             logMsg { "notifyCallbacks ${task.url} Cancelling" }
           }
         }
@@ -205,16 +205,14 @@ object FDownloader : Downloader {
 
   internal fun notifyProgress(task: DownloadTask, total: Long, current: Long) {
     task.notifyProgress(total, current)?.also { progressInfo ->
-      progressInfo.notifyCallbacks {
-        logMsg { "notifyCallbacks ${task.url} Progress ${it.progress}" }
-      }
+      notifyCallbacks(progressInfo)
     }
   }
 
   internal fun notifySuccess(task: DownloadTask, file: File) {
     if (task.notifySuccess()) {
       removeTask(task.url)
-      DownloadInfo.Success(task.url, file).notifyCallbacks {
+      notifyCallbacks(DownloadInfo.Success(task.url, file)) {
         logMsg { "notifyCallbacks ${task.url} Success file:${file.absolutePath}" }
       }
     }
@@ -223,7 +221,7 @@ object FDownloader : Downloader {
   internal fun notifyError(task: DownloadTask, exception: DownloadException) {
     if (task.notifyError()) {
       removeTask(task.url)
-      DownloadInfo.Error(task.url, exception).notifyCallbacks {
+      notifyCallbacks(DownloadInfo.Error(task.url, exception)) {
         logMsg { "notifyCallbacks ${task.url} Error exception:${exception}" }
       }
       // 检查是否有正在等待中的请求
@@ -233,8 +231,7 @@ object FDownloader : Downloader {
     }
   }
 
-  private fun <T : DownloadInfo> T.notifyCallbacks(block: ((T) -> Unit)? = null) {
-    val info = this
+  private fun <T : DownloadInfo> notifyCallbacks(info: T, block: ((T) -> Unit)? = null) {
     _handler.post {
       block?.invoke(info)
       for (item in _callbacks.keys) {
