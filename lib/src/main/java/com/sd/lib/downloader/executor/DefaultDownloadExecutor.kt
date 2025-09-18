@@ -3,6 +3,7 @@ package com.sd.lib.downloader.executor
 import com.sd.lib.downloader.DownloadRequest
 import com.sd.lib.downloader.exception.DownloadHttpException
 import com.sd.lib.downloader.exception.DownloadHttpExceptionResponseCode
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -39,22 +40,22 @@ class DefaultDownloadExecutor @JvmOverloads constructor(
     updater: DownloadExecutor.Updater,
   ) {
     val url = request.url
-    _mapJob[url] = _scope.launch {
-      try {
-        runCatching {
-          handleRequest(request = request, file = file, updater = updater)
-        }.onSuccess {
-          updater.notifySuccess()
-        }.onFailure { e ->
+    _scope.launch(CoroutineExceptionHandler { _, _ -> }) {
+      handleRequest(request = request, file = file, updater = updater)
+    }.also { job ->
+      _mapJob[url] = job
+      job.invokeOnCompletion { e ->
+        _mapJob.remove(url)
+        if (e != null) {
           val cause = e.findCause()
           if (cause is IOException) {
             updater.notifyError(DownloadHttpException(cause = cause))
           } else {
             updater.notifyError(cause)
           }
+        } else {
+          updater.notifySuccess()
         }
-      } finally {
-        _mapJob.remove(url)
       }
     }
   }
