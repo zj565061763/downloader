@@ -101,6 +101,7 @@ class DefaultDownloadExecutor @JvmOverloads constructor(
     file: File,
     updater: DownloadExecutor.Updater,
   ) {
+    file.deleteRecursively()
     val total = httpRequest.contentLength().toLong()
     httpRequest.stream().use { input ->
       file.outputStream().use { output ->
