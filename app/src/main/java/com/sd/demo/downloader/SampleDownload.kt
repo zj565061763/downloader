@@ -57,7 +57,12 @@ class SampleDownload : ComponentActivity() {
    */
   private val _downloadCallback = object : Downloader.Callback {
     override fun onDownloadInfo(info: DownloadInfo) {
-      logMsg { info.toString() }
+      when (info) {
+        is DownloadInfo.Error -> logMsg {
+          "$info desc:${info.exception.getDesc(this@SampleDownload)}"
+        }
+        else -> logMsg { info.toString() }
+      }
     }
   }
 
