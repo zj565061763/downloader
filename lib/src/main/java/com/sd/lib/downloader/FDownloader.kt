@@ -113,10 +113,16 @@ object FDownloader : Downloader {
       return false
     }
 
-    _mapTask[url] = DownloadTaskInfo(task, tempFile)
+    val initializedInfo = DownloadInfo.Initialized(task.url)
+    _mapTask[url] = DownloadTaskInfo(tempFile, task, initializedInfo)
     _mapTempFile[tempFile] = url
     logMsg { "addTask $url temp:${tempFile.absolutePath} size:${_mapTask.size} tempSize:${_mapTempFile.size}" }
-    notifyInitialized(task)
+
+    if (task.notifyInitialized()) {
+      initializedInfo.notifyCallbacks {
+        logMsg { "notifyCallbacks ${task.url} Initialized" }
+      }
+    }
 
     return try {
       _config.downloadExecutor.submit(
@@ -183,14 +189,6 @@ object FDownloader : Downloader {
     }
   }
 
-  private fun notifyInitialized(task: DownloadTask) {
-    if (task.notifyInitialized()) {
-      DownloadInfo.Initialized(task.url).notifyCallbacks {
-        logMsg { "notifyCallbacks ${task.url} Initialized" }
-      }
-    }
-  }
-
   private fun notifyCancelling(task: DownloadTask) {
     if (task.notifyCancelling()) {
       DownloadInfo.Cancelling(task.url).notifyCallbacks {
@@ -239,9 +237,10 @@ object FDownloader : Downloader {
     }
   }
 
-  private class DownloadTaskInfo(
-    val task: DownloadTask,
+  private data class DownloadTaskInfo(
     val tempFile: File,
+    val task: DownloadTask,
+    val info: DownloadInfo,
   )
 }
 
