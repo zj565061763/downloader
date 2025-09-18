@@ -118,7 +118,7 @@ object FDownloader : Downloader {
       return false
     }
 
-    _mapTask[url] = DownloadTaskInfo(tempFile)
+    _mapTask[url] = DownloadTaskInfo(task, tempFile)
     _mapTempFile[tempFile] = url
     logMsg { "addTask $url temp:${tempFile.absolutePath} size:${_mapTask.size} tempSize:${_mapTempFile.size}" }
     notifyInitialized(task)
@@ -150,13 +150,15 @@ object FDownloader : Downloader {
       removePendingRequest(url)
       _config.downloadExecutor.cancel(url)
 
-      if (hasTask(url)) {
+      val taskInfo = _mapTask[url]
+      if (taskInfo != null) {
         /**
          * 如果[DownloadExecutor.cancel]之后任务依然存在，
          * 说明没有同步回调[DownloadExecutor.Updater.notifyError]移除任务。
          */
         logMsg { "cancelTask $url was not removed synchronously" }
         _cancellingTasks.add(url)
+        notifyCancelling(taskInfo.task)
       }
 
       logMsg { "cancelTask $url finish" }
@@ -190,6 +192,14 @@ object FDownloader : Downloader {
     if (task.notifyInitialized()) {
       DownloadInfo.Initialized(task.url).notifyCallbacks {
         logMsg { "notifyCallbacks ${it.url} Initialized" }
+      }
+    }
+  }
+
+  private fun notifyCancelling(task: DownloadTask) {
+    if (task.notifyCancelling()) {
+      DownloadInfo.Cancelling(task.url).notifyCallbacks {
+        logMsg { "notifyCallbacks ${it.url} Cancelling" }
       }
     }
   }
@@ -234,6 +244,7 @@ object FDownloader : Downloader {
   }
 
   private class DownloadTaskInfo(
+    val task: DownloadTask,
     val tempFile: File,
   )
 }

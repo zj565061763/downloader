@@ -4,10 +4,10 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.lifecycle.lifecycleScope
 import com.sd.demo.downloader.databinding.SampleAwaitDownloadBinding
+import com.sd.lib.downloader.DownloadInfo
 import com.sd.lib.downloader.DownloadRequest
 import com.sd.lib.downloader.Downloader
 import com.sd.lib.downloader.FDownloader
-import com.sd.lib.downloader.DownloadInfo
 import com.sd.lib.downloader.addTaskAwait
 import com.sd.lib.downloader.downloadInfoFlow
 import kotlinx.coroutines.Job
@@ -54,6 +54,7 @@ class SampleAwaitDownload : ComponentActivity() {
             when (info) {
               is DownloadInfo.Initialized -> logMsg { "callback Initialized" }
               is DownloadInfo.Progress -> logMsg { "callback Progress ${info.progress}" }
+              is DownloadInfo.Cancelling -> logMsg { "callback Cancelling" }
               is DownloadInfo.Success -> logMsg { "callback Success file:${info.file.absolutePath}" }
               is DownloadInfo.Error -> logMsg { "callback Error ${info.exception}" }
             }

@@ -60,6 +60,7 @@ class SampleDownload : ComponentActivity() {
       when (info) {
         is DownloadInfo.Initialized -> logMsg { "callback Initialized" }
         is DownloadInfo.Progress -> logMsg { "callback Progress ${info.progress}" }
+        is DownloadInfo.Cancelling -> logMsg { "callback Cancelling" }
         is DownloadInfo.Success -> logMsg { "callback Success file:${info.file.absolutePath}" }
         is DownloadInfo.Error -> logMsg { "callback Error ${info.exception}" }
       }

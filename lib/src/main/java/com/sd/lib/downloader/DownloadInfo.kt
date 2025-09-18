@@ -20,6 +20,9 @@ sealed interface DownloadInfo {
     val progress: Float,
   ) : DownloadInfo
 
+  /** 取消中 */
+  data class Cancelling(override val url: String) : DownloadInfo
+
   /** 下载成功 */
   data class Success(
     override val url: String,

@@ -29,6 +29,16 @@ internal class DownloadTask(
     }
   }
 
+  fun notifyCancelling(): Boolean {
+    return when (val state = _state.get()) {
+      DownloadState.None -> error("Task not initialized")
+      DownloadState.Initialized,
+      DownloadState.Progress,
+        -> _state.compareAndSet(state, DownloadState.Cancelling)
+      else -> false
+    }
+  }
+
   fun notifySuccess(): Boolean {
     return when (val state = _state.get()) {
       DownloadState.None -> error("Task not initialized")
@@ -52,6 +62,7 @@ internal class DownloadTask(
     None,
     Initialized,
     Progress,
+    Cancelling,
     Success,
     Error,
   }
