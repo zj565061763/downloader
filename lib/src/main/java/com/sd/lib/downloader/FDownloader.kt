@@ -93,7 +93,7 @@ object FDownloader : Downloader {
   override fun addTask(request: DownloadRequest): Boolean {
     val url = request.url
 
-    if (hasTask(url)) {
+    if (_mapTask.containsKey(url)) {
       if (_cancellingTasks.contains(url)) {
         // url对应的任务正在取消中，把请求添加到等待列表
         _pendingRequests[url] = request
@@ -144,7 +144,7 @@ object FDownloader : Downloader {
 
   @Synchronized
   override fun cancelTask(url: String) {
-    if (hasTask(url)) {
+    if (_mapTask.containsKey(url)) {
       logMsg { "cancelTask $url start" }
 
       removePendingRequest(url)
