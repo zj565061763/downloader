@@ -181,9 +181,9 @@ private suspend inline fun InputStream.copyToOutput(
 
   currentCoroutineContext().ensureActive()
   var bytes = read(buffer)
-  currentCoroutineContext().ensureActive()
 
   while (bytes >= 0) {
+    currentCoroutineContext().ensureActive()
     output(buffer, 0, bytes)
     currentCoroutineContext().ensureActive()
 
@@ -192,7 +192,8 @@ private suspend inline fun InputStream.copyToOutput(
 
     currentCoroutineContext().ensureActive()
     bytes = read(buffer)
-    currentCoroutineContext().ensureActive()
   }
+
+  currentCoroutineContext().ensureActive()
   return bytesCopied
 }
