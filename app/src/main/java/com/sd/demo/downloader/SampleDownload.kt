@@ -57,13 +57,7 @@ class SampleDownload : ComponentActivity() {
    */
   private val _downloadCallback = object : Downloader.Callback {
     override fun onDownloadInfo(info: DownloadInfo) {
-      when (info) {
-        is DownloadInfo.Initialized -> logMsg { "callback Initialized" }
-        is DownloadInfo.Progress -> logMsg { "callback Progress ${info.progress}" }
-        is DownloadInfo.Cancelling -> logMsg { "callback Cancelling" }
-        is DownloadInfo.Success -> logMsg { "callback Success file:${info.file.absolutePath}" }
-        is DownloadInfo.Error -> logMsg { "callback Error ${info.exception}" }
-      }
+      logMsg { info.toString() }
     }
   }
 
