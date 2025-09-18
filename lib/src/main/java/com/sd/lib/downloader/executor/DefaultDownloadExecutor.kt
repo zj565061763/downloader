@@ -70,7 +70,7 @@ class DefaultDownloadExecutor @JvmOverloads constructor(
     updater: DownloadExecutor.Updater,
   ) {
     val length = file.length()
-    val breakpoint = request.preferBreakpoint ?: (_preferBreakpoint && length > 0)
+    val breakpoint = (request.preferBreakpoint ?: _preferBreakpoint) && length > 0
 
     if (breakpoint) {
       val httpRequest = newHttpRequest(request)
