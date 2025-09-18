@@ -278,7 +278,11 @@ private class DefaultDownloadUpdater(
         return
       }
 
-      if (_tempFile.renameTo(downloadFile)) {
+      val renamed = synchronized(_downloadDir) {
+        _tempFile.renameTo(downloadFile)
+      }
+
+      if (renamed) {
         logMsg { "updater notifySuccess $_url" }
         FDownloader.notifySuccess(_task, downloadFile)
       } else {
