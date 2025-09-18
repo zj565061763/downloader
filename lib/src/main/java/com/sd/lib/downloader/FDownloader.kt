@@ -113,12 +113,13 @@ object FDownloader : Downloader {
       return false
     }
 
-    val initializedInfo = DownloadInfo.Initialized(task.url)
-    _mapTask[url] = DownloadTaskInfo(tempFile, task, initializedInfo)
+    _mapTask[url] = DownloadTaskInfo(tempFile, task)
     _mapTempFile[tempFile] = url
     logMsg { "addTask $url temp:${tempFile.absolutePath} size:${_mapTask.size} tempSize:${_mapTempFile.size}" }
 
     if (task.notifyInitialized()) {
+      val initializedInfo = DownloadInfo.Initialized(task.url)
+      _mapTask[url]?.info = initializedInfo
       initializedInfo.notifyCallbacks {
         logMsg { "notifyCallbacks ${task.url} Initialized" }
       }
@@ -198,11 +199,11 @@ object FDownloader : Downloader {
   }
 
   internal fun notifyProgress(task: DownloadTask, total: Long, current: Long) {
-    task.notifyProgress(total, current)?.also { info ->
+    task.notifyProgress(total, current)?.also { progressInfo ->
       synchronized(this@FDownloader) {
-        _mapTask[task.url]?.info = info
+        _mapTask[task.url]?.info = progressInfo
       }
-      info.notifyCallbacks {
+      progressInfo.notifyCallbacks {
         logMsg { "notifyCallbacks ${task.url} Progress ${it.progress}" }
       }
     }
@@ -245,7 +246,7 @@ object FDownloader : Downloader {
   private class DownloadTaskInfo(
     val tempFile: File,
     val task: DownloadTask,
-    var info: DownloadInfo?,
+    var info: AccessibleDownloadInfo? = null,
   )
 }
 
