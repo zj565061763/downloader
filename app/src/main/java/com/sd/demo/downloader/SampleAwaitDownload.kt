@@ -45,26 +45,28 @@ class SampleAwaitDownload : ComponentActivity() {
   private fun startDownload() {
     _awaitJob?.cancel()
     _awaitJob = lifecycleScope.launch {
-      FDownloader.addTaskAwait(
-        request = DownloadRequest.Builder()
-          .setPreferBreakpoint(true)
-          .build(url),
-        callback = object : Downloader.Callback {
-          override fun onDownloadInfo(info: DownloadInfo) {
-            when (info) {
-              is DownloadInfo.Initialized -> logMsg { "callback Initialized" }
-              is DownloadInfo.Progress -> logMsg { "callback Progress ${info.progress}" }
-              is DownloadInfo.Cancelling -> logMsg { "callback Cancelling" }
-              is DownloadInfo.Success -> logMsg { "callback Success file:${info.file.absolutePath}" }
-              is DownloadInfo.Error -> logMsg { "callback Error ${info.exception}" }
-            }
+      val request = DownloadRequest.Builder()
+        .setPreferBreakpoint(true)
+        .build(url)
+
+      val callback = object : Downloader.Callback {
+        override fun onDownloadInfo(info: DownloadInfo) {
+          when (info) {
+            is DownloadInfo.Initialized -> logMsg { "callback Initialized" }
+            is DownloadInfo.Progress -> logMsg { "callback Progress ${info.progress}" }
+            is DownloadInfo.Cancelling -> logMsg { "callback Cancelling" }
+            is DownloadInfo.Success -> logMsg { "callback Success file:${info.file.absolutePath}" }
+            is DownloadInfo.Error -> logMsg { "callback Error ${info.exception}" }
           }
-        },
-      ).onSuccess {
-        logMsg { "await onSuccess $it" }
-      }.onFailure {
-        logMsg { "await onFailure $it" }
+        }
       }
+
+      FDownloader.addTaskAwait(request = request, callback = callback)
+        .onSuccess {
+          logMsg { "await onSuccess $it" }
+        }.onFailure {
+          logMsg { "await onFailure $it" }
+        }
     }
   }
 
