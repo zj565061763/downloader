@@ -20,7 +20,7 @@ sealed interface DownloadInfo {
     val progress: Float,
   ) : DownloadInfo
 
-  /** 取消中 */
+  /** 取消中（底层实现是异步取消时才有这个状态） */
   data class Cancelling(override val url: String) : DownloadInfo
 
   /** 下载成功 */
