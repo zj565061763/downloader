@@ -54,9 +54,9 @@ interface Downloader {
   fun deleteDownloadFile(block: (File) -> Boolean)
 
   /**
-   * 是否有[url]对应的下载任务
+   * 获取[url]对应的下载信息
    */
-  fun hasTask(url: String): Boolean
+  fun getDownloadInfo(url: String): AccessibleDownloadInfo?
 
   /**
    * 添加下载任务
@@ -86,44 +86,35 @@ interface Downloader {
 sealed interface DownloadInfo {
   val url: String
 
-  /**
-   * 初始化
-   */
-  data class Initialized(override val url: String) : DownloadInfo
+  /** 初始化 */
+  data class Initialized(override val url: String) : DownloadInfo, AccessibleDownloadInfo
 
-  /**
-   * 下载中
-   */
+  /** 取消中（底层实现是异步取消时才有这个状态） */
+  data class Cancelling(override val url: String) : DownloadInfo, AccessibleDownloadInfo
+
+  /** 下载中 */
   data class Progress(
     override val url: String,
-
     /** 总数量 */
     val total: Long,
-
     /** 已传输数量 */
     val current: Long,
-
     /** 传输进度[0-100] */
-    val progress: Int,
-
-    /** 传输速率（B/S） */
-    val speedBps: Int,
+    val progress: Float,
   ) : DownloadInfo
 
-  /**
-   * 下载成功
-   */
+  /** 下载成功 */
   data class Success(
     override val url: String,
     val file: File,
   ) : DownloadInfo
 
-  /**
-   * 下载失败
-   */
+  /** 下载失败 */
   data class Error(
     override val url: String,
     val exception: DownloadException,
   ) : DownloadInfo
 }
+
+sealed interface AccessibleDownloadInfo
 ```
