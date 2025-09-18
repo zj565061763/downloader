@@ -179,9 +179,9 @@ object FDownloader : Downloader {
    */
   @Synchronized
   private fun removeTask(url: String) {
-    val info = _mapTask.remove(url)
-    if (info != null) {
-      _mapTempFile.remove(info.tempFile)
+    val taskInfo = _mapTask.remove(url)
+    if (taskInfo != null) {
+      _mapTempFile.remove(taskInfo.tempFile)
       _cancellingTasks.remove(url)
       logMsg { "removeTask $url size:${_mapTask.size} tempSize:${_mapTempFile.size} cancelingSize:${_cancellingTasks.size}" }
     }
