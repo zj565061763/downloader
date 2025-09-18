@@ -112,8 +112,7 @@ private class TransmitParams(
 
     when (progressNotifyStrategy) {
       is DownloadProgressNotifyStrategy.WhenProgressIncreased -> {
-        val increased = progressNotifyStrategy.increased
-        if ((newProgress - oldProgress) >= increased) {
+        if ((newProgress - oldProgress) >= progressNotifyStrategy.increased) {
           this.progress = newProgress
         }
       }
