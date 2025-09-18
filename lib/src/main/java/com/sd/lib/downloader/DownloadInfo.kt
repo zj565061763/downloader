@@ -9,6 +9,9 @@ sealed interface DownloadInfo {
   /** 初始化 */
   data class Initialized(override val url: String) : DownloadInfo, AccessibleDownloadInfo
 
+  /** 取消中（底层实现是异步取消时才有这个状态） */
+  data class Cancelling(override val url: String) : DownloadInfo, AccessibleDownloadInfo
+
   /** 下载中 */
   data class Progress(
     override val url: String,
@@ -18,10 +21,7 @@ sealed interface DownloadInfo {
     val current: Long,
     /** 传输进度[0-100] */
     val progress: Float,
-  ) : DownloadInfo, AccessibleDownloadInfo
-
-  /** 取消中（底层实现是异步取消时才有这个状态） */
-  data class Cancelling(override val url: String) : DownloadInfo, AccessibleDownloadInfo
+  ) : DownloadInfo
 
   /** 下载成功 */
   data class Success(
