@@ -2,6 +2,7 @@ package com.sd.lib.downloader.exception
 
 import android.content.Context
 import com.sd.lib.downloader.R
+import java.net.ConnectException
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 
@@ -12,6 +13,7 @@ open class DownloadExceptionHttp(
   override fun formatMessage(context: Context): String? {
     return when (cause) {
       is SocketTimeoutException -> ""
+      is ConnectException -> ""
       is UnknownHostException -> ""
       else -> super.formatMessage(context)
     }
@@ -20,6 +22,7 @@ open class DownloadExceptionHttp(
   override fun formatCause(context: Context): String {
     return when (cause) {
       is SocketTimeoutException -> context.getString(R.string.lib_downloader_ExceptionHttp_SocketTimeoutException)
+      is ConnectException -> context.getString(R.string.lib_downloader_ExceptionHttp_ConnectException)
       is UnknownHostException -> context.getString(R.string.lib_downloader_ExceptionHttp_UnknownHostException)
       else -> super.formatCause(context)
     }
