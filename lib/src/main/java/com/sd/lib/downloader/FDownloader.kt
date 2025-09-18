@@ -163,7 +163,7 @@ object FDownloader : Downloader {
         val task = taskInfo.task
         if (task.notifyCancelling()) {
           val cancellingInfo = DownloadInfo.Cancelling(task.url)
-          _mapTask[url] = taskInfo.copy(info = cancellingInfo)
+          taskInfo.info = cancellingInfo
           cancellingInfo.notifyCallbacks {
             logMsg { "notifyCallbacks ${task.url} Cancelling" }
           }
@@ -237,10 +237,10 @@ object FDownloader : Downloader {
     }
   }
 
-  private data class DownloadTaskInfo(
+  private class DownloadTaskInfo(
     val tempFile: File,
     val task: DownloadTask,
-    val info: DownloadInfo,
+    var info: DownloadInfo?,
   )
 }
 
