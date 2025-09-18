@@ -39,8 +39,7 @@ class DefaultDownloadExecutor @JvmOverloads constructor(
     updater: DownloadExecutor.Updater,
   ) {
     val url = request.url
-    _scope.launch {
-      _mapJob[url] = currentCoroutineContext()[Job]!!
+    _mapJob[url] = _scope.launch {
       try {
         handleRequest(request = request, file = file, updater = updater)
         updater.notifySuccess()
