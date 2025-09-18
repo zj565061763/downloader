@@ -145,7 +145,7 @@ object FDownloader : Downloader {
   @Synchronized
   override fun cancelTask(url: String) {
     if (hasTask(url)) {
-      logMsg { "cancelTask start url:${url}" }
+      logMsg { "cancelTask $url start" }
 
       removePendingRequest(url)
       _config.downloadExecutor.cancel(url)
@@ -155,11 +155,11 @@ object FDownloader : Downloader {
          * 如果[DownloadExecutor.cancel]之后任务依然存在，
          * 说明没有同步回调[DownloadExecutor.Updater.notifyError]移除任务。
          */
-        logMsg { "The task was not removed synchronously url:${url}" }
+        logMsg { "cancelTask $url was not removed synchronously" }
         _cancellingTasks.add(url)
       }
 
-      logMsg { "cancelTask finish url:${url}" }
+      logMsg { "cancelTask $url finish" }
     }
   }
 
