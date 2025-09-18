@@ -95,7 +95,7 @@ private fun Context.defaultDownloadDir(): File {
   return rootDir.resolve("sd.lib.downloader")
     .let { dir ->
       val process = currentProcess()
-      if (process.isNullOrEmpty()) dir else dir.resolve(process)
+      if (process.isNullOrEmpty()) dir else dir.resolve(process.replace(":", "_"))
     }
 }
 
