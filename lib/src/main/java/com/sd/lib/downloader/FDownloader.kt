@@ -191,7 +191,7 @@ object FDownloader : Downloader {
   private fun notifyInitialized(task: DownloadTask) {
     if (task.notifyInitialized()) {
       DownloadInfo.Initialized(task.url).notifyCallbacks {
-        logMsg { "notifyCallbacks ${it.url} Initialized" }
+        logMsg { "notifyCallbacks ${task.url} Initialized" }
       }
     }
   }
@@ -199,14 +199,14 @@ object FDownloader : Downloader {
   private fun notifyCancelling(task: DownloadTask) {
     if (task.notifyCancelling()) {
       DownloadInfo.Cancelling(task.url).notifyCallbacks {
-        logMsg { "notifyCallbacks ${it.url} Cancelling" }
+        logMsg { "notifyCallbacks ${task.url} Cancelling" }
       }
     }
   }
 
   internal fun notifyProgress(task: DownloadTask, total: Long, current: Long) {
     task.notifyProgress(total, current)?.notifyCallbacks {
-      logMsg { "notifyCallbacks ${it.url} Progress ${it.progress}" }
+      logMsg { "notifyCallbacks ${task.url} Progress ${it.progress}" }
     }
   }
 
@@ -215,7 +215,7 @@ object FDownloader : Downloader {
     if (task.notifySuccess()) {
       removeTask(url)
       DownloadInfo.Success(url, file).notifyCallbacks {
-        logMsg { "notifyCallbacks ${it.url} Success file:${file.absolutePath}" }
+        logMsg { "notifyCallbacks ${task.url} Success file:${file.absolutePath}" }
       }
     }
   }
@@ -225,7 +225,7 @@ object FDownloader : Downloader {
     if (task.notifyError()) {
       removeTask(url)
       DownloadInfo.Error(url, exception).notifyCallbacks {
-        logMsg { "notifyCallbacks ${it.url} Error exception:${exception}" }
+        logMsg { "notifyCallbacks ${task.url} Error exception:${exception}" }
       }
       removePendingRequest(url)?.also { request ->
         addTask(request)
