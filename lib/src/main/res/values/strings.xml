@@ -1,0 +1,7 @@
+<resources>
+    <string name="lib_downloader_ExceptionCreateTempFile">创建临时文件失败</string>
+    <string name="lib_downloader_ExceptionSubmitTask">提交任务失败</string>
+    <string name="lib_downloader_ExceptionTempFileNotFound">未找到临时文件</string>
+    <string name="lib_downloader_ExceptionCreateDownloadFile">创建下载文件失败</string>
+    <string name="lib_downloader_ExceptionRenameFile">重命名文件失败</string>
+</resources>

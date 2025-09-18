@@ -5,10 +5,10 @@ import android.os.Looper
 import android.util.Log
 import com.sd.lib.downloader.exception.DownloadException
 import com.sd.lib.downloader.exception.DownloadExceptionCancellation
-import com.sd.lib.downloader.exception.DownloadExceptionCompleteFile
 import com.sd.lib.downloader.exception.DownloadExceptionCreateDownloadFile
 import com.sd.lib.downloader.exception.DownloadExceptionCreateTempFile
 import com.sd.lib.downloader.exception.DownloadExceptionIllegalRequest
+import com.sd.lib.downloader.exception.DownloadExceptionRenameFile
 import com.sd.lib.downloader.exception.DownloadExceptionSubmitTask
 import com.sd.lib.downloader.exception.DownloadExceptionTempFileNotFound
 import com.sd.lib.downloader.executor.DownloadExecutor
@@ -283,7 +283,7 @@ private class DefaultDownloadUpdater(
         FDownloader.notifySuccess(_task, downloadFile)
       } else {
         logMsg { "updater notifySuccess $_url error rename temp file to download file" }
-        FDownloader.notifyError(_task, DownloadExceptionCompleteFile())
+        FDownloader.notifyError(_task, DownloadExceptionRenameFile())
       }
     }
   }
