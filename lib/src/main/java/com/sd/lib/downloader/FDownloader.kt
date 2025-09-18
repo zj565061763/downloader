@@ -129,9 +129,7 @@ object FDownloader : Downloader {
     if (task.notifyInitialized()) {
       val initializedInfo = DownloadInfo.Initialized(task.url)
       _mapTask[url]?.info = initializedInfo
-      notifyCallbacks(initializedInfo) {
-        logMsg { "notifyCallbacks ${task.url} Initialized" }
-      }
+      notifyCallbacks(initializedInfo)
     }
 
     return try {
@@ -174,9 +172,7 @@ object FDownloader : Downloader {
         if (task.notifyCancelling()) {
           val cancellingInfo = DownloadInfo.Cancelling(task.url)
           taskInfo.info = cancellingInfo
-          notifyCallbacks(cancellingInfo) {
-            logMsg { "notifyCallbacks ${task.url} Cancelling" }
-          }
+          notifyCallbacks(cancellingInfo)
         }
       }
 
@@ -212,18 +208,14 @@ object FDownloader : Downloader {
   internal fun notifySuccess(task: DownloadTask, file: File) {
     if (task.notifySuccess()) {
       removeTask(task.url)
-      notifyCallbacks(DownloadInfo.Success(task.url, file)) {
-        logMsg { "notifyCallbacks ${task.url} Success file:${file.absolutePath}" }
-      }
+      notifyCallbacks(DownloadInfo.Success(task.url, file))
     }
   }
 
   internal fun notifyError(task: DownloadTask, exception: DownloadException) {
     if (task.notifyError()) {
       removeTask(task.url)
-      notifyCallbacks(DownloadInfo.Error(task.url, exception)) {
-        logMsg { "notifyCallbacks ${task.url} Error exception:${exception}" }
-      }
+      notifyCallbacks(DownloadInfo.Error(task.url, exception))
       // 检查是否有正在等待中的请求
       removePendingRequest(task.url)?.also { request ->
         addTask(request)
@@ -231,9 +223,9 @@ object FDownloader : Downloader {
     }
   }
 
-  private fun <T : DownloadInfo> notifyCallbacks(info: T, block: ((T) -> Unit)? = null) {
+  private fun notifyCallbacks(info: DownloadInfo) {
     _handler.post {
-      block?.invoke(info)
+      logDownloadInfoNotify(info)
       for (item in _callbacks.keys) {
         item.onDownloadInfo(info)
       }
@@ -300,6 +292,23 @@ private class DefaultDownloadUpdater(
         FDownloader.notifyError(_task, DownloadExceptionCancellation())
       } else {
         FDownloader.notifyError(_task, DownloadException.wrap(e))
+      }
+    }
+  }
+}
+
+private fun logDownloadInfoNotify(info: DownloadInfo) {
+  logMsg {
+    buildString {
+      append("notifyCallbacks ${info.url} ")
+      when (info) {
+        is DownloadInfo.Initialized -> "Initialized"
+        is DownloadInfo.Progress -> "Progress ${info.progress} ${info.current}/${info.total} "
+        is DownloadInfo.Cancelling -> "Cancelling"
+        is DownloadInfo.Success -> "Success file:${info.file}"
+        is DownloadInfo.Error -> "Error exception:${info.exception}"
+      }.also {
+        append(it)
       }
     }
   }
