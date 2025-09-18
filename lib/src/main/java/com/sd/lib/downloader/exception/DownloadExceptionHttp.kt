@@ -12,8 +12,8 @@ open class DownloadExceptionHttp(
 ) : DownloadException(message, cause) {
   override fun formatMessage(context: Context): String? {
     return when (cause) {
-      is SocketTimeoutException -> ""
       is ConnectException -> ""
+      is SocketTimeoutException -> ""
       is UnknownHostException -> ""
       else -> super.formatMessage(context)
     }
@@ -21,8 +21,8 @@ open class DownloadExceptionHttp(
 
   override fun formatCause(context: Context): String {
     return when (cause) {
-      is SocketTimeoutException -> context.getString(R.string.lib_downloader_ExceptionHttp_SocketTimeoutException)
       is ConnectException -> context.getString(R.string.lib_downloader_ExceptionHttp_ConnectException)
+      is SocketTimeoutException -> context.getString(R.string.lib_downloader_ExceptionHttp_SocketTimeoutException)
       is UnknownHostException -> context.getString(R.string.lib_downloader_ExceptionHttp_UnknownHostException)
       else -> super.formatCause(context)
     }

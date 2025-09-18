@@ -6,7 +6,7 @@
     <string name="lib_downloader_ExceptionCreateDownloadFile">创建下载文件失败</string>
     <string name="lib_downloader_ExceptionRenameFile">重命名文件失败</string>
     <string name="lib_downloader_ExceptionHttpResponseCode">响应异常</string>
-    <string name="lib_downloader_ExceptionHttp_SocketTimeoutException">连接超时</string>
     <string name="lib_downloader_ExceptionHttp_ConnectException">连接失败</string>
+    <string name="lib_downloader_ExceptionHttp_SocketTimeoutException">连接超时</string>
     <string name="lib_downloader_ExceptionHttp_UnknownHostException">连接Host失败</string>
 </resources>
