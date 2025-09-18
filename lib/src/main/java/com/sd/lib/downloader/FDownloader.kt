@@ -7,7 +7,7 @@ import com.sd.lib.downloader.exception.DownloadException
 import com.sd.lib.downloader.exception.DownloadExceptionCancellation
 import com.sd.lib.downloader.exception.DownloadExceptionCreateDownloadFile
 import com.sd.lib.downloader.exception.DownloadExceptionCreateTempFile
-import com.sd.lib.downloader.exception.DownloadExceptionIllegalRequest
+import com.sd.lib.downloader.exception.DownloadExceptionIllegalRequestEmptyUrl
 import com.sd.lib.downloader.exception.DownloadExceptionRenameFile
 import com.sd.lib.downloader.exception.DownloadExceptionSubmitTask
 import com.sd.lib.downloader.exception.DownloadExceptionTempFileNotFound
@@ -107,7 +107,7 @@ object FDownloader : Downloader {
 
     if (url.isEmpty()) {
       logMsg { "addTask error url is empty" }
-      notifyError(task, DownloadExceptionIllegalRequest("url is empty"))
+      notifyError(task, DownloadExceptionIllegalRequestEmptyUrl())
       return false
     }
 

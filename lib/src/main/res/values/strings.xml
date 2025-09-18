@@ -1,4 +1,5 @@
 <resources>
+    <string name="lib_downloader_ExceptionIllegalRequestEmptyUrl">下载地址为空</string>
     <string name="lib_downloader_ExceptionCreateTempFile">创建临时文件失败</string>
     <string name="lib_downloader_ExceptionSubmitTask">提交任务失败</string>
     <string name="lib_downloader_ExceptionTempFileNotFound">未找到临时文件</string>

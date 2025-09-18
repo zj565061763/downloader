@@ -36,8 +36,12 @@ open class DownloadException @JvmOverloads constructor(
   }
 }
 
-/** 非法的请求 */
-class DownloadExceptionIllegalRequest internal constructor(message: String) : DownloadException(message = message)
+/** 非法的请求（下载地址为空） */
+class DownloadExceptionIllegalRequestEmptyUrl internal constructor() : DownloadException() {
+  override fun formatMessage(context: Context): String {
+    return context.getString(R.string.lib_downloader_ExceptionIllegalRequestEmptyUrl)
+  }
+}
 
 /** 创建临时文件异常 */
 class DownloadExceptionCreateTempFile internal constructor() : DownloadException() {
