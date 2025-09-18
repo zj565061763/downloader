@@ -198,8 +198,13 @@ object FDownloader : Downloader {
   }
 
   internal fun notifyProgress(task: DownloadTask, total: Long, current: Long) {
-    task.notifyProgress(total, current)?.notifyCallbacks {
-      logMsg { "notifyCallbacks ${task.url} Progress ${it.progress}" }
+    task.notifyProgress(total, current)?.also { info ->
+      synchronized(this@FDownloader) {
+        _mapTask[task.url]?.info = info
+      }
+      info.notifyCallbacks {
+        logMsg { "notifyCallbacks ${task.url} Progress ${it.progress}" }
+      }
     }
   }
 
