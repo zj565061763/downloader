@@ -46,12 +46,17 @@ class SampleAwaitDownload : ComponentActivity() {
       val request = DownloadRequest.Builder()
         .setPreferBreakpoint(true)
         .build(url)
-      FDownloader.addTaskAwait(request)
-        .onSuccess {
-          logMsg { "await onSuccess $it" }
-        }.onFailure {
-          logMsg { "await onFailure $it" }
-        }
+      try {
+        FDownloader.addTaskAwait(request)
+          .onSuccess {
+            logMsg { "await onSuccess $it" }
+          }.onFailure {
+            logMsg { "await onFailure $it" }
+          }
+      } catch (e: Throwable) {
+        logMsg { "await error $e" }
+        throw e
+      }
     }
   }
 
