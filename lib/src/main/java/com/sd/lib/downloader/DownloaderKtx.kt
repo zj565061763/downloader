@@ -1,31 +1,28 @@
 package com.sd.lib.downloader
 
-import kotlinx.coroutines.MainScope
-import kotlinx.coroutines.cancel
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import java.io.File
 import kotlin.coroutines.resume
 
 fun Downloader.downloadInfoFlow(url: String? = null): Flow<DownloadInfo> {
   return callbackFlow {
-    val scope = MainScope()
     val callback = object : Downloader.Callback {
       override fun onDownloadInfo(info: DownloadInfo) {
         if (url == null || url == info.url) {
-          scope.launch { send(info) }
+          trySend(info)
         }
       }
     }
     registerCallback(callback)
     awaitClose {
       unregisterCallback(callback)
-      scope.cancel()
     }
-  }
+  }.buffer(Channel.UNLIMITED)
 }
 
 /**
