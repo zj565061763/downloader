@@ -79,4 +79,8 @@ class DownloadExceptionRenameFile internal constructor() : DownloadException() {
 }
 
 /** 取消下载 */
-class DownloadExceptionCancellation internal constructor() : DownloadException()
+class DownloadExceptionCancellation internal constructor() : DownloadException() {
+  override fun formatMessage(context: Context): String {
+    return ""
+  }
+}
