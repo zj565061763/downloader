@@ -22,7 +22,7 @@ object FDownloader : Downloader {
   /** 所有任务 */
   private val _mapTask: MutableMap<String, DownloadTaskInfo> = mutableMapOf()
   /** 下载中的临时文件 */
-  private val _mapTempFile: MutableMap<File, String> = Collections.synchronizedMap(mutableMapOf())
+  private val _tempFiles: MutableSet<File> = Collections.newSetFromMap(ConcurrentHashMap())
 
   /** 正在取消中的任务 */
   private val _cancellingTasks: MutableSet<String> = mutableSetOf()
@@ -56,7 +56,7 @@ object FDownloader : Downloader {
     _downloadDir.tempFiles { files ->
       var count = 0
       files.forEach { file ->
-        if (!_mapTempFile.containsKey(file)) {
+        if (!_tempFiles.contains(file)) {
           if (file.deleteRecursively()) count++
         }
       }
@@ -123,8 +123,8 @@ object FDownloader : Downloader {
     }
 
     _mapTask[url] = DownloadTaskInfo(tempFile, task)
-    _mapTempFile[tempFile] = url
-    logMsg { "addTask $url temp:${tempFile.absolutePath} size:${_mapTask.size} tempSize:${_mapTempFile.size}" }
+    _tempFiles.add(tempFile)
+    logMsg { "addTask $url temp:${tempFile.absolutePath} size:${_mapTask.size} tempSize:${_tempFiles.size}" }
 
     if (task.notifyInitialized()) {
       val initializedInfo = DownloadInfo.Initialized(task.url)
@@ -193,9 +193,9 @@ object FDownloader : Downloader {
   private fun removeTask(url: String) {
     val taskInfo = _mapTask.remove(url)
     if (taskInfo != null) {
-      _mapTempFile.remove(taskInfo.tempFile)
+      _tempFiles.remove(taskInfo.tempFile)
       _cancellingTasks.remove(url)
-      logMsg { "removeTask $url size:${_mapTask.size} tempSize:${_mapTempFile.size} cancelingSize:${_cancellingTasks.size}" }
+      logMsg { "removeTask $url size:${_mapTask.size} tempSize:${_tempFiles.size} cancelingSize:${_cancellingTasks.size}" }
     }
   }
 
