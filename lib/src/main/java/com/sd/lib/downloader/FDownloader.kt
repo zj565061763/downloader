@@ -31,19 +31,19 @@ object FDownloader : Downloader {
 
   /** 下载目录 */
   private val _downloadDir: DownloadDir = DownloadDir.get(_config.downloadDirectory)
-  private val _callbacks: MutableMap<Downloader.Callback, String> = ConcurrentHashMap()
+  private val _callbacks: MutableSet<Downloader.Callback> = Collections.newSetFromMap(ConcurrentHashMap())
 
   private val _config get() = DownloaderConfig.get()
   private val _handler by lazy { Handler(Looper.getMainLooper()) }
 
   override fun registerCallback(callback: Downloader.Callback) {
-    if (_callbacks.put(callback, "") == null) {
+    if (_callbacks.add(callback)) {
       logMsg { "registerCallback:${callback} size:${_callbacks.size}" }
     }
   }
 
   override fun unregisterCallback(callback: Downloader.Callback) {
-    if (_callbacks.remove(callback) != null) {
+    if (_callbacks.remove(callback)) {
       logMsg { "unregisterCallback:${callback} size:${_callbacks.size}" }
     }
   }
@@ -226,7 +226,7 @@ object FDownloader : Downloader {
   private fun notifyCallbacks(info: DownloadInfo) {
     _handler.post {
       logDownloadInfoNotify(info)
-      for (item in _callbacks.keys) {
+      for (item in _callbacks) {
         item.onDownloadInfo(info)
       }
     }
