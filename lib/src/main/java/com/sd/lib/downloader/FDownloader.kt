@@ -21,8 +21,6 @@ import java.util.concurrent.atomic.AtomicBoolean
 object FDownloader : Downloader {
   /** 所有任务 */
   private val _mapTask: MutableMap<String, DownloadTaskInfo> = mutableMapOf()
-  /** 下载中的临时文件 */
-  private val _tempFiles: MutableSet<File> = Collections.newSetFromMap(ConcurrentHashMap())
 
   /** 正在取消中的任务 */
   private val _cancellingTasks: MutableSet<String> = mutableSetOf()
@@ -50,22 +48,6 @@ object FDownloader : Downloader {
 
   override fun getDownloadFile(url: String): File? {
     return _downloadDir.existOrNullFileForKey(url)
-  }
-
-  override fun deleteTempFile() {
-    _downloadDir.tempFiles { files ->
-      var count = 0
-      files.forEach { file ->
-        if (!_tempFiles.contains(file)) {
-          if (file.deleteRecursively()) count++
-        }
-      }
-      count
-    }.also { count ->
-      if (count > 0) {
-        logMsg { "deleteTempFile count:${count}" }
-      }
-    }
   }
 
   override fun deleteDownloadFile(block: (File) -> Boolean) {
@@ -129,9 +111,8 @@ object FDownloader : Downloader {
       return false
     }
 
-    _mapTask[url] = DownloadTaskInfo(tempFile, task)
-    _tempFiles.add(tempFile)
-    logMsg { "addTask $url temp:${tempFile.absolutePath} size:${_mapTask.size} tempSize:${_tempFiles.size}" }
+    _mapTask[url] = DownloadTaskInfo(task)
+    logMsg { "addTask $url temp:${tempFile.absolutePath} size:${_mapTask.size}" }
 
     if (task.notifyInitialized()) {
       val initializedInfo = DownloadInfo.Initialized(task.url)
@@ -201,9 +182,8 @@ object FDownloader : Downloader {
   private fun removeTask(url: String) {
     val taskInfo = _mapTask.remove(url)
     if (taskInfo != null) {
-      _tempFiles.remove(taskInfo.tempFile)
       _cancellingTasks.remove(url)
-      logMsg { "removeTask $url size:${_mapTask.size} tempSize:${_tempFiles.size} cancelingSize:${_cancellingTasks.size}" }
+      logMsg { "removeTask $url size:${_mapTask.size} cancelingSize:${_cancellingTasks.size}" }
     }
   }
 
@@ -241,7 +221,6 @@ object FDownloader : Downloader {
   }
 
   private class DownloadTaskInfo(
-    val tempFile: File,
     val task: DownloadTask,
     var info: AccessibleDownloadInfo? = null,
   )

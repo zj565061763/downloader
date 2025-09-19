@@ -12,9 +12,6 @@ internal interface DownloadDir {
 
   fun existOrNullFileForKey(key: String): File?
 
-  /** 访问所有临时文件 */
-  fun <T> tempFiles(block: (List<File>) -> T): T
-
   /** 访问所有非临时文件 */
   fun <T> files(block: (List<File>) -> T): T
 
@@ -51,12 +48,6 @@ private class DownloadDirImpl(dir: File) : DownloadDir {
       ext = key.substringAfterLast(".", ""),
       checkExist = true,
     )
-  }
-
-  override fun <T> tempFiles(block: (List<File>) -> T): T {
-    return listFiles { files ->
-      block(files.filter { it.extension == ExtTemp })
-    }
   }
 
   override fun <T> files(block: (List<File>) -> T): T {
