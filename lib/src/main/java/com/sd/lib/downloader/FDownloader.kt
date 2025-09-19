@@ -165,7 +165,7 @@ object FDownloader : Downloader {
         }
       }
 
-      logMsg { "cancelTask $url finish" }
+      logMsg { "cancelTask $url finish size:${_mapTask.size}" }
     }
   }
 
