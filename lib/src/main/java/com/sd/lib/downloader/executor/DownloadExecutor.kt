@@ -18,8 +18,8 @@ import java.io.IOException
 import java.io.InputStream
 import java.io.RandomAccessFile
 import java.net.HttpURLConnection
-import java.util.Collections
 import java.util.concurrent.CancellationException
+import java.util.concurrent.ConcurrentHashMap
 
 interface DownloadExecutor {
   /**
@@ -81,7 +81,7 @@ private class DefaultDownloadExecutor(
   limitedParallelism: Int,
 ) : DownloadExecutor {
   private val _preferBreakpoint = preferBreakpoint
-  private val _mapJob: MutableMap<String, Job> = Collections.synchronizedMap(mutableMapOf())
+  private val _mapJob: MutableMap<String, Job> = ConcurrentHashMap()
 
   @OptIn(ExperimentalCoroutinesApi::class)
   private val _scope by lazy {
