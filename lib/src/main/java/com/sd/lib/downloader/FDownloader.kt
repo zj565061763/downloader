@@ -34,7 +34,7 @@ object FDownloader : Downloader {
   private val _callbacks: MutableSet<Downloader.Callback> = Collections.newSetFromMap(ConcurrentHashMap())
 
   private val _config get() = DownloaderConfig.get()
-  private val _handler by lazy { Handler(Looper.getMainLooper()) }
+  private val _handler = Handler(Looper.getMainLooper())
 
   override fun registerCallback(callback: Downloader.Callback) {
     if (_callbacks.add(callback)) {
