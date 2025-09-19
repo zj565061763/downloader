@@ -122,6 +122,13 @@ object FDownloader : Downloader {
       return false
     }
 
+    val downloadFile = _downloadDir.fileForKey(url)
+    if (downloadFile == null) {
+      logMsg { "addTask $url error create download file failed" }
+      notifyError(task, DownloadExceptionCreateDownloadFile())
+      return false
+    }
+
     _mapTask[url] = DownloadTaskInfo(tempFile, task)
     _tempFiles.add(tempFile)
     logMsg { "addTask $url temp:${tempFile.absolutePath} size:${_mapTask.size} tempSize:${_tempFiles.size}" }
@@ -139,6 +146,7 @@ object FDownloader : Downloader {
         updater = DefaultDownloadUpdater(
           task = task,
           tempFile = tempFile,
+          downloadFile = downloadFile,
           downloadDir = _downloadDir,
         ),
       )
@@ -240,58 +248,48 @@ object FDownloader : Downloader {
 }
 
 private class DefaultDownloadUpdater(
-  task: DownloadTask,
-  tempFile: File,
-  downloadDir: DownloadDir,
+  private val task: DownloadTask,
+  private val tempFile: File,
+  private val downloadFile: File,
+  private val downloadDir: DownloadDir,
 ) : DownloadExecutor.Updater {
-  private val _url = task.url
-  private val _task = task
-  private val _tempFile = tempFile
-  private val _downloadDir = downloadDir
-
   private val _isFinish = AtomicBoolean(false)
 
   override fun notifyProgress(total: Long, current: Long) {
     if (_isFinish.get()) return
-    FDownloader.notifyProgress(_task, total, current)
+    FDownloader.notifyProgress(task, total, current)
   }
 
   override fun notifySuccess() {
     if (_isFinish.compareAndSet(false, true)) {
-      if (!_tempFile.exists()) {
-        logMsg { "updater notifySuccess $_url error temp file not found" }
-        FDownloader.notifyError(_task, DownloadExceptionTempFileNotFound())
+      if (!tempFile.exists()) {
+        logMsg { "updater notifySuccess $${task.url} error temp file not found" }
+        FDownloader.notifyError(task, DownloadExceptionTempFileNotFound())
         return
       }
 
-      val downloadFile = _downloadDir.fileForKey(_url)
-      if (downloadFile == null) {
-        logMsg { "updater notifySuccess $_url error create download file" }
-        FDownloader.notifyError(_task, DownloadExceptionCreateDownloadFile())
-        return
-      }
-
-      val renamed = synchronized(_downloadDir) {
-        _tempFile.renameTo(downloadFile)
+      val renamed = synchronized(downloadDir) {
+        downloadFile.deleteRecursively()
+        tempFile.renameTo(downloadFile)
       }
 
       if (renamed) {
-        logMsg { "updater notifySuccess $_url" }
-        FDownloader.notifySuccess(_task, downloadFile)
+        logMsg { "updater notifySuccess ${task.url}" }
+        FDownloader.notifySuccess(task, downloadFile)
       } else {
-        logMsg { "updater notifySuccess $_url error rename temp file to download file" }
-        FDownloader.notifyError(_task, DownloadExceptionRenameFile())
+        logMsg { "updater notifySuccess ${task.url} error rename temp file to download file" }
+        FDownloader.notifyError(task, DownloadExceptionRenameFile())
       }
     }
   }
 
   override fun notifyError(e: Throwable) {
     if (_isFinish.compareAndSet(false, true)) {
-      logMsg { "updater notifyError $_url $e" }
+      logMsg { "updater notifyError ${task.url} $e" }
       if (e is CancellationException) {
-        FDownloader.notifyError(_task, DownloadExceptionCancellation())
+        FDownloader.notifyError(task, DownloadExceptionCancellation())
       } else {
-        FDownloader.notifyError(_task, DownloadException.wrap(e))
+        FDownloader.notifyError(task, DownloadException.wrap(e))
       }
     }
   }
