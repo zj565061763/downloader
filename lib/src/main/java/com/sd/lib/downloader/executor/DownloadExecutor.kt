@@ -162,6 +162,7 @@ private class DefaultDownloadExecutor(
     logMsg { "executor ${request.url} normal start" }
     val code = withTimeout(request.connectTimeout) { httpRequest.code() }
     logMsg { "executor ${request.url} normal finish code:$code" }
+
     currentCoroutineContext().ensureActive()
     if (code == HttpURLConnection.HTTP_OK) {
       downloadNormal(httpRequest = httpRequest, file = file, updater = updater)
