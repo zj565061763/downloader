@@ -5,6 +5,8 @@ import java.util.concurrent.atomic.AtomicReference
 internal class DownloadTask(
   val url: String,
   progressNotifyStrategy: DownloadProgressNotifyStrategy,
+  @Volatile
+  var info: AccessibleDownloadInfo? = null,
 ) {
   private val _state: AtomicReference<DownloadState> = AtomicReference(DownloadState.None)
   private val _transmitParams = TransmitParams(progressNotifyStrategy)

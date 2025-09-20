@@ -68,7 +68,7 @@ object FDownloader : Downloader {
 
   @Synchronized
   override fun getDownloadInfo(url: String): AccessibleDownloadInfo? {
-    return _mapTask[url]?.info
+    return _mapTask[url]?.task?.info
   }
 
   override fun addTask(url: String): Boolean {
@@ -122,7 +122,7 @@ object FDownloader : Downloader {
 
     if (task.notifyInitialized()) {
       val initializedInfo = DownloadInfo.Initialized(task.url)
-      _mapTask[url]?.info = initializedInfo
+      task.info = initializedInfo
       notifyCallbacks(initializedInfo)
     }
 
@@ -158,7 +158,7 @@ object FDownloader : Downloader {
         val task = taskInfo.task
         if (task.notifyCancelling()) {
           val cancellingInfo = DownloadInfo.Cancelling(task.url)
-          taskInfo.info = cancellingInfo
+          task.info = cancellingInfo
           notifyCallbacks(cancellingInfo)
         }
       }
@@ -187,6 +187,7 @@ object FDownloader : Downloader {
 
   internal fun notifyProgress(task: DownloadTask, total: Long, current: Long) {
     task.notifyProgress(total, current)?.also { progressInfo ->
+      task.info = progressInfo
       notifyCallbacks(progressInfo)
     }
   }
@@ -221,7 +222,6 @@ object FDownloader : Downloader {
   private class DownloadTaskInfo(
     val task: DownloadTask,
     val updater: DefaultDownloadUpdater,
-    var info: AccessibleDownloadInfo? = null,
   )
 }
 
