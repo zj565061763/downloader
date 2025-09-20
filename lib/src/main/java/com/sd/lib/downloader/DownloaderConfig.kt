@@ -14,14 +14,16 @@ import java.io.File
 class DownloaderConfig private constructor(builder: Builder) {
   internal val isDebug: Boolean
   internal val downloadDirectory: File
-  internal val downloadExecutor: DownloadExecutor
+  internal val connectionTimeout: Long
   internal val progressNotifyStrategy: DownloadProgressNotifyStrategy
+  internal val downloadExecutor: DownloadExecutor
 
   init {
     this.isDebug = builder.isDebug
     this.downloadDirectory = builder.downloadDirectory ?: builder.context.defaultDownloadDir()
-    this.downloadExecutor = builder.downloadExecutor ?: DownloadExecutor.getDefault()
+    this.connectionTimeout = builder.connectTimeout ?: 10_000
     this.progressNotifyStrategy = builder.progressNotifyStrategy ?: DownloadProgressNotifyStrategy.WhenProgressIncreased(increased = 1f)
+    this.downloadExecutor = builder.downloadExecutor ?: DownloadExecutor.getDefault()
   }
 
   class Builder {
@@ -34,38 +36,39 @@ class DownloaderConfig private constructor(builder: Builder) {
     internal var downloadDirectory: File? = null
       private set
 
-    internal var downloadExecutor: DownloadExecutor? = null
+    internal var connectTimeout: Long? = null
       private set
 
     internal var progressNotifyStrategy: DownloadProgressNotifyStrategy? = null
       private set
 
-    /**
-     * 调试模式(tag：FDownloader)
-     */
+    internal var downloadExecutor: DownloadExecutor? = null
+      private set
+
+    /** 调试模式(tag：FDownloader) */
     fun setDebug(debug: Boolean) = apply {
       this.isDebug = debug
     }
 
-    /**
-     * 下载目录
-     */
-    fun setDownloadDirectory(directory: File?) = apply {
+    /** 下载目录 */
+    fun setDownloadDirectory(directory: File) = apply {
       this.downloadDirectory = directory
     }
 
-    /**
-     * 下载执行器
-     */
-    fun setDownloadExecutor(executor: DownloadExecutor?) = apply {
-      this.downloadExecutor = executor
+    /** 连接超时时间（毫秒） */
+    fun setConnectTimeout(timeout: Long) = apply {
+      require(timeout > 0)
+      this.connectTimeout = timeout
     }
 
-    /**
-     * 下载进度通知策略
-     */
-    fun setProgressNotifyStrategy(strategy: DownloadProgressNotifyStrategy?) = apply {
+    /** 下载进度通知策略 */
+    fun setProgressNotifyStrategy(strategy: DownloadProgressNotifyStrategy) = apply {
       this.progressNotifyStrategy = strategy
+    }
+
+    /** 下载执行器 */
+    fun setDownloadExecutor(executor: DownloadExecutor) = apply {
+      this.downloadExecutor = executor
     }
 
     fun build(context: Context): DownloaderConfig {
@@ -78,9 +81,7 @@ class DownloaderConfig private constructor(builder: Builder) {
     @Volatile
     private var sConfig: DownloaderConfig? = null
 
-    /**
-     * 初始化
-     */
+    /** 初始化 */
     @JvmStatic
     fun init(config: DownloaderConfig) {
       synchronized(this@Companion) {
@@ -90,9 +91,6 @@ class DownloaderConfig private constructor(builder: Builder) {
       }
     }
 
-    /**
-     * 配置信息
-     */
     internal fun get(): DownloaderConfig {
       return sConfig ?: synchronized(this@Companion) {
         checkNotNull(sConfig) { "You should call init() before this." }
