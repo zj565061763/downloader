@@ -77,7 +77,7 @@ sealed interface DownloadInfo {
     val current: Long,
     /** 传输进度[0-100] */
     val progress: Float,
-  ) : DownloadInfo
+  ) : DownloadInfo, AccessibleDownloadInfo
 
   /** 下载成功 */
   data class Success(
