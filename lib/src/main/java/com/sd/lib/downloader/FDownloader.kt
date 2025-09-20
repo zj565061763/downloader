@@ -111,7 +111,14 @@ object FDownloader : Downloader {
       return false
     }
 
-    _mapTask[url] = DownloadTaskInfo(task)
+    val updater = DefaultDownloadUpdater(
+      task = task,
+      tempFile = tempFile,
+      downloadFile = downloadFile,
+      downloadDir = _downloadDir,
+    )
+
+    _mapTask[url] = DownloadTaskInfo(task, updater)
     logMsg { "addTask $url temp:${tempFile.absolutePath} size:${_mapTask.size}" }
 
     if (task.notifyInitialized()) {
@@ -121,16 +128,7 @@ object FDownloader : Downloader {
     }
 
     return try {
-      _config.downloadExecutor.submit(
-        request = request,
-        file = tempFile,
-        updater = DefaultDownloadUpdater(
-          task = task,
-          tempFile = tempFile,
-          downloadFile = downloadFile,
-          downloadDir = _downloadDir,
-        ),
-      )
+      _config.downloadExecutor.submit(request = request, file = tempFile, updater = updater)
       true
     } catch (e: Throwable) {
       check(e !is DownloadException)
@@ -156,6 +154,7 @@ object FDownloader : Downloader {
          */
         logMsg { "cancelTask $url was not removed synchronously" }
         _cancellingTasks.add(url)
+        taskInfo.updater.setCancelling()
 
         val task = taskInfo.task
         if (task.notifyCancelling()) {
@@ -222,6 +221,7 @@ object FDownloader : Downloader {
 
   private class DownloadTaskInfo(
     val task: DownloadTask,
+    val updater: DefaultDownloadUpdater,
     var info: AccessibleDownloadInfo? = null,
   )
 }
@@ -233,13 +233,21 @@ private class DefaultDownloadUpdater(
   private val downloadDir: DownloadDir,
 ) : DownloadExecutor.Updater {
   private val _isFinish = AtomicBoolean(false)
+  @Volatile
+  private var _isCancelling = false
+
+  fun setCancelling() {
+    _isCancelling = true
+  }
 
   override fun notifyProgress(total: Long, current: Long) {
+    if (_isCancelling) return
     if (_isFinish.get()) return
     FDownloader.notifyProgress(task, total, current)
   }
 
   override fun notifySuccess() {
+    if (_isCancelling) return
     if (_isFinish.compareAndSet(false, true)) {
       if (!tempFile.exists()) {
         logMsg { "updater notifySuccess $${task.url} error temp file not found" }
