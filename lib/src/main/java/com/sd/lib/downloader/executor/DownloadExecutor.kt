@@ -21,9 +21,6 @@ import java.io.RandomAccessFile
 import java.net.HttpURLConnection
 import java.util.concurrent.CancellationException
 import java.util.concurrent.ConcurrentHashMap
-import kotlin.time.Duration.Companion.hours
-import kotlin.time.Duration.Companion.seconds
-import kotlin.time.DurationUnit
 
 interface DownloadExecutor {
   /**
@@ -224,8 +221,8 @@ private class DefaultDownloadExecutor(
 
 private fun newHttpRequest(downloadRequest: DownloadRequest): HttpRequest {
   return HttpRequest.get(downloadRequest.url)
-    .connectTimeout(24.hours.toInt(DurationUnit.MILLISECONDS))
-    .readTimeout(15.seconds.toInt(DurationUnit.MILLISECONDS))
+    .connectTimeout(downloadRequest.connectTimeout.toInt())
+    .readTimeout(downloadRequest.connectTimeout.toInt())
     .trustAllHosts()
     .trustAllCerts()
 }
