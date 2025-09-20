@@ -25,7 +25,9 @@ class MainActivity : ComponentActivity() {
     super.onResume()
     // 删除所有下载文件（不含临时文件）
     FDownloader.downloadFiles { files ->
-      files.forEach { it.deleteRecursively() }
+      var count = 0
+      files.forEach { if (it.deleteRecursively()) count++ }
+      logMsg { "delete files count:$count" }
     }
   }
 }
