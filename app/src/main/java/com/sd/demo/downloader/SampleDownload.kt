@@ -8,6 +8,8 @@ import com.sd.lib.downloader.DownloadProgressNotifyStrategy
 import com.sd.lib.downloader.DownloadRequest
 import com.sd.lib.downloader.Downloader
 import com.sd.lib.downloader.FDownloader
+import com.sd.lib.downloader.exception.DownloadException
+import com.sd.lib.downloader.exception.DownloadExceptionCancellation
 
 class SampleDownload : ComponentActivity() {
   private val _binding by lazy { SampleDownloadBinding.inflate(layoutInflater) }
@@ -57,12 +59,29 @@ class SampleDownload : ComponentActivity() {
    */
   private val _downloadCallback = object : Downloader.Callback {
     override fun onDownloadInfo(info: DownloadInfo) {
+      updateDownloadInfo(info)
       when (info) {
-        is DownloadInfo.Error -> logMsg {
-          "$info desc:${info.exception.getDesc(this@SampleDownload)}"
-        }
+        is DownloadInfo.Error -> logMsg { "$info desc:${info.exception.getDesc(this@SampleDownload)}" }
         else -> logMsg { info.toString() }
       }
+    }
+  }
+
+  private fun updateDownloadInfo(info: DownloadInfo) {
+    when (info) {
+      is DownloadInfo.Initialized -> "开始下载"
+      is DownloadInfo.Progress -> "${info.progress.toInt()}%"
+      is DownloadInfo.Cancelling -> "取消中..."
+      is DownloadInfo.Error -> {
+        when (val exception = info.exception) {
+          is DownloadExceptionCancellation -> "已取消下载"
+          is DownloadException -> "下载失败:${exception.getDesc(this@SampleDownload)}"
+          else -> "下载失败"
+        }
+      }
+      is DownloadInfo.Success -> "下载成功:${info.file}"
+    }.also { text ->
+      _binding.tvProgress.text = text
     }
   }
 

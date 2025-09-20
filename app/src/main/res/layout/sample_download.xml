@@ -19,4 +19,9 @@
         android:text="cancel download"
         android:textAllCaps="false" />
 
+    <TextView
+        android:id="@+id/tv_progress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
 </LinearLayout>
