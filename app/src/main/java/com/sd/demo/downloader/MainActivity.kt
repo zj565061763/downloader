@@ -24,7 +24,9 @@ class MainActivity : ComponentActivity() {
   override fun onResume() {
     super.onResume()
     // 删除所有下载文件（不含临时文件）
-    FDownloader.deleteDownloadFile { it.deleteRecursively() }
+    FDownloader.downloadFiles { files ->
+      files.forEach { it.deleteRecursively() }
+    }
   }
 }
 

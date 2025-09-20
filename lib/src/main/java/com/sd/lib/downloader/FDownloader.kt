@@ -50,20 +50,8 @@ object FDownloader : Downloader {
     return _downloadDir.existOrNullFileForKey(url)
   }
 
-  override fun deleteDownloadFile(block: (File) -> Boolean) {
-    _downloadDir.files { files ->
-      var count = 0
-      files.forEach { file ->
-        if (block(file)) {
-          if (file.deleteRecursively()) count++
-        }
-      }
-      count
-    }.also { count ->
-      if (count > 0) {
-        logMsg { "deleteDownloadFile count:${count}" }
-      }
-    }
+  override fun <T> downloadFiles(block: (List<File>) -> T): T {
+    return _downloadDir.files(block)
   }
 
   @Synchronized
