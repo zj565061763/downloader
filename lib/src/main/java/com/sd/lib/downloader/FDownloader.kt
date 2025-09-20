@@ -232,6 +232,7 @@ private class DefaultDownloadUpdater(
   private val downloadDir: DownloadDir,
 ) : DownloadExecutor.Updater {
   private val _isFinish = AtomicBoolean(false)
+
   @Volatile
   private var _isCancelling = false
 
