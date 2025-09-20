@@ -8,16 +8,16 @@ class DownloadRequest private constructor(builder: Builder) {
   val preferBreakpoint: Boolean?
 
   /** 连接超时时间（毫秒） */
-  val connectTimeout: Long?
+  val connectTimeout: Long
 
   /** 下载进度通知策略 */
-  val progressNotifyStrategy: DownloadProgressNotifyStrategy?
+  val progressNotifyStrategy: DownloadProgressNotifyStrategy
 
   init {
     this.url = builder.url
     this.preferBreakpoint = builder.preferBreakpoint
-    this.connectTimeout = builder.connectTimeout
-    this.progressNotifyStrategy = builder.progressNotifyStrategy
+    this.connectTimeout = builder.connectTimeout ?: DownloaderConfig.get().connectionTimeout
+    this.progressNotifyStrategy = builder.progressNotifyStrategy ?: DownloaderConfig.get().progressNotifyStrategy
   }
 
   class Builder {

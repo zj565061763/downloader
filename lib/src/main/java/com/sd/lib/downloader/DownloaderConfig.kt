@@ -7,6 +7,7 @@ import android.os.Build
 import android.os.Process
 import com.sd.lib.downloader.executor.DownloadExecutor
 import java.io.File
+import kotlin.time.Duration.Companion.seconds
 
 /**
  * 下载器配置
@@ -21,7 +22,7 @@ class DownloaderConfig private constructor(builder: Builder) {
   init {
     this.isDebug = builder.isDebug
     this.downloadDirectory = builder.downloadDirectory ?: builder.context.defaultDownloadDir()
-    this.connectionTimeout = builder.connectTimeout ?: 10_000
+    this.connectionTimeout = builder.connectTimeout ?: 10.seconds.inWholeMilliseconds
     this.progressNotifyStrategy = builder.progressNotifyStrategy ?: DownloadProgressNotifyStrategy.WhenProgressIncreased(increased = 1f)
     this.downloadExecutor = builder.downloadExecutor ?: DownloadExecutor.getDefault()
   }

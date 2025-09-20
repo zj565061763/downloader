@@ -13,6 +13,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeout
 import java.io.File
 import java.io.IOException
 import java.io.InputStream
@@ -20,6 +21,9 @@ import java.io.RandomAccessFile
 import java.net.HttpURLConnection
 import java.util.concurrent.CancellationException
 import java.util.concurrent.ConcurrentHashMap
+import kotlin.time.Duration.Companion.hours
+import kotlin.time.Duration.Companion.seconds
+import kotlin.time.DurationUnit
 
 interface DownloadExecutor {
   /**
@@ -130,13 +134,14 @@ private class DefaultDownloadExecutor(
     val breakpoint = (request.preferBreakpoint ?: _preferBreakpoint) && length > 0
 
     if (breakpoint) {
-      val httpRequest = newHttpRequest(request)
-      logMsg { "executor ${request.url} breakpoint start" }
-      val code = httpRequest.run {
+      val httpRequest = newHttpRequest(request).apply {
         this.header("Range", "bytes=$length-")
-        this.code()
       }
+
+      logMsg { "executor ${request.url} breakpoint start" }
+      val code = withTimeout(request.connectTimeout) { httpRequest.code() }
       logMsg { "executor ${request.url} breakpoint finish code:$code" }
+
       currentCoroutineContext().ensureActive()
       when (code) {
         HttpURLConnection.HTTP_PARTIAL -> {
@@ -158,7 +163,7 @@ private class DefaultDownloadExecutor(
 
     val httpRequest = newHttpRequest(request)
     logMsg { "executor ${request.url} normal start" }
-    val code = httpRequest.code()
+    val code = withTimeout(request.connectTimeout) { httpRequest.code() }
     logMsg { "executor ${request.url} normal finish code:$code" }
     currentCoroutineContext().ensureActive()
     if (code == HttpURLConnection.HTTP_OK) {
@@ -219,8 +224,8 @@ private class DefaultDownloadExecutor(
 
 private fun newHttpRequest(downloadRequest: DownloadRequest): HttpRequest {
   return HttpRequest.get(downloadRequest.url)
-    .connectTimeout(15 * 1000)
-    .readTimeout(15 * 1000)
+    .connectTimeout(24.hours.toInt(DurationUnit.MILLISECONDS))
+    .readTimeout(15.seconds.toInt(DurationUnit.MILLISECONDS))
     .trustAllHosts()
     .trustAllCerts()
 }

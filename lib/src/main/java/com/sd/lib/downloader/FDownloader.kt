@@ -88,8 +88,7 @@ object FDownloader : Downloader {
       return true
     }
 
-    val progressNotifyStrategy = request.progressNotifyStrategy ?: _config.progressNotifyStrategy
-    val task = DownloadTask(url, progressNotifyStrategy)
+    val task = DownloadTask(url, request.progressNotifyStrategy)
 
     if (url.isEmpty()) {
       logMsg { "addTask error url is empty" }
