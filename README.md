@@ -11,20 +11,8 @@ implementation("io.github.zj565061763.android:downloader:$version")
 ```kotlin
 DownloaderConfig.init(
   DownloaderConfig.Builder()
-
-    // 设置下载目录，如果为null或者不设置则默认路径为：(sd卡或者内部存储)/Android/data/包名/files/sd.lib.downloader/进程名称
-    .setDownloadDirectory(null)
-
-    /**
-     * 设置下载处理器，如果为null或者不设置则默认的下载处理器为：DefaultDownloadExecutor
-     * preferBreakpoint：是否优先使用断点下载
-     * limitedParallelism：同时下载的任务数量
-     */
-    .setDownloadExecutor(DownloadExecutor.getDefault(preferBreakpoint = true, limitedParallelism = 3))
-
     // 设置是否输出日志（tag：FDownloader），默认：false
     .setDebug(true)
-
     .build(this)
 )
 ```
@@ -41,9 +29,6 @@ interface Downloader {
 
   /** 获取[url]对应的下载文件，如果文件不存在则返回null */
   fun getDownloadFile(url: String): File?
-
-  /** 删除所有临时文件（不含下载中的临时文件） */
-  fun deleteTempFile()
 
   /** 删除[block]返回true的下载文件（不含临时文件） */
   fun deleteDownloadFile(block: (File) -> Boolean)
