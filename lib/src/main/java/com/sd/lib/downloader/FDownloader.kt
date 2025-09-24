@@ -50,9 +50,9 @@ object FDownloader : Downloader {
     return _downloadDir.existOrNullFileForKey(dirname = dirname, key = url)
   }
 
-  override fun <T> downloadDir(block: DownloadDirScope.() -> T): T {
+  override fun <T> downloadDir(block: DownloadDirScope.(dir: File) -> T): T {
     synchronized(_downloadDir) {
-      return DownloadDirScopeImpl(_downloadDir).block()
+      return DownloadDirScopeImpl(_downloadDir).block(_config.downloadDirectory)
     }
   }
 

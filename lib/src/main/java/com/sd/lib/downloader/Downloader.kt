@@ -13,7 +13,7 @@ interface Downloader {
   fun getDownloadFile(url: String, dirname: String = ""): File?
 
   /** 访问下载目录 */
-  fun <T> downloadDir(block: DownloadDirScope.() -> T): T
+  fun <T> downloadDir(block: DownloadDirScope.(dir: File) -> T): T
 
   /** 获取[url]对应的下载信息 */
   fun getDownloadInfo(url: String): AccessibleDownloadInfo?

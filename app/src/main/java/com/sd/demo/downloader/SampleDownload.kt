@@ -14,6 +14,7 @@ import com.sd.lib.downloader.executor.DownloadExecutor
 class SampleDownload : ComponentActivity() {
   private val _binding by lazy { SampleDownloadBinding.inflate(layoutInflater) }
   private val url = "https://dldir1v6.qq.com/weixin/android/weixin8063android2920_0x28003f33_arm64.apk"
+  private val dirname = "apk"
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -40,7 +41,7 @@ class SampleDownload : ComponentActivity() {
       /** 下载进度通知策略 */
       .setProgressNotifyStrategy(DownloadProgressNotifyStrategy.WhenProgressIncreased(increased = 1f))
       /** 下载文件要保存的目录，默认空表示根目录 */
-      .setDirname("apk")
+      .setDirname(dirname)
       /** 下载地址 */
       .build(url)
 
@@ -88,5 +89,9 @@ class SampleDownload : ComponentActivity() {
     cancelDownload()
     // 取消注册下载回调
     FDownloader.unregisterCallback(_downloadCallback)
+    // 删除下载文件
+    FDownloader.downloadDir {
+      deleteAllDownloadFile(dirname)
+    }
   }
 }
