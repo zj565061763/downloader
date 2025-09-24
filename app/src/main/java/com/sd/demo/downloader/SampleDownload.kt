@@ -8,8 +8,8 @@ import com.sd.lib.downloader.DownloadProgressNotifyStrategy
 import com.sd.lib.downloader.DownloadRequest
 import com.sd.lib.downloader.Downloader
 import com.sd.lib.downloader.FDownloader
-import com.sd.lib.downloader.exception.DownloadException
 import com.sd.lib.downloader.exception.DownloadExceptionCancellation
+import com.sd.lib.downloader.executor.DownloadExecutor
 
 class SampleDownload : ComponentActivity() {
   private val _binding by lazy { SampleDownloadBinding.inflate(layoutInflater) }
@@ -35,11 +35,15 @@ class SampleDownload : ComponentActivity() {
   private fun startDownload() {
     // 构建下载请求
     val request = DownloadRequest.Builder()
-      // true-优先断点下载；false-不使用断点下载；null-跟随初始化配置
+      /** 是否优先使用断点下载，默认跟随[DownloadExecutor]配置 */
       .setPreferBreakpoint(true)
-      // 设置下载进度通知策略
+      /** 连接超时时间（毫秒），默认10秒 */
+      .setConnectTimeout(10_000)
+      /** 下载进度通知策略 */
       .setProgressNotifyStrategy(DownloadProgressNotifyStrategy.WhenProgressIncreased(increased = 1f))
-      // 下载地址
+      /** 下载文件要保存的目录，默认空表示根目录 */
+      .setDirname("apk")
+      /** 下载地址 */
       .build(url)
 
     // 添加下载任务
@@ -75,8 +79,7 @@ class SampleDownload : ComponentActivity() {
       is DownloadInfo.Error -> {
         when (val exception = info.exception) {
           is DownloadExceptionCancellation -> "已取消下载"
-          is DownloadException -> "下载失败:${exception.getDesc(this@SampleDownload)}"
-          else -> "下载失败"
+          else -> "下载失败:${exception.getDesc(this@SampleDownload)}"
         }
       }
       is DownloadInfo.Success -> "下载成功:${info.file}"

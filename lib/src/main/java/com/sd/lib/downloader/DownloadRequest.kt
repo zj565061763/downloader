@@ -1,5 +1,7 @@
 package com.sd.lib.downloader
 
+import com.sd.lib.downloader.executor.DownloadExecutor
+
 class DownloadRequest private constructor(builder: Builder) {
   /** 下载地址 */
   val url: String
@@ -40,12 +42,12 @@ class DownloadRequest private constructor(builder: Builder) {
     internal var dirname: String = ""
       private set
 
-    /** 是否优先使用断点下载 */
+    /** 是否优先使用断点下载，默认跟随[DownloadExecutor]配置 */
     fun setPreferBreakpoint(preferBreakpoint: Boolean) = apply {
       this.preferBreakpoint = preferBreakpoint
     }
 
-    /** 连接超时时间（毫秒） */
+    /** 连接超时时间（毫秒），默认10秒 */
     fun setConnectTimeout(timeout: Long) = apply {
       require(timeout > 0)
       this.connectTimeout = timeout
@@ -56,7 +58,7 @@ class DownloadRequest private constructor(builder: Builder) {
       this.progressNotifyStrategy = strategy
     }
 
-    /** 下载文件要保存的目录 */
+    /** 下载文件要保存的目录，默认空表示初始化设置的下载根目录 */
     fun setDirname(dirname: String) = apply {
       this.dirname = dirname.trim()
     }

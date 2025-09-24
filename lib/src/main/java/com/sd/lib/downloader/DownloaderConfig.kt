@@ -7,7 +7,6 @@ import android.os.Build
 import android.os.Process
 import com.sd.lib.downloader.executor.DownloadExecutor
 import java.io.File
-import kotlin.time.Duration.Companion.seconds
 
 /**
  * 下载器配置
@@ -22,7 +21,7 @@ class DownloaderConfig private constructor(builder: Builder) {
   init {
     this.isDebug = builder.isDebug
     this.downloadDirectory = builder.downloadDirectory ?: builder.context.defaultDownloadDir()
-    this.connectionTimeout = builder.connectTimeout ?: 10.seconds.inWholeMilliseconds
+    this.connectionTimeout = builder.connectTimeout ?: 10_000L
     this.progressNotifyStrategy = builder.progressNotifyStrategy ?: DownloadProgressNotifyStrategy.WhenProgressIncreased(increased = 1f)
     this.downloadExecutor = builder.downloadExecutor ?: DownloadExecutor.getDefault()
   }
@@ -51,12 +50,12 @@ class DownloaderConfig private constructor(builder: Builder) {
       this.isDebug = debug
     }
 
-    /** 下载目录 */
+    /** 下载目录，默认[defaultDownloadDir] */
     fun setDownloadDirectory(directory: File) = apply {
       this.downloadDirectory = directory
     }
 
-    /** 连接超时时间（毫秒） */
+    /** 连接超时时间（毫秒），默认10秒 */
     fun setConnectTimeout(timeout: Long) = apply {
       require(timeout > 0)
       this.connectTimeout = timeout
@@ -105,6 +104,7 @@ sealed interface DownloadProgressNotifyStrategy {
   data class WhenProgressIncreased(val increased: Float) : DownloadProgressNotifyStrategy
 }
 
+/** 默认下载目录 */
 private fun Context.defaultDownloadDir(): File {
   val rootDir = getExternalFilesDir(null) ?: filesDir
   return rootDir.resolve("sd.lib.downloader")
