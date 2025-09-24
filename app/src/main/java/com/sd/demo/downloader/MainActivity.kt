@@ -23,11 +23,10 @@ class MainActivity : ComponentActivity() {
 
   override fun onResume() {
     super.onResume()
-    // 删除所有下载文件（不含临时文件）
-    FDownloader.downloadFiles { files ->
-      var count = 0
-      files.forEach { if (it.deleteRecursively()) count++ }
-      logMsg { "delete files count:$count" }
+    FDownloader.downloadDir {
+      // 删除所有下载文件（不含临时文件）
+      val count = deleteDownloadFiles()
+      logMsg { "deleteDownloadFiles count:$count" }
     }
   }
 }

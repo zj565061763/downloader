@@ -50,8 +50,9 @@ object FDownloader : Downloader {
     return _downloadDir.existOrNullFileForKey(url)
   }
 
-  override fun <T> downloadFiles(block: (List<File>) -> T): T {
-    return _downloadDir.files(block)
+  override fun <T> downloadDir(block: DownloadDirScope.() -> T): T {
+    val scope = DownloadDirScopeImpl(_downloadDir)
+    return scope.block()
   }
 
   @Synchronized
