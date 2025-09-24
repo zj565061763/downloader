@@ -46,8 +46,8 @@ object FDownloader : Downloader {
     }
   }
 
-  override fun getDownloadFile(url: String): File? {
-    return _downloadDir.existOrNullFileForKey(url)
+  override fun getDownloadFile(url: String, dirname: String): File? {
+    return _downloadDir.existOrNullFileForKey(dirname = dirname, key = url)
   }
 
   override fun <T> downloadDir(block: DownloadDirScope.() -> T): T {
@@ -58,10 +58,6 @@ object FDownloader : Downloader {
   @Synchronized
   override fun getDownloadInfo(url: String): AccessibleDownloadInfo? {
     return _mapTask[url]?.task?.info
-  }
-
-  override fun addTask(url: String): Boolean {
-    return addTask(DownloadRequest.Builder().build(url))
   }
 
   @Synchronized
@@ -85,14 +81,14 @@ object FDownloader : Downloader {
       return false
     }
 
-    val tempFile = _downloadDir.tempFileForKey(url)
+    val tempFile = _downloadDir.tempFileForKey(dirname = request.dirname, key = url)
     if (tempFile == null) {
       logMsg { "addTask $url error create temp file failed" }
       notifyError(task, DownloadExceptionCreateTempFile())
       return false
     }
 
-    val downloadFile = _downloadDir.fileForKey(url)
+    val downloadFile = _downloadDir.fileForKey(dirname = request.dirname, key = url)
     if (downloadFile == null) {
       logMsg { "addTask $url error create download file failed" }
       notifyError(task, DownloadExceptionCreateDownloadFile())

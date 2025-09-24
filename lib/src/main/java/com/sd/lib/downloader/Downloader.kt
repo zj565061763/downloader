@@ -10,19 +10,13 @@ interface Downloader {
   fun unregisterCallback(callback: Callback)
 
   /** 获取[url]对应的下载文件，如果文件不存在则返回null */
-  fun getDownloadFile(url: String): File?
+  fun getDownloadFile(url: String, dirname: String = ""): File?
 
   /** 访问下载目录 */
   fun <T> downloadDir(block: DownloadDirScope.() -> T): T
 
   /** 获取[url]对应的下载信息 */
   fun getDownloadInfo(url: String): AccessibleDownloadInfo?
-
-  /**
-   * 添加下载任务
-   * @return true-任务添加成功或者已经添加
-   */
-  fun addTask(url: String): Boolean
 
   /**
    * 添加下载任务

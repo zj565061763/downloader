@@ -5,18 +5,15 @@ import java.security.MessageDigest
 
 internal interface DownloadDir {
   /** [key]对应的临时文件 */
-  fun tempFileForKey(key: String): File?
+  fun tempFileForKey(dirname: String, key: String): File?
 
   /** [key]对应的文件，如果key有扩展名，则使用[key]的扩展名 */
-  fun fileForKey(key: String): File?
+  fun fileForKey(dirname: String, key: String): File?
 
-  fun existOrNullFileForKey(key: String): File?
-
-  /** 删除[key]对应的文件 */
-  fun deleteFileForKey(key: String): Boolean
+  fun existOrNullFileForKey(dirname: String, key: String): File?
 
   /** 访问所有非临时文件 */
-  fun <T> files(block: (List<File>) -> T): T
+  fun <T> files(dirname: String, block: (List<File>) -> T): T
 
   companion object {
     fun get(dir: File): DownloadDir {
@@ -31,40 +28,49 @@ private const val ExtTemp = "temp"
 private class DownloadDirImpl(dir: File) : DownloadDir {
   private val _dir = dir
 
-  override fun tempFileForKey(key: String): File? {
-    return extFileForKey(key = key, ext = ExtTemp) { it }
+  override fun tempFileForKey(dirname: String, key: String): File? {
+    return extFileForKey(
+      dirname = dirname,
+      key = key,
+      ext = ExtTemp,
+    ) { it }
   }
 
-  override fun fileForKey(key: String): File? {
-    return fileForKey(key = key) { it }
+  override fun fileForKey(dirname: String, key: String): File? {
+    return fileForKey(
+      dirname = dirname,
+      key = key,
+    ) { it }
   }
 
-  override fun existOrNullFileForKey(key: String): File? {
-    return fileForKey(key = key, checkExist = true) { it }
+  override fun existOrNullFileForKey(dirname: String, key: String): File? {
+    return fileForKey(
+      dirname = dirname,
+      key = key,
+      checkExist = true,
+    ) { it }
   }
 
-  override fun deleteFileForKey(key: String): Boolean {
-    return fileForKey(key = key, checkExist = true) { it?.deleteRecursively() == true }
-  }
-
-  override fun <T> files(block: (List<File>) -> T): T {
-    return listFiles { files ->
+  override fun <T> files(dirname: String, block: (List<File>) -> T): T {
+    return listFiles(dirname = dirname) { files ->
       block(files.filter { it.extension != ExtTemp })
     }
   }
 
-  private fun <T> listFiles(block: (files: Array<File>) -> T): T {
-    return modify { dir ->
+  private fun <T> listFiles(dirname: String, block: (files: Array<File>) -> T): T {
+    return modify(dirname = dirname) { dir ->
       block(dir?.listFiles() ?: emptyArray())
     }
   }
 
   private inline fun <T> fileForKey(
+    dirname: String,
     key: String,
     checkExist: Boolean = false,
     block: (File?) -> T,
   ): T {
     return extFileForKey(
+      dirname = dirname,
       key = key,
       ext = key.substringAfterLast(".", ""),
       checkExist = checkExist,
@@ -73,21 +79,23 @@ private class DownloadDirImpl(dir: File) : DownloadDir {
   }
 
   private inline fun <T> extFileForKey(
+    dirname: String,
     key: String,
     ext: String,
     checkExist: Boolean = false,
     block: (File?) -> T,
   ): T {
     val dotExt = ext.takeIf { it.isEmpty() || it.startsWith(".") } ?: ".$ext"
-    return modify { dir ->
+    return modify(dirname = dirname) { dir ->
       val keyFile = dir?.resolve(fMd5(key) + dotExt)
       block(if (checkExist) keyFile?.takeIf { it.exists() } else keyFile)
     }
   }
 
-  private inline fun <T> modify(block: (dir: File?) -> T): T {
+  private inline fun <T> modify(dirname: String, block: (dir: File?) -> T): T {
     synchronized(this@DownloadDirImpl) {
-      return block(_dir.takeIf { it.fMakeDirs() })
+      val dir = _dir.takeIf { dirname.isEmpty() } ?: _dir.resolve(dirname)
+      return block(dir.takeIf { it.fMakeDirs() })
     }
   }
 }
