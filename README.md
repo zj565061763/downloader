@@ -28,19 +28,13 @@ interface Downloader {
   fun unregisterCallback(callback: Callback)
 
   /** 获取[url]对应的下载文件，如果文件不存在则返回null */
-  fun getDownloadFile(url: String): File?
+  fun getDownloadFile(url: String, dirname: String = ""): File?
 
   /** 访问下载目录 */
-  fun <T> downloadDir(block: DownloadDirScope.() -> T): T
+  fun <T> downloadDir(block: DownloadDirScope.(dir: File) -> T): T
 
   /** 获取[url]对应的下载信息 */
   fun getDownloadInfo(url: String): AccessibleDownloadInfo?
-
-  /**
-   * 添加下载任务
-   * @return true-任务添加成功或者已经添加
-   */
-  fun addTask(url: String): Boolean
 
   /**
    * 添加下载任务
@@ -97,10 +91,10 @@ sealed interface AccessibleDownloadInfo
 
 ```kotlin
 interface DownloadDirScope {
-  /** 删除所有下载文件（不含临时文件），并返回删除的文件个数 */
-  fun deleteDownloadFiles(): Int
-
-  /** 删除[url]对应的下载文件，并返回本次调用是否删除了文件 */
-  fun deleteDownloadFile(url: String): Boolean
+  /**
+   * 删除指定目录[dirname]下的所有直接子级下载文件（不含临时文件），
+   * 如果[dirname]为空，则为下载根目录
+   */
+  fun deleteAllDownloadFile(dirname: String)
 }
 ```
