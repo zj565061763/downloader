@@ -30,8 +30,8 @@ interface Downloader {
   /** 获取[url]对应的下载文件，如果文件不存在则返回null */
   fun getDownloadFile(url: String): File?
 
-  /** 获取所有下载文件（不含临时文件） */
-  fun <T> downloadFiles(block: (List<File>) -> T): T
+  /** 访问下载目录 */
+  fun <T> downloadDir(block: DownloadDirScope.() -> T): T
 
   /** 获取[url]对应的下载信息 */
   fun getDownloadInfo(url: String): AccessibleDownloadInfo?
