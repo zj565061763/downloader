@@ -12,6 +12,9 @@ internal interface DownloadDir {
 
   fun existOrNullFileForKey(key: String): File?
 
+  /** 删除[key]对应的文件 */
+  fun deleteFileForKey(key: String): Boolean
+
   /** 访问所有非临时文件 */
   fun <T> files(block: (List<File>) -> T): T
 
@@ -29,25 +32,19 @@ private class DownloadDirImpl(dir: File) : DownloadDir {
   private val _dir = dir
 
   override fun tempFileForKey(key: String): File? {
-    return newFileForKey(
-      key = key,
-      ext = ExtTemp,
-    )
+    return extFileForKey(key = key, ext = ExtTemp) { it }
   }
 
   override fun fileForKey(key: String): File? {
-    return newFileForKey(
-      key = key,
-      ext = key.substringAfterLast(".", ""),
-    )
+    return fileForKey(key = key) { it }
   }
 
   override fun existOrNullFileForKey(key: String): File? {
-    return newFileForKey(
-      key = key,
-      ext = key.substringAfterLast(".", ""),
-      checkExist = true,
-    )
+    return fileForKey(key = key, checkExist = true) { it }
+  }
+
+  override fun deleteFileForKey(key: String): Boolean {
+    return fileForKey(key = key) { it?.deleteRecursively() == true }
   }
 
   override fun <T> files(block: (List<File>) -> T): T {
@@ -62,19 +59,33 @@ private class DownloadDirImpl(dir: File) : DownloadDir {
     }
   }
 
-  private fun newFileForKey(
+  private inline fun <T> fileForKey(
+    key: String,
+    checkExist: Boolean = false,
+    block: (File?) -> T,
+  ): T {
+    return extFileForKey(
+      key = key,
+      ext = key.substringAfterLast(".", ""),
+      checkExist = checkExist,
+      block = block,
+    )
+  }
+
+  private inline fun <T> extFileForKey(
     key: String,
     ext: String,
     checkExist: Boolean = false,
-  ): File? {
+    block: (File?) -> T,
+  ): T {
     val dotExt = ext.takeIf { it.isEmpty() || it.startsWith(".") } ?: ".$ext"
     return modify { dir ->
-      val file = dir?.resolve(fMd5(key) + dotExt)
-      if (checkExist) file?.takeIf { it.isFile } else file
+      val keyFile = dir?.resolve(fMd5(key) + dotExt)
+      block(if (checkExist) keyFile?.takeIf { it.isFile } else keyFile)
     }
   }
 
-  private fun <T> modify(block: (dir: File?) -> T): T {
+  private inline fun <T> modify(block: (dir: File?) -> T): T {
     synchronized(this@DownloadDirImpl) {
       return block(_dir.takeIf { it.fMakeDirs() })
     }

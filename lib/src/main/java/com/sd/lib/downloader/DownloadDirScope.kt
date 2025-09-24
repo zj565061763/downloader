@@ -1,8 +1,11 @@
 package com.sd.lib.downloader
 
 interface DownloadDirScope {
-  /** 删除所有下载文件，并返回删除的文件个数 */
+  /** 删除所有下载文件（不含临时文件），并返回删除的文件个数 */
   fun deleteDownloadFiles(): Int
+
+  /** 删除[url]对应的下载文件，并返回本次调用是否删除了文件 */
+  fun deleteDownloadFile(url: String): Boolean
 }
 
 internal class DownloadDirScopeImpl(
@@ -16,5 +19,9 @@ internal class DownloadDirScopeImpl(
       }
       count
     }
+  }
+
+  override fun deleteDownloadFile(url: String): Boolean {
+    return dir.deleteFileForKey(key = url)
   }
 }
