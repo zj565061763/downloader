@@ -51,8 +51,9 @@ object FDownloader : Downloader {
   }
 
   override fun <T> downloadDir(block: DownloadDirScope.() -> T): T {
-    val scope = DownloadDirScopeImpl(_downloadDir)
-    return scope.block()
+    synchronized(_downloadDir) {
+      return DownloadDirScopeImpl(_downloadDir).block()
+    }
   }
 
   @Synchronized
