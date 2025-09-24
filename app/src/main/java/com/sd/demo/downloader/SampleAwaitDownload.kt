@@ -13,7 +13,7 @@ import kotlinx.coroutines.launch
 
 class SampleAwaitDownload : ComponentActivity() {
   private val _binding by lazy { SampleAwaitDownloadBinding.inflate(layoutInflater) }
-  private val url = "https://dldir1v6.qq.com/weixin/android/weixin8063android2920_0x28003f33_arm64.apk"
+  private val _downloadUrl = "https://dldir1v6.qq.com/weixin/Universal/Mac/WeChatMac.dmg"
 
   private var _awaitJob: Job? = null
 
@@ -37,16 +37,14 @@ class SampleAwaitDownload : ComponentActivity() {
     }
   }
 
-  /**
-   * 开始下载
-   */
+  /** 开始下载 */
   private fun startDownload() {
     _awaitJob?.cancel()
     _awaitJob = lifecycleScope.launch {
 
       val request = DownloadRequest.Builder()
         .setPreferBreakpoint(true)
-        .build(url)
+        .build(_downloadUrl)
 
       try {
         FDownloader.addTaskAwait(request)
@@ -62,17 +60,13 @@ class SampleAwaitDownload : ComponentActivity() {
     }
   }
 
-  /**
-   * 取消下载
-   */
+  /** 取消下载 */
   private fun cancelDownload() {
     // 取消下载任务
-    FDownloader.cancelTask(url)
+    FDownloader.cancelTask(_downloadUrl)
   }
 
-  /**
-   * 取消[_awaitJob]，不会取消下载任务
-   */
+  /** 取消[_awaitJob]，不会取消下载任务 */
   private fun cancelJob() {
     _awaitJob?.cancel()
     _awaitJob = null
@@ -81,5 +75,9 @@ class SampleAwaitDownload : ComponentActivity() {
   override fun onDestroy() {
     super.onDestroy()
     cancelDownload()
+    // 删除下载文件
+    FDownloader.downloadDir {
+      deleteAllDownloadFile("")
+    }
   }
 }
