@@ -17,6 +17,28 @@ DownloaderConfig.init(
 )
 ```
 
+# 下载
+
+```kotlin
+private fun startDownload() {
+  // 构建下载请求
+  val request = DownloadRequest.Builder()
+    /** 是否优先使用断点下载，默认跟随[DownloadExecutor]配置 */
+    .setPreferBreakpoint(true)
+    /** 连接超时时间（毫秒），默认10秒 */
+    .setConnectTimeout(10_000)
+    /** 下载进度通知策略，进度每增加1，通知进度回调 */
+    .setProgressNotifyStrategy(DownloadProgressNotifyStrategy.WhenProgressIncreased(increased = 1f))
+    /** 下载文件要保存的目录，默认空表示根目录 */
+    .setDirname(_dirname)
+    /** 下载地址 */
+    .build(_downloadUrl)
+
+  // 添加下载任务
+  FDownloader.addTask(request)
+}
+```
+
 # 接口
 
 ```kotlin
