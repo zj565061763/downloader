@@ -53,7 +53,8 @@ private class DownloadDirImpl(dir: File) : DownloadDir {
 
   override fun <T> files(dirname: String, block: (List<File>) -> T): T {
     return listFiles(dirname = dirname) { files ->
-      block(files.filter { it.extension != ExtTemp })
+      val filterFiles = files.filter { it.extension != ExtTemp && it.isFile }
+      block(filterFiles)
     }
   }
 
