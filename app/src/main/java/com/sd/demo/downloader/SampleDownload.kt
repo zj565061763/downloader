@@ -29,9 +29,7 @@ class SampleDownload : ComponentActivity() {
     FDownloader.registerCallback(_downloadCallback)
   }
 
-  /**
-   * 开始下载
-   */
+  /** 开始下载 */
   private fun startDownload() {
     // 构建下载请求
     val request = DownloadRequest.Builder()
@@ -50,17 +48,13 @@ class SampleDownload : ComponentActivity() {
     FDownloader.addTask(request)
   }
 
-  /**
-   * 取消下载
-   */
+  /** 取消下载 */
   private fun cancelDownload() {
     // 取消下载任务
     FDownloader.cancelTask(url)
   }
 
-  /**
-   * 下载回调
-   */
+  /** 下载回调 */
   private val _downloadCallback = object : Downloader.Callback {
     override fun onDownloadInfo(info: DownloadInfo) {
       updateDownloadInfo(info)
@@ -71,6 +65,7 @@ class SampleDownload : ComponentActivity() {
     }
   }
 
+  /** 更新下载信息 */
   private fun updateDownloadInfo(info: DownloadInfo) {
     when (info) {
       is DownloadInfo.Initialized -> "开始下载"
