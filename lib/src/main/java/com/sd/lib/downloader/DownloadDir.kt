@@ -44,7 +44,7 @@ private class DownloadDirImpl(dir: File) : DownloadDir {
   }
 
   override fun deleteFileForKey(key: String): Boolean {
-    return fileForKey(key = key) { it?.deleteRecursively() == true }
+    return fileForKey(key = key, checkExist = true) { it?.deleteRecursively() == true }
   }
 
   override fun <T> files(block: (List<File>) -> T): T {
@@ -81,7 +81,7 @@ private class DownloadDirImpl(dir: File) : DownloadDir {
     val dotExt = ext.takeIf { it.isEmpty() || it.startsWith(".") } ?: ".$ext"
     return modify { dir ->
       val keyFile = dir?.resolve(fMd5(key) + dotExt)
-      block(if (checkExist) keyFile?.takeIf { it.isFile } else keyFile)
+      block(if (checkExist) keyFile?.takeIf { it.exists() } else keyFile)
     }
   }
 
