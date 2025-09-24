@@ -65,7 +65,7 @@ interface DownloadExecutor {
     @JvmStatic
     fun getDefault(
       /** 是否优先使用断点下载 */
-      preferBreakpoint: Boolean = true,
+      preferBreakpoint: Boolean = false,
       /** 同时下载的任务数量 */
       limitedParallelism: Int = 3,
     ): DownloadExecutor {

@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.lifecycle.lifecycleScope
 import com.sd.demo.downloader.databinding.SampleAwaitDownloadBinding
+import com.sd.lib.downloader.DownloadRequest
 import com.sd.lib.downloader.FDownloader
 import com.sd.lib.downloader.addTaskAwait
 import com.sd.lib.downloader.downloadInfoFlow
@@ -42,8 +43,13 @@ class SampleAwaitDownload : ComponentActivity() {
   private fun startDownload() {
     _awaitJob?.cancel()
     _awaitJob = lifecycleScope.launch {
+
+      val request = DownloadRequest.Builder()
+        .setPreferBreakpoint(true)
+        .build(url)
+
       try {
-        FDownloader.addTaskAwait(url)
+        FDownloader.addTaskAwait(request)
           .onSuccess {
             logMsg { "await onSuccess $it" }
           }.onFailure {
