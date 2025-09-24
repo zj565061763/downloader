@@ -29,7 +29,7 @@ private fun startDownload() {
     .setConnectTimeout(10_000)
     /** 下载进度通知策略，进度每增加1，通知进度回调 */
     .setProgressNotifyStrategy(DownloadProgressNotifyStrategy.WhenProgressIncreased(increased = 1f))
-    /** 下载文件要保存的目录，默认空表示根目录 */
+    /** 下载文件要保存的目录，默认空表示初始化设置的下载根目录 */
     .setDirname(_dirname)
     /** 下载地址 */
     .build(_downloadUrl)
