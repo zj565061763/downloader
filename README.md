@@ -94,3 +94,13 @@ sealed interface DownloadInfo {
 
 sealed interface AccessibleDownloadInfo
 ```
+
+```kotlin
+interface DownloadDirScope {
+  /** 删除所有下载文件（不含临时文件），并返回删除的文件个数 */
+  fun deleteDownloadFiles(): Int
+
+  /** 删除[url]对应的下载文件，并返回本次调用是否删除了文件 */
+  fun deleteDownloadFile(url: String): Boolean
+}
+```
