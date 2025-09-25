@@ -23,6 +23,7 @@ class SampleDownload : ComponentActivity() {
     setContentView(_binding.root)
     _binding.btnStartDownload.setOnClickListener {
       startDownload()
+      logMsg { "hasTask:${_downloader.hasTask(_downloadUrl)}" }
     }
     _binding.btnCancelDownload.setOnClickListener {
       cancelDownload()
@@ -62,7 +63,10 @@ class SampleDownload : ComponentActivity() {
     override fun onDownloadInfo(info: DownloadInfo) {
       updateDownloadInfo(info)
       when (info) {
-        is DownloadInfo.Error -> logMsg { "$info desc:${info.exception.getDesc(this@SampleDownload)}" }
+        is DownloadInfo.Error -> {
+          logMsg { "$info desc:${info.exception.getDesc(this@SampleDownload)}" }
+          logMsg { "hasTask:${_downloader.hasTask(_downloadUrl)}" }
+        }
         else -> logMsg { info.toString() }
       }
     }
