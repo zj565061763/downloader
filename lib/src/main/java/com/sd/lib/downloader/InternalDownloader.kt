@@ -130,8 +130,8 @@ internal object FDownloader : InternalDownloader {
     )
 
     _mapTask[url] = DownloadTaskInfo(task, updater)
-    _downloadDir.addDownloadingTempFile(tempFile)
     logMsg { "addTask $url temp:${tempFile.absolutePath} size:${_mapTask.size}" }
+    _downloadDir.addDownloadingTempFile(tempFile)
 
     if (task.notifyInitialized()) {
       val initializedInfo = DownloadInfo.Initialized(task.url)
@@ -194,8 +194,8 @@ internal object FDownloader : InternalDownloader {
     val taskInfo = _mapTask.remove(url)
     if (taskInfo != null) {
       _cancellingTasks.remove(url)
-      _downloadDir.removeDownloadingTempFile(taskInfo.updater.tempFile)
       logMsg { "removeTask $url size:${_mapTask.size} cancelingSize:${_cancellingTasks.size}" }
+      _downloadDir.removeDownloadingTempFile(taskInfo.updater.tempFile)
     }
   }
 
