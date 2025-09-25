@@ -83,14 +83,25 @@ class SampleDownload : ComponentActivity() {
     }
   }
 
+  private fun deleteFiles() {
+    _downloader.downloadDir {
+      // 删除子目录下的所有临时文件（不含下载中的临时文件），并返回删除的个数
+      deleteAllTempFile().also { count ->
+        logMsg { "deleteAllTempFile count:$count" }
+      }
+
+      // 删除子目录下的所有下载文件（不含临时文件），并返回删除的个数
+      deleteAllDownloadFile().also { count ->
+        logMsg { "deleteAllDownloadFile count:$count" }
+      }
+    }
+  }
+
   override fun onDestroy() {
     super.onDestroy()
-    cancelDownload()
     // 取消注册下载回调
     _downloader.unregisterCallback(_callback)
-    _downloader.downloadDir {
-      // 删除子目录下的所有下载文件（不含临时文件）
-      deleteAllDownloadFile()
-    }
+    cancelDownload()
+    deleteFiles()
   }
 }

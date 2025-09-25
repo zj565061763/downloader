@@ -73,6 +73,9 @@ class SampleAwaitDownload : ComponentActivity() {
   override fun onDestroy() {
     super.onDestroy()
     cancelDownload()
-    _downloader.downloadDir { deleteAllDownloadFile() }
+    _downloader.downloadDir {
+      deleteAllTempFile()
+      deleteAllDownloadFile()
+    }
   }
 }
