@@ -23,7 +23,7 @@ internal interface DownloadDir {
   /** 添加下载中的临时文件 */
   fun addDownloadingTempFile(file: File)
 
-  /** 释放下载中的临时文件 */
+  /** 移除下载中的临时文件 */
   fun removeDownloadingTempFile(file: File)
 
   companion object {
