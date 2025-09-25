@@ -26,7 +26,7 @@ fun Downloader.Companion.downloadInfoFlow(url: String? = null): Flow<DownloadInf
 }
 
 /**
- * 添加下载任务
+ * 添加下载任务，注意：如果当前协程被取消，不会取消下载任务
  */
 suspend fun Downloader.addTaskAwait(
   request: DownloadRequest,
