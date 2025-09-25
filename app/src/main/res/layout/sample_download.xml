@@ -19,6 +19,13 @@
         android:text="cancel download"
         android:textAllCaps="false" />
 
+    <Button
+        android:id="@+id/btn_delete_files"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="delete files"
+        android:textAllCaps="false" />
+
     <TextView
         android:id="@+id/tv_progress"
         android:layout_width="wrap_content"

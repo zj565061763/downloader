@@ -27,6 +27,9 @@ class SampleDownload : ComponentActivity() {
     _binding.btnCancelDownload.setOnClickListener {
       cancelDownload()
     }
+    _binding.btnDeleteFiles.setOnClickListener {
+      deleteFiles()
+    }
 
     // 注册下载回调
     _downloader.registerCallback(_callback)
