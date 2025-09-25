@@ -14,13 +14,13 @@ internal class DownloadDirScopeImpl(
 ) : DownloadDirScope {
   override fun deleteAllDownloadFile() {
     dir.files(dirname = dirname) { files ->
-      files.forEach { it.deleteRecursively() }
+      files.forEach { it.delete() }
     }
   }
 
   override fun deleteAllTempFile() {
     dir.tempFiles(dirname = dirname) { files ->
-      files.forEach { it.deleteRecursively() }
+      files.forEach { it.delete() }
     }
   }
 }

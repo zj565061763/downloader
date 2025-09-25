@@ -270,7 +270,7 @@ private class DefaultDownloadUpdater(
       if (_isCancelling) {
         // 已经发起取消，当作失败处理
         logMsg { "updater notifySuccess $${task.url} error cancelling" }
-        tempFile.deleteRecursively()
+        tempFile.delete()
         FDownloader.notifyError(task, DownloadExceptionCancellation())
         return
       }
