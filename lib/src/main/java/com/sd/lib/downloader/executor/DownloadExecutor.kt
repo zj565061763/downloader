@@ -64,24 +64,18 @@ interface DownloadExecutor {
     @JvmOverloads
     @JvmStatic
     fun getDefault(
-      /** 是否优先使用断点下载 */
-      preferBreakpoint: Boolean = false,
       /** 同时下载的任务数量 */
       limitedParallelism: Int = 3,
     ): DownloadExecutor {
-      return DefaultDownloadExecutor(
-        preferBreakpoint = preferBreakpoint,
-        limitedParallelism = limitedParallelism,
-      )
+      return DefaultDownloadExecutor(limitedParallelism)
     }
   }
 }
 
 private class DefaultDownloadExecutor(
-  preferBreakpoint: Boolean,
+  /** 同时下载的任务数量 */
   limitedParallelism: Int,
 ) : DownloadExecutor {
-  private val _preferBreakpoint = preferBreakpoint
   private val _mapJob: MutableMap<String, Job> = ConcurrentHashMap()
 
   @OptIn(ExperimentalCoroutinesApi::class)
@@ -128,7 +122,7 @@ private class DefaultDownloadExecutor(
     updater: DownloadExecutor.Updater,
   ) {
     val length = file.length()
-    val breakpoint = (request.preferBreakpoint ?: _preferBreakpoint) && length > 0
+    val breakpoint = request.preferBreakpoint && length > 0
 
     if (breakpoint) {
       val httpRequest = newHttpRequest(request).apply {

@@ -7,7 +7,7 @@ class DownloadRequest private constructor(builder: Builder) {
   val url: String
 
   /** 是否需要断点下载 */
-  val preferBreakpoint: Boolean?
+  val preferBreakpoint: Boolean
 
   /** 连接超时时间（毫秒） */
   val connectTimeout: Long
@@ -26,7 +26,7 @@ class DownloadRequest private constructor(builder: Builder) {
     internal lateinit var url: String
       private set
 
-    internal var preferBreakpoint: Boolean? = null
+    internal var preferBreakpoint: Boolean = false
       private set
 
     internal var connectTimeout: Long? = null

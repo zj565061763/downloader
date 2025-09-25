@@ -9,7 +9,6 @@ import com.sd.lib.downloader.DownloadProgressNotifyStrategy
 import com.sd.lib.downloader.DownloadRequest
 import com.sd.lib.downloader.Downloader
 import com.sd.lib.downloader.exception.DownloadExceptionCancellation
-import com.sd.lib.downloader.executor.DownloadExecutor
 
 class SampleDownload : ComponentActivity() {
   private val _binding by lazy { SampleDownloadBinding.inflate(layoutInflater) }
@@ -40,13 +39,13 @@ class SampleDownload : ComponentActivity() {
   private fun startDownload() {
     // 构建下载请求
     val request = DownloadRequest.Builder()
-      /** 是否优先使用断点下载，默认跟随[DownloadExecutor]配置 */
+      // 是否优先使用断点下载，默认false
       .setPreferBreakpoint(true)
-      /** 连接超时时间（毫秒），默认10秒 */
+      // 连接超时时间（毫秒），默认10秒
       .setConnectTimeout(10_000)
-      /** 下载进度通知策略，进度每增加1，通知进度回调 */
+      // 下载进度通知策略，进度每增加1，通知进度回调
       .setProgressNotifyStrategy(DownloadProgressNotifyStrategy.WhenProgressIncreased(increased = 1f))
-      /** 下载地址 */
+      // 下载地址
       .build(_downloadUrl)
 
     // 添加下载任务
