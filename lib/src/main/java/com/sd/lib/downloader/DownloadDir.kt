@@ -95,7 +95,7 @@ private class DownloadDirImpl(dir: File) : DownloadDir {
 
   private inline fun <T> modify(dirname: String, block: (dir: File?) -> T): T {
     synchronized(this@DownloadDirImpl) {
-      val dir = _dir.takeIf { dirname.isEmpty() } ?: _dir.resolve(dirname)
+      val dir = _dir.resolve(dirname)
       return block(dir.takeIf { it.fMakeDirs() })
     }
   }

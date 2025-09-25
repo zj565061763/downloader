@@ -37,3 +37,8 @@ sealed interface DownloadInfo {
 }
 
 sealed interface AccessibleDownloadInfo
+
+fun interface DownloadInfoCallback {
+  /** 主线程回调 */
+  fun onDownloadInfo(info: DownloadInfo)
+}

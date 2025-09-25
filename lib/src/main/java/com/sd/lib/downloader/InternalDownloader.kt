@@ -18,41 +18,67 @@ import java.util.concurrent.CancellationException
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicBoolean
 
-object FDownloader : Downloader {
+internal interface InternalDownloader {
+  /** 注册回调对象，监听所有下载任务 */
+  fun registerCallback(callback: DownloadInfoCallback)
+
+  /** 取消注册 */
+  fun unregisterCallback(callback: DownloadInfoCallback)
+
+  /** 获取[url]对应的下载文件，如果文件不存在则返回null */
+  fun getDownloadFile(dirname: String, url: String): File?
+
+  /** 访问下载目录 */
+  fun <T> downloadDir(block: DownloadDir.() -> T): T
+
+  /** 获取[url]对应的下载信息 */
+  fun getDownloadInfo(url: String): AccessibleDownloadInfo?
+
+  /**
+   * 添加下载任务
+   * @return true-任务添加成功或者已经添加
+   */
+  fun addTask(dirname: String, request: DownloadRequest): Boolean
+
+  /** 取消下载任务 */
+  fun cancelTask(url: String)
+}
+
+internal object FDownloader : InternalDownloader {
   /** 所有任务 */
   private val _mapTask: MutableMap<String, DownloadTaskInfo> = mutableMapOf()
 
   /** 正在取消中的任务 */
   private val _cancellingTasks: MutableSet<String> = mutableSetOf()
   /** 等待中的请求 */
-  private val _pendingRequests: MutableMap<String, DownloadRequest> = mutableMapOf()
+  private val _pendingRequests: MutableMap<String, DownloadRequestInfo> = mutableMapOf()
 
   /** 下载目录 */
   private val _downloadDir: DownloadDir = DownloadDir.get(_config.downloadDirectory)
-  private val _callbacks: MutableSet<Downloader.Callback> = Collections.newSetFromMap(ConcurrentHashMap())
+  private val _callbacks: MutableSet<DownloadInfoCallback> = Collections.newSetFromMap(ConcurrentHashMap())
 
   private val _config get() = DownloaderConfig.get()
   private val _handler = Handler(Looper.getMainLooper())
 
-  override fun registerCallback(callback: Downloader.Callback) {
+  override fun registerCallback(callback: DownloadInfoCallback) {
     if (_callbacks.add(callback)) {
       logMsg { "registerCallback:${callback} size:${_callbacks.size}" }
     }
   }
 
-  override fun unregisterCallback(callback: Downloader.Callback) {
+  override fun unregisterCallback(callback: DownloadInfoCallback) {
     if (_callbacks.remove(callback)) {
       logMsg { "unregisterCallback:${callback} size:${_callbacks.size}" }
     }
   }
 
-  override fun getDownloadFile(url: String, dirname: String): File? {
+  override fun getDownloadFile(dirname: String, url: String): File? {
     return _downloadDir.existOrNullFileForKey(dirname = dirname, key = url)
   }
 
-  override fun <T> downloadDir(block: DownloadDirScope.(dir: File) -> T): T {
+  override fun <T> downloadDir(block: DownloadDir.() -> T): T {
     synchronized(_downloadDir) {
-      return DownloadDirScopeImpl(_downloadDir).block(_config.downloadDirectory)
+      return _downloadDir.block()
     }
   }
 
@@ -62,13 +88,13 @@ object FDownloader : Downloader {
   }
 
   @Synchronized
-  override fun addTask(request: DownloadRequest): Boolean {
+  override fun addTask(dirname: String, request: DownloadRequest): Boolean {
     val url = request.url
 
     if (_mapTask.containsKey(url)) {
       if (_cancellingTasks.contains(url)) {
         // url对应的任务正在取消中，把请求添加到等待列表
-        _pendingRequests[url] = request
+        _pendingRequests[url] = DownloadRequestInfo(request = request, dirname = dirname)
         logMsg { "addTask $url addPendingRequest request:${request} pendingSize:${_pendingRequests.size}" }
       }
       return true
@@ -82,14 +108,14 @@ object FDownloader : Downloader {
       return false
     }
 
-    val tempFile = _downloadDir.tempFileForKey(dirname = request.dirname, key = url)
+    val tempFile = _downloadDir.tempFileForKey(dirname = dirname, key = url)
     if (tempFile == null) {
       logMsg { "addTask $url error create temp file failed" }
       notifyError(task, DownloadExceptionCreateTempFile())
       return false
     }
 
-    val downloadFile = _downloadDir.fileForKey(dirname = request.dirname, key = url)
+    val downloadFile = _downloadDir.fileForKey(dirname = dirname, key = url)
     if (downloadFile == null) {
       logMsg { "addTask $url error create download file failed" }
       notifyError(task, DownloadExceptionCreateDownloadFile())
@@ -155,7 +181,7 @@ object FDownloader : Downloader {
 
   /** 移除等待中的请求 */
   @Synchronized
-  private fun removePendingRequest(url: String): DownloadRequest? {
+  private fun removePendingRequest(url: String): DownloadRequestInfo? {
     return _pendingRequests.remove(url)?.also { request ->
       logMsg { "removePendingRequest $url request:${request} pendingSize:${_pendingRequests.size}" }
     }
@@ -190,8 +216,8 @@ object FDownloader : Downloader {
       removeTask(task.url)
       notifyCallbacks(DownloadInfo.Error(task.url, exception))
       // 检查是否有正在等待中的请求
-      removePendingRequest(task.url)?.also { request ->
-        addTask(request)
+      removePendingRequest(task.url)?.also { requestInfo ->
+        addTask(dirname = requestInfo.dirname, request = requestInfo.request)
       }
     }
   }
@@ -208,6 +234,11 @@ object FDownloader : Downloader {
   private class DownloadTaskInfo(
     val task: DownloadTask,
     val updater: DefaultDownloadUpdater,
+  )
+
+  private class DownloadRequestInfo(
+    val request: DownloadRequest,
+    val dirname: String,
   )
 }
 
@@ -233,8 +264,12 @@ private class DefaultDownloadUpdater(
   }
 
   override fun notifySuccess() {
-    if (_isCancelling) return
     if (_isFinish.compareAndSet(false, true)) {
+      if (_isCancelling) {
+        // TODO 当作失败处理，因为已经发起取消
+        return
+      }
+
       if (!tempFile.exists()) {
         logMsg { "updater notifySuccess $${task.url} error temp file not found" }
         FDownloader.notifyError(task, DownloadExceptionTempFileNotFound())

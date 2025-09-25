@@ -9,18 +9,18 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import java.io.File
 import kotlin.coroutines.resume
 
-fun Downloader.downloadInfoFlow(url: String? = null): Flow<DownloadInfo> {
+fun Downloader.Companion.downloadInfoFlow(url: String? = null): Flow<DownloadInfo> {
   return callbackFlow {
-    val callback = object : Downloader.Callback {
+    val callback = object : DownloadInfoCallback {
       override fun onDownloadInfo(info: DownloadInfo) {
         if (url == null || url == info.url) {
           trySend(info)
         }
       }
     }
-    registerCallback(callback)
+    FDownloader.registerCallback(callback)
     awaitClose {
-      unregisterCallback(callback)
+      FDownloader.unregisterCallback(callback)
     }
   }.buffer(Channel.UNLIMITED)
 }
@@ -29,24 +29,11 @@ fun Downloader.downloadInfoFlow(url: String? = null): Flow<DownloadInfo> {
  * 添加下载任务
  */
 suspend fun Downloader.addTaskAwait(
-  url: String,
-  callback: Downloader.Callback? = null,
-): Result<File> {
-  return addTaskAwait(
-    request = DownloadRequest.Builder().build(url),
-    callback = callback,
-  )
-}
-
-/**
- * 添加下载任务
- */
-suspend fun Downloader.addTaskAwait(
   request: DownloadRequest,
-  callback: Downloader.Callback? = null,
+  callback: DownloadInfoCallback? = null,
 ): Result<File> {
   return suspendCancellableCoroutine { continuation ->
-    val realCallback = object : Downloader.Callback {
+    val realCallback = object : DownloadInfoCallback {
       override fun onDownloadInfo(info: DownloadInfo) {
         if (!continuation.isActive) {
           unregisterCallback(this)

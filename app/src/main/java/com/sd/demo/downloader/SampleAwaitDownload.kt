@@ -5,7 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.lifecycle.lifecycleScope
 import com.sd.demo.downloader.databinding.SampleAwaitDownloadBinding
 import com.sd.lib.downloader.DownloadRequest
-import com.sd.lib.downloader.FDownloader
+import com.sd.lib.downloader.Downloader
 import com.sd.lib.downloader.addTaskAwait
 import com.sd.lib.downloader.downloadInfoFlow
 import kotlinx.coroutines.Job
@@ -15,6 +15,7 @@ class SampleAwaitDownload : ComponentActivity() {
   private val _binding by lazy { SampleAwaitDownloadBinding.inflate(layoutInflater) }
   private val _downloadUrl = "https://dldir1v6.qq.com/weixin/Universal/Mac/WeChatMac.dmg"
 
+  private val _downloader = Downloader.dirname("dmg")
   private var _awaitJob: Job? = null
 
   override fun onCreate(savedInstanceState: Bundle?) {
@@ -31,7 +32,7 @@ class SampleAwaitDownload : ComponentActivity() {
     }
 
     lifecycleScope.launch {
-      FDownloader.downloadInfoFlow().collect { info ->
+      Downloader.downloadInfoFlow().collect { info ->
         logMsg { "collect $info" }
       }
     }
@@ -41,18 +42,16 @@ class SampleAwaitDownload : ComponentActivity() {
   private fun startDownload() {
     _awaitJob?.cancel()
     _awaitJob = lifecycleScope.launch {
-
-      val request = DownloadRequest.Builder()
-        .setPreferBreakpoint(true)
-        .build(_downloadUrl)
-
       try {
-        FDownloader.addTaskAwait(request)
-          .onSuccess {
-            logMsg { "await onSuccess $it" }
-          }.onFailure {
-            logMsg { "await onFailure $it" }
-          }
+        _downloader.addTaskAwait(
+          DownloadRequest.Builder()
+            .setPreferBreakpoint(true)
+            .build(_downloadUrl)
+        ).onSuccess {
+          logMsg { "await onSuccess $it" }
+        }.onFailure {
+          logMsg { "await onFailure $it" }
+        }
       } catch (e: Throwable) {
         logMsg { "await error $e" }
         throw e
@@ -62,8 +61,7 @@ class SampleAwaitDownload : ComponentActivity() {
 
   /** 取消下载 */
   private fun cancelDownload() {
-    // 取消下载任务
-    FDownloader.cancelTask(_downloadUrl)
+    _downloader.cancelTask(_downloadUrl)
   }
 
   /** 取消[_awaitJob]，不会取消下载任务 */
@@ -75,9 +73,6 @@ class SampleAwaitDownload : ComponentActivity() {
   override fun onDestroy() {
     super.onDestroy()
     cancelDownload()
-    // 删除下载文件
-    FDownloader.downloadDir {
-      deleteAllDownloadFile("")
-    }
+    _downloader.downloadDir { deleteAllDownloadFile() }
   }
 }

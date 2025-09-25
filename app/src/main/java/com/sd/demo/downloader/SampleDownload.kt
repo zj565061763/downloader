@@ -4,17 +4,18 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import com.sd.demo.downloader.databinding.SampleDownloadBinding
 import com.sd.lib.downloader.DownloadInfo
+import com.sd.lib.downloader.DownloadInfoCallback
 import com.sd.lib.downloader.DownloadProgressNotifyStrategy
 import com.sd.lib.downloader.DownloadRequest
 import com.sd.lib.downloader.Downloader
-import com.sd.lib.downloader.FDownloader
 import com.sd.lib.downloader.exception.DownloadExceptionCancellation
 import com.sd.lib.downloader.executor.DownloadExecutor
 
 class SampleDownload : ComponentActivity() {
   private val _binding by lazy { SampleDownloadBinding.inflate(layoutInflater) }
   private val _downloadUrl = "https://dldir1v6.qq.com/weixin/android/weixin8063android2920_0x28003f33_arm64.apk"
-  private val _dirname = "apk"
+
+  private val _downloader = Downloader.dirname("apk")
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -27,7 +28,7 @@ class SampleDownload : ComponentActivity() {
     }
 
     // 注册下载回调
-    FDownloader.registerCallback(_downloadCallback)
+    _downloader.registerCallback(_callback)
   }
 
   /** 开始下载 */
@@ -40,23 +41,20 @@ class SampleDownload : ComponentActivity() {
       .setConnectTimeout(10_000)
       /** 下载进度通知策略，进度每增加1，通知进度回调 */
       .setProgressNotifyStrategy(DownloadProgressNotifyStrategy.WhenProgressIncreased(increased = 1f))
-      /** 下载文件要保存的目录，默认空表示初始化设置的下载根目录 */
-      .setDirname(_dirname)
       /** 下载地址 */
       .build(_downloadUrl)
 
     // 添加下载任务
-    FDownloader.addTask(request)
+    _downloader.addTask(request)
   }
 
   /** 取消下载 */
   private fun cancelDownload() {
-    // 取消下载任务
-    FDownloader.cancelTask(_downloadUrl)
+    _downloader.cancelTask(_downloadUrl)
   }
 
   /** 下载回调 */
-  private val _downloadCallback = object : Downloader.Callback {
+  private val _callback = object : DownloadInfoCallback {
     override fun onDownloadInfo(info: DownloadInfo) {
       updateDownloadInfo(info)
       when (info) {
@@ -88,10 +86,10 @@ class SampleDownload : ComponentActivity() {
     super.onDestroy()
     cancelDownload()
     // 取消注册下载回调
-    FDownloader.unregisterCallback(_downloadCallback)
-    // 删除下载文件
-    FDownloader.downloadDir {
-      deleteAllDownloadFile(_dirname)
+    _downloader.unregisterCallback(_callback)
+    _downloader.downloadDir {
+      // 删除子目录下的所有下载文件（不含临时文件）
+      deleteAllDownloadFile()
     }
   }
 }
