@@ -20,11 +20,7 @@ suspend fun Downloader.addTaskAwait(
   return suspendCancellableCoroutine { continuation ->
     val realCallback = object : DownloadInfoCallback {
       override fun onDownloadInfo(info: DownloadInfo) {
-        if (!continuation.isActive) {
-          unregisterCallback(this)
-          return
-        }
-        if (request.url == info.url) {
+        if (request.url == info.url && continuation.isActive) {
           callback?.onDownloadInfo(info)
           when (info) {
             is DownloadInfo.Success -> {
