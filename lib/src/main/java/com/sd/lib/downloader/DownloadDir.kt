@@ -2,6 +2,8 @@ package com.sd.lib.downloader
 
 import java.io.File
 import java.security.MessageDigest
+import java.util.Collections
+import java.util.concurrent.ConcurrentHashMap
 
 internal interface DownloadDir {
   /** [key]对应的临时文件 */
@@ -15,6 +17,15 @@ internal interface DownloadDir {
   /** 访问所有非临时文件 */
   fun <T> files(dirname: String, block: (List<File>) -> T): T
 
+  /** 访问所有临时文件（不包含下载中的临时文件） */
+  fun <T> tempFiles(dirname: String, block: (List<File>) -> T): T
+
+  /** 添加下载中的临时文件 */
+  fun addDownloadingTempFile(file: File)
+
+  /** 释放下载中的临时文件 */
+  fun removeDownloadingTempFile(file: File)
+
   companion object {
     fun get(dir: File): DownloadDir {
       return DownloadDirImpl(dir = dir)
@@ -27,6 +38,7 @@ private const val ExtTemp = "temp"
 
 private class DownloadDirImpl(dir: File) : DownloadDir {
   private val _dir = dir
+  private val _downloadingTempFiles: MutableSet<File> = Collections.newSetFromMap(ConcurrentHashMap())
 
   override fun tempFileForKey(dirname: String, key: String): File? {
     return extFileForKey(
@@ -54,6 +66,24 @@ private class DownloadDirImpl(dir: File) : DownloadDir {
   override fun <T> files(dirname: String, block: (List<File>) -> T): T {
     return listFiles(dirname = dirname) { files ->
       block(files.filter { it.extension != ExtTemp })
+    }
+  }
+
+  override fun <T> tempFiles(dirname: String, block: (List<File>) -> T): T {
+    return listFiles(dirname = dirname) { files ->
+      block(files.filter { it.extension == ExtTemp && !_downloadingTempFiles.contains(it) })
+    }
+  }
+
+  override fun addDownloadingTempFile(file: File) {
+    if (_downloadingTempFiles.add(file)) {
+      logMsg { "addDownloadingTempFile size:${_downloadingTempFiles.size}" }
+    }
+  }
+
+  override fun removeDownloadingTempFile(file: File) {
+    if (_downloadingTempFiles.remove(file)) {
+      logMsg { "removeDownloadingTempFile size:${_downloadingTempFiles.size}" }
     }
   }
 
