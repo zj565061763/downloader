@@ -53,8 +53,7 @@ private class DownloadDirImpl(dir: File) : DownloadDir {
 
   override fun <T> files(dirname: String, block: (List<File>) -> T): T {
     return listFiles(dirname = dirname) { files ->
-      val filterFiles = files.filter { it.extension != ExtTemp && it.isFile }
-      block(filterFiles)
+      block(files.filter { it.extension != ExtTemp })
     }
   }
 
@@ -95,8 +94,7 @@ private class DownloadDirImpl(dir: File) : DownloadDir {
 
   private inline fun <T> modify(dirname: String, block: (dir: File?) -> T): T {
     synchronized(this@DownloadDirImpl) {
-      val dir = _dir.resolve(dirname)
-      return block(dir.takeIf { it.fMakeDirs() })
+      return block(_dir.resolve(dirname).takeIf { it.fMakeDirs() })
     }
   }
 }

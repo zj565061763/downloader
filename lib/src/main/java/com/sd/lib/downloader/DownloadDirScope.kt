@@ -11,7 +11,7 @@ internal class DownloadDirScopeImpl(
 ) : DownloadDirScope {
   override fun deleteAllDownloadFile() {
     return dir.files(dirname = dirname) { files ->
-      files.forEach { it.delete() }
+      files.forEach { it.deleteRecursively() }
     }
   }
 }
