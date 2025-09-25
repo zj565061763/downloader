@@ -131,6 +131,7 @@ internal object FDownloader : InternalDownloader {
     }
 
     val updater = DefaultDownloadUpdater(
+      request = request,
       task = task,
       tempFile = tempFile,
       downloadFile = downloadFile,
@@ -153,6 +154,7 @@ internal object FDownloader : InternalDownloader {
     } catch (e: Throwable) {
       check(e !is DownloadException)
       logMsg { "addTask $url submit error $e" }
+      tempFile.delete()
       notifyError(task, DownloadExceptionSubmitTask(e))
       false
     }
@@ -253,6 +255,7 @@ internal object FDownloader : InternalDownloader {
 }
 
 private class DefaultDownloadUpdater(
+  private val request: DownloadRequest,
   private val task: DownloadTask,
   val tempFile: File,
   private val downloadFile: File,
@@ -299,6 +302,7 @@ private class DefaultDownloadUpdater(
         FDownloader.notifySuccess(task, downloadFile)
       } else {
         logMsg { "updater notifySuccess ${task.url} error rename temp file to download file" }
+        onErrorDeleteTempFileIfNotBreakpoint()
         FDownloader.notifyError(task, DownloadExceptionRenameFile())
       }
     }
@@ -307,11 +311,19 @@ private class DefaultDownloadUpdater(
   override fun notifyError(e: Throwable) {
     if (_isFinish.compareAndSet(false, true)) {
       logMsg { "updater notifyError ${task.url} $e" }
+      onErrorDeleteTempFileIfNotBreakpoint()
       if (e is CancellationException) {
         FDownloader.notifyError(task, DownloadExceptionCancellation())
       } else {
         FDownloader.notifyError(task, DownloadException.wrap(e))
       }
+    }
+  }
+
+  /** 下载失败时，如果不是断点下载，则删除临时文件 */
+  private fun onErrorDeleteTempFileIfNotBreakpoint() {
+    if (!request.preferBreakpoint) {
+      tempFile.delete()
     }
   }
 }
