@@ -34,6 +34,9 @@ internal interface InternalDownloader {
   /** 获取[url]对应的下载信息 */
   fun getDownloadInfo(url: String): AccessibleDownloadInfo?
 
+  /** 是否有[url]对应的下载任务 */
+  fun hasTask(url: String): Boolean
+
   /**
    * 添加下载任务
    * @return true-任务添加成功或者已经添加
@@ -85,6 +88,11 @@ internal object FDownloader : InternalDownloader {
   @Synchronized
   override fun getDownloadInfo(url: String): AccessibleDownloadInfo? {
     return _mapTask[url]?.task?.info
+  }
+
+  @Synchronized
+  override fun hasTask(url: String): Boolean {
+    return _mapTask.containsKey(url)
   }
 
   @Synchronized

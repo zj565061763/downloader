@@ -18,6 +18,9 @@ interface Downloader {
   /** 获取[url]对应的下载信息 */
   fun getDownloadInfo(url: String): AccessibleDownloadInfo?
 
+  /** 是否有[url]对应的下载任务 */
+  fun hasTask(url: String): Boolean
+
   /**
    * 添加下载任务
    * @return true-任务添加成功或者已经添加
@@ -67,6 +70,10 @@ private class DownloaderImpl(
 
   override fun getDownloadInfo(url: String): AccessibleDownloadInfo? {
     return FDownloader.getDownloadInfo(url)
+  }
+
+  override fun hasTask(url: String): Boolean {
+    return FDownloader.hasTask(url)
   }
 
   override fun addTask(request: DownloadRequest): Boolean {
