@@ -73,6 +73,7 @@ class SampleDownload : ComponentActivity() {
     when (info) {
       is DownloadInfo.Initialized -> "开始下载"
       is DownloadInfo.Progress -> "${info.progress.toInt()}%"
+      is DownloadInfo.Success -> "下载成功:${info.file}"
       is DownloadInfo.Cancelling -> "取消中..."
       is DownloadInfo.Error -> {
         when (val exception = info.exception) {
@@ -80,7 +81,6 @@ class SampleDownload : ComponentActivity() {
           else -> "下载失败:${exception.getDesc(this@SampleDownload)}"
         }
       }
-      is DownloadInfo.Success -> "下载成功:${info.file}"
     }.also { text ->
       _binding.tvProgress.text = text
     }
