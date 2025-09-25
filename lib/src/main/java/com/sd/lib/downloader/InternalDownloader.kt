@@ -323,7 +323,9 @@ private class DefaultDownloadUpdater(
   /** 下载失败时，如果不是断点下载，则删除临时文件 */
   private fun onErrorDeleteTempFileIfNotBreakpoint() {
     if (!request.preferBreakpoint) {
-      tempFile.delete()
+      tempFile.delete().also { delete ->
+        logMsg { "updater onErrorDeleteTempFileIfNotBreakpoint delete:$delete ${task.url}" }
+      }
     }
   }
 }
