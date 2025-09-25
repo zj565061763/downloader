@@ -39,6 +39,11 @@ interface Downloader {
   }
 }
 
+fun interface DownloadInfoCallback {
+  /** 主线程回调 */
+  fun onDownloadInfo(info: DownloadInfo)
+}
+
 private class DownloaderImpl(
   private val dirname: String,
 ) : Downloader {
