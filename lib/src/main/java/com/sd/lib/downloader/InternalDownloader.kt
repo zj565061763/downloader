@@ -266,7 +266,9 @@ private class DefaultDownloadUpdater(
   override fun notifySuccess() {
     if (_isFinish.compareAndSet(false, true)) {
       if (_isCancelling) {
-        // TODO 当作失败处理，因为已经发起取消
+        // 已经发起取消，当作失败处理
+        tempFile.deleteRecursively()
+        FDownloader.notifyError(task, DownloadExceptionCancellation())
         return
       }
 
