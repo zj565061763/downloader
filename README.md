@@ -76,6 +76,9 @@ interface Downloader {
   /** 获取[url]对应的下载信息 */
   fun getDownloadInfo(url: String): AccessibleDownloadInfo?
 
+  /** 是否有[url]对应的下载任务 */
+  fun hasTask(url: String): Boolean
+
   /**
    * 添加下载任务
    * @return true-任务添加成功或者已经添加
