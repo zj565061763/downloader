@@ -15,6 +15,7 @@ class SampleDownload : ComponentActivity() {
   private val _binding by lazy { SampleDownloadBinding.inflate(layoutInflater) }
   private val _downloadUrl = "https://dldir1v6.qq.com/weixin/android/weixin8063android2920_0x28003f33_arm64.apk"
 
+  /** 获取子目录下载器 */
   private val _downloader = Downloader.dirname("apk")
 
   override fun onCreate(savedInstanceState: Bundle?) {
@@ -48,7 +49,7 @@ class SampleDownload : ComponentActivity() {
     _downloader.addTask(request)
   }
 
-  /** 取消下载 */
+  /** 取消下载任务 */
   private fun cancelDownload() {
     _downloader.cancelTask(_downloadUrl)
   }

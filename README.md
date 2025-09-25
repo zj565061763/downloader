@@ -20,6 +20,23 @@ DownloaderConfig.init(
 # 下载
 
 ```kotlin
+/** 获取子目录下载器 */
+private val _downloader = Downloader.dirname("apk")
+
+/** 下载回调 */
+private val _callback = object : DownloadInfoCallback {
+  override fun onDownloadInfo(info: DownloadInfo) {
+    // 下载信息回调
+  }
+}
+
+// 注册下载回调
+_downloader.registerCallback(_callback)
+
+// 取消注册下载回调
+_downloader.unregisterCallback(_callback)
+
+/** 开始下载 */
 private fun startDownload() {
   // 构建下载请求
   val request = DownloadRequest.Builder()
@@ -29,13 +46,14 @@ private fun startDownload() {
     .setConnectTimeout(10_000)
     /** 下载进度通知策略，进度每增加1，通知进度回调 */
     .setProgressNotifyStrategy(DownloadProgressNotifyStrategy.WhenProgressIncreased(increased = 1f))
-    /** 下载文件要保存的目录，默认空表示初始化设置的下载根目录 */
-    .setDirname(_dirname)
     /** 下载地址 */
     .build(_downloadUrl)
 
   // 添加下载任务
-  FDownloader.addTask(request)
+  _downloader.addTask(request)
+
+  // 取消下载任务
+  _downloader.cancelTask(_downloadUrl)
 }
 ```
 
@@ -44,16 +62,16 @@ private fun startDownload() {
 ```kotlin
 interface Downloader {
   /** 注册回调对象，监听所有下载任务 */
-  fun registerCallback(callback: Callback)
+  fun registerCallback(callback: DownloadInfoCallback)
 
   /** 取消注册 */
-  fun unregisterCallback(callback: Callback)
+  fun unregisterCallback(callback: DownloadInfoCallback)
 
   /** 获取[url]对应的下载文件，如果文件不存在则返回null */
-  fun getDownloadFile(url: String, dirname: String = ""): File?
+  fun getDownloadFile(url: String): File?
 
   /** 访问下载目录 */
-  fun <T> downloadDir(block: DownloadDirScope.(dir: File) -> T): T
+  fun <T> downloadDir(block: DownloadDirScope.() -> T): T
 
   /** 获取[url]对应的下载信息 */
   fun getDownloadInfo(url: String): AccessibleDownloadInfo?
@@ -67,9 +85,15 @@ interface Downloader {
   /** 取消下载任务 */
   fun cancelTask(url: String)
 
-  interface Callback {
-    /** 主线程回调 */
-    fun onDownloadInfo(info: DownloadInfo)
+  companion object {
+    /**
+     * 获取子目录名称为[name]的下载器，
+     * 如果[name]为空，则默认子目录为:default
+     */
+    @JvmStatic
+    fun dirname(name: String): Downloader {
+      return DownloaderImpl(dirname = name.ifEmpty { "default" })
+    }
   }
 }
 ```
@@ -113,10 +137,7 @@ sealed interface AccessibleDownloadInfo
 
 ```kotlin
 interface DownloadDirScope {
-  /**
-   * 删除指定目录[dirname]下的所有直接子级下载文件（不含临时文件），
-   * 如果[dirname]为空，则为下载根目录
-   */
-  fun deleteAllDownloadFile(dirname: String)
+  /** 删除子目录下的所有下载文件（不含临时文件） */
+  fun deleteAllDownloadFile()
 }
 ```
