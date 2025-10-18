@@ -148,5 +148,16 @@ interface DownloadDirScope {
 
   /** 不删除[url]对应的下载文件，其他逻辑同[deleteAllDownloadFile] */
   fun deleteAllDownloadFileExcept(url: String): Int
+
+  /** 根据文件名称[name]获取下载文件，如果文件不存在则返回null */
+  fun getDownloadFileByName(name: String): File?
+
+  /**
+   * 把[file]移动到下载目录并返回移动后的文件，如果文件已存在则覆盖，
+   * 移动后的文件名为[name]，如果[name]为空则使用[file]的文件名。
+   *
+   * 注意：如果[file]或者[name]的扩展名为temp，则返回null
+   */
+  fun takeFile(file: File, name: String): File?
 }
 ```
