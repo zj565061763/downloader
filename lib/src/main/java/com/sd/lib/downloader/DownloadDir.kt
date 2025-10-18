@@ -14,6 +14,10 @@ internal interface DownloadDir {
 
   fun existOrNullFileForKey(dirname: String, key: String): File?
 
+  fun existOrNullFileForName(dirname: String, name: String): File?
+
+  fun takeFile(dirname: String, file: File): File?
+
   /** 访问所有非临时文件 */
   fun <T> files(dirname: String, block: (List<File>) -> T): T
 
@@ -61,6 +65,23 @@ private class DownloadDirImpl(dir: File) : DownloadDir {
       key = key,
       checkExist = true,
     ) { it }
+  }
+
+  override fun existOrNullFileForName(dirname: String, name: String): File? {
+    if (name.isEmpty()) return null
+    return modify(dirname = dirname) { dir ->
+      dir?.resolve(name)?.takeIf { it.exists() }
+    }
+  }
+
+  override fun takeFile(dirname: String, file: File): File? {
+    if (!file.exists()) return null
+    if (file.extension == ExtTemp) return null
+    return modify(dirname = dirname) { dir ->
+      dir?.resolve(file.name)
+        ?.also { it.deleteRecursively() }
+        ?.takeIf { file.renameTo(it) }
+    }
   }
 
   override fun <T> files(dirname: String, block: (List<File>) -> T): T {

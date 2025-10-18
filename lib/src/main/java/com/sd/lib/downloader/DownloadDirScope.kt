@@ -11,6 +11,12 @@ interface DownloadDirScope {
 
   /** 不删除[url]对应的下载文件，其他逻辑同[deleteAllDownloadFile] */
   fun deleteAllDownloadFileExcept(url: String): Int
+
+  /** 根据文件名称[name]获取下载文件 */
+  fun getDownloadFileByName(name: String): File?
+
+  /** 把[file]移动到下载目录并返回移动后的文件，如果文件已存在则覆盖 */
+  fun takeFile(file: File): File?
 }
 
 internal class DownloadDirScopeImpl(
@@ -34,6 +40,14 @@ internal class DownloadDirScopeImpl(
   override fun deleteAllDownloadFileExcept(url: String): Int {
     val exceptFile = dir.fileForKey(dirname = dirname, key = url)
     return deleteAllDownloadFile { it != exceptFile }
+  }
+
+  override fun getDownloadFileByName(name: String): File? {
+    return dir.existOrNullFileForName(dirname = dirname, name = name)
+  }
+
+  override fun takeFile(file: File): File? {
+    return dir.takeFile(dirname = dirname, file = file)
   }
 
   private fun deleteAllDownloadFile(block: (File) -> Boolean): Int {
