@@ -6,24 +6,17 @@
     android:orientation="vertical">
 
     <Button
-        android:id="@+id/btn_sample_download"
+        android:id="@+id/btn_start_download"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="SampleDownload"
+        android:text="start download"
         android:textAllCaps="false" />
 
     <Button
-        android:id="@+id/btn_sample_await_download"
+        android:id="@+id/btn_cancel_download"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="SampleAwaitDownload"
-        android:textAllCaps="false" />
-
-    <Button
-        android:id="@+id/btn_sample_take_file"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="SampleTakeFile"
+        android:text="cancel download"
         android:textAllCaps="false" />
 
 </LinearLayout>

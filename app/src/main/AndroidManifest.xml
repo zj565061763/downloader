@@ -27,6 +27,7 @@
 
         <activity android:name=".SampleDownload" />
         <activity android:name=".SampleAwaitDownload" />
+        <activity android:name=".SampleTakeFile" />
 
     </application>
 

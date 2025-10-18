@@ -18,6 +18,9 @@ class MainActivity : ComponentActivity() {
     _binding.btnSampleAwaitDownload.setOnClickListener {
       startActivity(Intent(this, SampleAwaitDownload::class.java))
     }
+    _binding.btnSampleTakeFile.setOnClickListener {
+      startActivity(Intent(this, SampleTakeFile::class.java))
+    }
   }
 }
 
