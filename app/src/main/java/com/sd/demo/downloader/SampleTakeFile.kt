@@ -31,7 +31,7 @@ class SampleTakeFile : ComponentActivity() {
 
     lifecycleScope.launch {
       Downloader.downloadInfoFlow().collect { info ->
-        logMsg { "collect $info" }
+        logMsg { info.toString() }
       }
     }
 
