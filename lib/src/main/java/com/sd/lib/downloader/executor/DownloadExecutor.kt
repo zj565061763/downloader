@@ -176,13 +176,12 @@ private class DefaultDownloadExecutor(
     httpRequest.stream().use { input ->
       file.outputStream().use { output ->
         input.copyToOutput(
-          output = { buffer, offset, length ->
-            output.write(buffer, offset, length)
-          },
-          callback = { count ->
-            updater.notifyProgress(total, count)
-          },
+          output = { buffer, offset, length -> output.write(buffer, offset, length) },
+          callback = { count -> updater.notifyProgress(total, count) },
         )
+        output.flush()
+        runCatching { output.fd.sync() }
+          .onFailure { logMsg { "output.fd.sync() onFailure:${it.stackTraceToString()}" } }
       }
     }
   }
@@ -194,7 +193,7 @@ private class DefaultDownloadExecutor(
     updater: DownloadExecutor.Updater,
   ) {
     val length = file.length()
-    val randomAccessFile = RandomAccessFile(file, "rwd").apply {
+    val randomAccessFile = RandomAccessFile(file, "rw").apply {
       this.seek(length)
     }
 
@@ -202,13 +201,11 @@ private class DefaultDownloadExecutor(
     httpRequest.stream().use { input ->
       randomAccessFile.use { output ->
         input.copyToOutput(
-          output = { buffer, offset, length ->
-            output.write(buffer, offset, length)
-          },
-          callback = { count ->
-            updater.notifyProgress(total, count + length)
-          },
+          output = { buffer, offset, length -> output.write(buffer, offset, length) },
+          callback = { count -> updater.notifyProgress(total, count + length) },
         )
+        runCatching { output.fd.sync() }
+          .onFailure { logMsg { "output.fd.sync() onFailure:${it.stackTraceToString()}" } }
       }
     }
   }
